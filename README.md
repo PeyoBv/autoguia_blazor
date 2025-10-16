@@ -9,15 +9,16 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 ### ✅ Implementadas
 - **Página de Inicio (Landing Page)** - Presenta la propuesta de valor de AutoGuía
 - **Mapa de Talleres** - Lista y búsqueda de talleres mecánicos con información detallada
+- **Mapa Interactivo** - Integración con Google Maps Platform para visualización de talleres
 - **Foro Comunitario** - Publicaciones, respuestas y sistema de categorías
 - **Autenticación de Usuarios** - Sistema de registro e inicio de sesión con .NET Identity
 - **Arquitectura Modular** - Separación de responsabilidades con proyectos Core, Infrastructure y Web
 
 ### 🚧 Próximas Funcionalidades
-- API de mapas real para geolocalización de talleres
 - Catálogo de repuestos
-- Sistema de calificaciones y reseñas
+- Sistema de calificaciones y reseñas completo
 - Panel de administración
+- Aplicación móvil
 - Aplicación móvil
 
 ## Arquitectura Técnica
@@ -91,12 +92,20 @@ AutoGuía/
    dotnet build AutoGuia.sln
    ```
 
-4. **Ejecutar la aplicación**
+4. **Configurar Google Maps API** (opcional pero recomendado)
+   ```bash
+   # Configurar clave de API usando el administrador de secretos
+   cd AutoGuia.Web/AutoGuia.Web
+   dotnet user-secrets set "GoogleMaps:ApiKey" "TU_CLAVE_DE_GOOGLE_MAPS"
+   ```
+   > Ver `GOOGLE_MAPS_SETUP.md` para instrucciones detalladas de configuración
+
+5. **Ejecutar la aplicación**
    ```bash
    dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
    ```
 
-5. **Acceder a la aplicación**
+6. **Acceder a la aplicación**
    - Abrir navegador en `https://localhost:7xxx` o `http://localhost:5xxx`
 
 ### Usando VS Code
@@ -119,7 +128,12 @@ AutoGuía/
 - Búsqueda por ciudad y filtros por región
 - Indicadores de talleres verificados
 - Sistema de calificaciones con estrellas
-- Placeholder para mapa interactivo
+- **Mapa interactivo con Google Maps Platform**
+- **Marcadores diferenciados** (verificados vs no verificados)
+- **InfoWindows** con información completa del taller
+- **Filtros dinámicos** que actualizan marcadores en tiempo real
+- **Botón "Ver en Mapa"** que centra el mapa en el taller seleccionado
+- **Integración con Google Maps** para navegación (cómo llegar)
 
 ### 💬 Foro Comunitario
 - Creación de publicaciones con categorías

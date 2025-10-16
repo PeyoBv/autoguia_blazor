@@ -1,6 +1,12 @@
 @page "/talleres"
 @rendermode InteractiveServer
 @inject ITallerService TallerService
+@inject IMapService MapService
+@inject IJSRuntime JSRuntime
+@inject IOptions<GoogleMapsOptions> GoogleMapsConfig
+@using Microsoft.Extensions.Options
+@using AutoGuia.Core.Services
+@using AutoGuia.Web.Configuration
 
 <PageTitle>Talleres - AutoGuía</PageTitle>
 
@@ -128,14 +134,31 @@
                                 Mapa de Talleres
                             </h6>
                         </div>
-                        <div class="card-body text-center" style="height: 400px;">
-                            <div class="d-flex align-items-center justify-content-center h-100 bg-light rounded">
-                                <div class="text-muted">
-                                    <i class="fas fa-map fa-3x mb-3 d-block"></i>
-                                    <p class="mb-0">Mapa interactivo</p>
-                                    <small>(Próximamente con API de mapas)</small>
+                        <div class="card-body p-0">
+                            @if (mapaInicializado)
+                            {
+                                <div @ref="mapElement" style="height: 400px; width: 100%;"></div>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center" style="height: 400px;">
+                                    <div class="text-center">
+                                        @if (errorMapa)
+                                        {
+                                            <div class="text-danger">
+                                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                                <p class="mb-0">Error al cargar el mapa</p>
+                                                <small>@mensajeError</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="spinner-border text-primary" role="status"></div>
+                                            <p class="mt-2 mb-0">Cargando mapa...</p>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
                     
@@ -191,16 +214,32 @@
     private IEnumerable<TallerDto>? talleres;
     private IEnumerable<TallerDto>? talleresMostrados;
     private bool cargando = true;
+    private bool mapaInicializado = false;
+    private bool errorMapa = false;
+    private string mensajeError = "";
     
     private string filtrociu = "";
     private string filtroRegion = "";
     private bool soloVerificados = false;
     
     private List<string> regiones = new();
+    private ElementReference mapElement;
 
     protected override async Task OnInitializedAsync()
     {
         await CargarTalleres();
+        
+        // Configurar callback para Blazor desde JavaScript
+        await JSRuntime.InvokeVoidAsync("eval", 
+            "window.blazorInterop = { verDetallesTaller: (id) => DotNet.invokeMethodAsync('AutoGuia.Web', 'VerDetallesTallerDesdeJS', id) };");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && talleres?.Any() == true)
+        {
+            await InicializarMapa();
+        }
     }
 
     private async Task CargarTalleres()
@@ -224,13 +263,56 @@
         }
     }
 
-    private void FiltrarPorCiudad(ChangeEventArgs e)
+    private async Task InicializarMapa()
     {
-        filtrociu = e.Value?.ToString() ?? "";
-        AplicarFiltros();
+        try
+        {
+            errorMapa = false;
+            mensajeError = "";
+            
+            var apiKey = GoogleMapsConfig.Value.ApiKey;
+            if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE")
+            {
+                throw new InvalidOperationException("Clave de API de Google Maps no configurada. Por favor, configura tu clave de API en el administrador de secretos.");
+            }
+
+            // Convertir DTOs a entidades para el servicio de mapa
+            var talleresEntidades = talleresMostrados?.Select(dto => new Taller
+            {
+                Id = dto.Id,
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                Direccion = dto.Direccion,
+                Ciudad = dto.Ciudad,
+                Region = dto.Region,
+                Telefono = dto.Telefono,
+                Email = dto.Email,
+                Latitud = dto.Latitud,
+                Longitud = dto.Longitud,
+                EsVerificado = dto.EsVerificado,
+                CalificacionPromedio = (decimal)(dto.CalificacionPromedio ?? 0)
+            }) ?? Enumerable.Empty<Taller>();
+
+            await MapService.InicializarMapaAsync(mapElement, talleresEntidades, apiKey);
+            mapaInicializado = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMapa = true;
+            mensajeError = ex.Message;
+            Console.WriteLine($"Error inicializando mapa: {ex.Message}");
+            StateHasChanged();
+        }
     }
 
-    private void AplicarFiltros()
+    private async void FiltrarPorCiudad(ChangeEventArgs e)
+    {
+        filtrociu = e.Value?.ToString() ?? "";
+        await AplicarFiltros();
+    }
+
+    private async Task AplicarFiltros()
     {
         if (talleres == null) return;
 
@@ -241,26 +323,95 @@
         );
         
         StateHasChanged();
+        
+        // Actualizar marcadores en el mapa si está inicializado
+        if (mapaInicializado)
+        {
+            await ActualizarMarcadoresMapa();
+        }
     }
 
-    private void LimpiarFiltros()
+    private async Task ActualizarMarcadoresMapa()
+    {
+        try
+        {
+            // Limpiar marcadores existentes
+            await MapService.LimpiarMarcadoresAsync();
+            
+            // Agregar nuevos marcadores
+            if (talleresMostrados?.Any() == true)
+            {
+                var talleresEntidades = talleresMostrados.Select(dto => new Taller
+                {
+                    Id = dto.Id,
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    Direccion = dto.Direccion,
+                    Ciudad = dto.Ciudad,
+                    Region = dto.Region,
+                    Telefono = dto.Telefono,
+                    Email = dto.Email,
+                    Latitud = dto.Latitud,
+                    Longitud = dto.Longitud,
+                    EsVerificado = dto.EsVerificado,
+                    CalificacionPromedio = (decimal)(dto.CalificacionPromedio ?? 0)
+                });
+
+                foreach (var taller in talleresEntidades)
+                {
+                    await MapService.AgregarMarcadorAsync(taller);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error actualizando marcadores: {ex.Message}");
+        }
+    }
+
+    private async Task LimpiarFiltros()
     {
         filtrociu = "";
         filtroRegion = "";
         soloVerificados = false;
         talleresMostrados = talleres;
         StateHasChanged();
+        
+        if (mapaInicializado)
+        {
+            await ActualizarMarcadoresMapa();
+        }
     }
 
-    private void VerEnMapa(TallerDto taller)
+    private async Task VerEnMapa(TallerDto taller)
     {
-        // TODO: Implementar funcionalidad de mapa
-        Console.WriteLine($"Mostrar en mapa: {taller.Nombre} en {taller.Latitud}, {taller.Longitud}");
+        try
+        {
+            if (mapaInicializado && taller.Latitud.HasValue && taller.Longitud.HasValue)
+            {
+                await MapService.CentrarMapaAsync(taller.Latitud.Value, taller.Longitud.Value, 15);
+            }
+            else
+            {
+                Console.WriteLine($"Mapa no inicializado o coordenadas inválidas. Taller: {taller.Nombre}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error mostrando taller en mapa: {ex.Message}");
+        }
     }
 
     private void VerDetalles(int tallerId)
     {
         // TODO: Navegar a página de detalles del taller
         Console.WriteLine($"Ver detalles del taller ID: {tallerId}");
+    }
+
+    [JSInvokable("VerDetallesTallerDesdeJS")]
+    public static void VerDetallesTallerDesdeJS(int tallerId)
+    {
+        Console.WriteLine($"Ver detalles del taller desde JS: {tallerId}");
+        // TODO: Implementar navegación o modal de detalles
     }
 }

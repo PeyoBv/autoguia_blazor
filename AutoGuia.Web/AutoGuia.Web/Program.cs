@@ -5,8 +5,10 @@ using AutoGuia.Web.Client.Pages;
 using AutoGuia.Web.Components;
 using AutoGuia.Web.Components.Account;
 using AutoGuia.Web.Data;
+using AutoGuia.Web.Configuration;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
+using AutoGuia.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,9 +37,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
     options.UseInMemoryDatabase("AutoGuiaDb"));
 
+// Configurar Google Maps
+builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));
+
 // Registrar servicios de AutoGuía
 builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
+builder.Services.AddScoped<IMapService, GoogleMapService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
