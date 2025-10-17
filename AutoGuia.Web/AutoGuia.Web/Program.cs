@@ -8,7 +8,6 @@ using AutoGuia.Web.Data;
 using AutoGuia.Web.Configuration;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
-using AutoGuia.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

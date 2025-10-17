@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using AutoGuia.Core.Entities;
-using AutoGuia.Core.Services;
 using AutoGuia.Core.DTOs;
 
 namespace AutoGuia.Infrastructure.Services
