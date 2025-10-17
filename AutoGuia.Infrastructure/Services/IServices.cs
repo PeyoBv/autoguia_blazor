@@ -8,6 +8,12 @@ namespace AutoGuia.Infrastructure.Services
         Task<IEnumerable<TallerDto>> ObtenerTalleresAsync();
         Task<IEnumerable<TallerDto>> BuscarTalleresPorCiudadAsync(string ciudad);
         Task<TallerDto?> ObtenerTallerPorIdAsync(int id);
+        
+        // Operaciones CRUD para administración
+        Task<int> CrearTallerAsync(CrearTallerDto taller);
+        Task<bool> ActualizarTallerAsync(int id, ActualizarTallerDto taller);
+        Task<bool> EliminarTallerAsync(int id);
+        Task<bool> CambiarEstadoVerificacionAsync(int id, bool esVerificado);
     }
 
     public interface IForoService
@@ -64,5 +70,46 @@ namespace AutoGuia.Infrastructure.Services
         /// </summary>
         /// <returns>Task que representa la operación asíncrona</returns>
         Task LimpiarMarcadoresAsync();
+    }
+
+    /// <summary>
+    /// Servicio para la gestión del catálogo de repuestos
+    /// </summary>
+    public interface IRepuestoService
+    {
+        /// <summary>
+        /// Obtiene todas las categorías de repuestos
+        /// </summary>
+        Task<IEnumerable<CategoriaRepuestoDto>> ObtenerCategoriasAsync();
+
+        /// <summary>
+        /// Obtiene repuestos con filtros opcionales
+        /// </summary>
+        Task<IEnumerable<RepuestoDto>> ObtenerRepuestosAsync(FiltroRepuestosDto? filtros = null);
+
+        /// <summary>
+        /// Busca repuestos por término de búsqueda
+        /// </summary>
+        Task<IEnumerable<RepuestoDto>> BuscarRepuestosAsync(string terminoBusqueda);
+
+        /// <summary>
+        /// Obtiene repuestos por categoría
+        /// </summary>
+        Task<IEnumerable<RepuestoDto>> ObtenerRepuestosPorCategoriaAsync(int categoriaId);
+
+        /// <summary>
+        /// Obtiene un repuesto por su ID
+        /// </summary>
+        Task<RepuestoDto?> ObtenerRepuestoPorIdAsync(int id);
+
+        /// <summary>
+        /// Obtiene las marcas disponibles
+        /// </summary>
+        Task<IEnumerable<string>> ObtenerMarcasAsync();
+
+        /// <summary>
+        /// Crea un nuevo repuesto
+        /// </summary>
+        Task<int> CrearRepuestoAsync(CrearRepuestoDto repuesto);
     }
 }

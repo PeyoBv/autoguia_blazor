@@ -1,0 +1,380 @@
+@page "/catalogo-repuestos"
+@rendermode InteractiveServer
+@inject IRepuestoService RepuestoService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Catálogo de Repuestos - AutoGuía</PageTitle>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">
+                    <i class="fas fa-cogs me-2"></i>
+                    Catálogo de Repuestos
+                </h1>
+                <span class="badge bg-primary fs-6">@repuestosMostrados.Count() repuestos encontrados</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de búsqueda -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-search me-2"></i>
+                        Filtros de Búsqueda
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Buscar repuesto</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" 
+                                       placeholder="Nombre, marca, número de parte..." 
+                                       @bind="filtros.TerminoBusqueda" 
+                                       @oninput="BuscarRepuestos">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" @bind="filtros.CategoriaId" @bind:after="AplicarFiltros">
+                                <option value="">Todas las categorías</option>
+                                @foreach (var categoria in categorias)
+                                {
+                                    <option value="@categoria.Id">
+                                        @categoria.Nombre (@categoria.TotalRepuestos)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Marca</label>
+                            <select class="form-select" @bind="filtros.Marca" @bind:after="AplicarFiltros">
+                                <option value="">Todas las marcas</option>
+                                @foreach (var marca in marcas)
+                                {
+                                    <option value="@marca">@marca</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Precio mínimo</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" 
+                                       placeholder="0" 
+                                       @bind="filtros.PrecioMinimo" 
+                                       @bind:after="AplicarFiltros">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Precio máximo</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" 
+                                       placeholder="999999" 
+                                       @bind="filtros.PrecioMaximo" 
+                                       @bind:after="AplicarFiltros">
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       @bind="filtros.SoloDisponibles" 
+                                       @bind:after="AplicarFiltros" 
+                                       id="soloDisponibles">
+                                <label class="form-check-label" for="soloDisponibles">
+                                    Solo disponibles
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" @onclick="LimpiarFiltros">
+                                <i class="fas fa-times me-1"></i>
+                                Limpiar filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-tags me-2"></i>
+                        Categorías Populares
+                    </h6>
+                    <div class="row g-2">
+                        @foreach (var categoria in categorias.Take(6))
+                        {
+                            <div class="col-6">
+                                <button class="btn btn-outline-primary btn-sm w-100" 
+                                        @onclick="() => FiltrarPorCategoria(categoria.Id)">
+                                    @categoria.Nombre
+                                    <span class="badge bg-secondary ms-1">@categoria.TotalRepuestos</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando repuestos...</span>
+            </div>
+            <p class="mt-2">Cargando catálogo de repuestos...</p>
+        </div>
+    }
+    else if (repuestosMostrados?.Any() == true)
+    {
+        <!-- Resultados -->
+        <div class="row g-4">
+            @foreach (var repuesto in repuestosMostrados)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0 repuesto-card">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge bg-primary">@repuesto.NombreCategoria</span>
+                                @if (repuesto.EsDisponible)
+                                {
+                                    <span class="badge bg-success ms-1">Disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning ms-1">No disponible</span>
+                                }
+                            </div>
+                            @if (repuesto.PrecioEstimado.HasValue)
+                            {
+                                <div class="text-end">
+                                    <div class="fw-bold text-success fs-5">
+                                        $@repuesto.PrecioEstimado.Value.ToString("N0")
+                                    </div>
+                                    <small class="text-muted">Precio estimado</small>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate" title="@repuesto.Nombre">
+                                @repuesto.Nombre
+                            </h5>
+                            
+                            @if (!string.IsNullOrEmpty(repuesto.Descripcion))
+                            {
+                                <p class="card-text text-muted small mb-2">
+                                    @(repuesto.Descripcion.Length > 100 ? 
+                                      repuesto.Descripcion.Substring(0, 100) + "..." : 
+                                      repuesto.Descripcion)
+                                </p>
+                            }
+
+                            <div class="row g-2 small">
+                                @if (!string.IsNullOrEmpty(repuesto.NumeroDeParte))
+                                {
+                                    <div class="col-12">
+                                        <strong>Parte:</strong> @repuesto.NumeroDeParte
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(repuesto.Marca))
+                                {
+                                    <div class="col-6">
+                                        <strong>Marca:</strong> @repuesto.Marca
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(repuesto.Modelo))
+                                {
+                                    <div class="col-6">
+                                        <strong>Modelo:</strong> @repuesto.Modelo
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(repuesto.Anio))
+                                {
+                                    <div class="col-6">
+                                        <strong>Año:</strong> @repuesto.Anio
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    @repuesto.FechaCreacion.ToString("dd/MM/yyyy")
+                                </small>
+                                <div>
+                                    <a href="/repuesto/@repuesto.Id" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Paginación simple -->
+        @if (repuestosMostrados.Count() >= filtros.TamanoPagina)
+        {
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary" @onclick="CargarMasRepuestos" disabled="@cargandoMas">
+                        @if (cargandoMas)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        <i class="fas fa-plus me-1"></i>
+                        Cargar más repuestos
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-search fa-3x text-muted"></i>
+            </div>
+            <h4 class="text-muted">No se encontraron repuestos</h4>
+            <p class="text-muted">
+                Intenta modificar los filtros de búsqueda o explora nuestras categorías populares.
+            </p>
+            <button class="btn btn-primary" @onclick="LimpiarFiltros">
+                <i class="fas fa-refresh me-1"></i>
+                Mostrar todos los repuestos
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .repuesto-card {
+        transition: transform 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    
+    .repuesto-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+</style>
+
+@code {
+    private bool cargando = true;
+    private bool cargandoMas = false;
+    private IEnumerable<RepuestoDto> repuestosMostrados = new List<RepuestoDto>();
+    private IEnumerable<CategoriaRepuestoDto> categorias = new List<CategoriaRepuestoDto>();
+    private IEnumerable<string> marcas = new List<string>();
+    private FiltroRepuestosDto filtros = new() { SoloDisponibles = true };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatosIniciales();
+    }
+
+    private async Task CargarDatosIniciales()
+    {
+        try
+        {
+            cargando = true;
+            StateHasChanged();
+
+            // Cargar datos en paralelo para mejor rendimiento
+            var tareaRepuestos = RepuestoService.ObtenerRepuestosAsync(filtros);
+            var tareaCategorias = RepuestoService.ObtenerCategoriasAsync();
+            var tareaMarcas = RepuestoService.ObtenerMarcasAsync();
+
+            await Task.WhenAll(tareaRepuestos, tareaCategorias, tareaMarcas);
+
+            repuestosMostrados = await tareaRepuestos;
+            categorias = await tareaCategorias;
+            marcas = await tareaMarcas;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos: {ex.Message}");
+            // Aquí podrías mostrar un mensaje de error al usuario
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AplicarFiltros()
+    {
+        try
+        {
+            filtros.Pagina = 1; // Resetear a la primera página
+            repuestosMostrados = await RepuestoService.ObtenerRepuestosAsync(filtros);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error aplicando filtros: {ex.Message}");
+        }
+    }
+
+    private async Task BuscarRepuestos(ChangeEventArgs e)
+    {
+        filtros.TerminoBusqueda = e.Value?.ToString();
+        await AplicarFiltros();
+    }
+
+    private async Task FiltrarPorCategoria(int categoriaId)
+    {
+        filtros.CategoriaId = categoriaId;
+        await AplicarFiltros();
+    }
+
+    private async Task LimpiarFiltros()
+    {
+        filtros = new FiltroRepuestosDto { SoloDisponibles = true };
+        await AplicarFiltros();
+    }
+
+    private async Task CargarMasRepuestos()
+    {
+        try
+        {
+            cargandoMas = true;
+            StateHasChanged();
+
+            filtros.Pagina++;
+            var nuevosRepuestos = await RepuestoService.ObtenerRepuestosAsync(filtros);
+            
+            if (nuevosRepuestos.Any())
+            {
+                repuestosMostrados = repuestosMostrados.Concat(nuevosRepuestos);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando más repuestos: {ex.Message}");
+        }
+        finally
+        {
+            cargandoMas = false;
+            StateHasChanged();
+        }
+    }
+}

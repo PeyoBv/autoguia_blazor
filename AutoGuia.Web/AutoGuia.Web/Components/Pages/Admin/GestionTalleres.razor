@@ -1,0 +1,593 @@
+@page "/admin/gestion-talleres"
+@rendermode InteractiveServer
+@inject ITallerService TallerService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@using AutoGuia.Core.DTOs
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Administración</li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestión de Talleres</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2">
+                        <i class="fas fa-tools me-2 text-primary"></i>
+                        Gestión de Talleres
+                    </h1>
+                    <p class="text-muted mb-0">Administra los talleres registrados en la plataforma</p>
+                </div>
+                <button class="btn btn-success" @onclick="MostrarModalCrear">
+                    <i class="fas fa-plus me-2"></i>
+                    Nuevo Taller
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando talleres...</span>
+            </div>
+            <p class="mt-2">Cargando información de talleres...</p>
+        </div>
+    }
+    else
+    {
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">@talleres.Count()</h4>
+                                <small>Total Talleres</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-store fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">@talleres.Count(t => t.EsVerificado)</h4>
+                                <small>Verificados</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="mb-0">@talleres.Count(t => !t.EsVerificado)</h4>
+                                <small>Pendientes</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                @{
+                                    var talleresConCalificacion = talleres.Where(t => t.CalificacionPromedio.HasValue);
+                                    var promedio = talleresConCalificacion.Any() ? talleresConCalificacion.Average(t => t.CalificacionPromedio!.Value) : 0;
+                                }
+                                <h4 class="mb-0">@promedio.ToString("F1")</h4>
+                                <small>Calificación Promedio</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-star fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Buscar por nombre, ciudad o región..." @bind="filtroTexto" @bind:after="AplicarFiltros">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" @bind="filtroVerificado" @bind:after="AplicarFiltros">
+                    <option value="">Todos los estados</option>
+                    <option value="true">Solo verificados</option>
+                    <option value="false">Solo pendientes</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary w-100" @onclick="LimpiarFiltros">
+                    <i class="fas fa-times me-1"></i>
+                    Limpiar filtros
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de talleres -->
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Lista de Talleres (@talleresFiltrados.Count() de @talleres.Count())
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                @if (talleresFiltrados.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Ubicación</th>
+                                    <th>Teléfono</th>
+                                    <th>Estado</th>
+                                    <th>Calificación</th>
+                                    <th>Reseñas</th>
+                                    <th class="text-end">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var taller in talleresFiltrados)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0 text-truncate" style="max-width: 200px;" title="@taller.Nombre">
+                                                        @taller.Nombre
+                                                    </h6>
+                                                    @if (!string.IsNullOrEmpty(taller.Especialidades))
+                                                    {
+                                                        <small class="text-muted">@taller.Especialidades</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div class="fw-medium">@taller.Ciudad</div>
+                                                <small class="text-muted">@taller.Region</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(taller.Telefono))
+                                            {
+                                                <span class="font-monospace">@taller.Telefono</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (taller.EsVerificado)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Verificado
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Pendiente
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (taller.CalificacionPromedio.HasValue)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <span class="text-warning me-1">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            <i class="fas fa-star@(i <= taller.CalificacionPromedio ? "" : " text-muted opacity-25")"></i>
+                                                        }
+                                                    </span>
+                                                    <span class="small">@taller.CalificacionPromedio.Value.ToString("0.0")</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Sin calificaciones</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">@taller.TotalResenas</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-primary btn-sm" @onclick="() => MostrarModalEditar(taller)" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-info btn-sm" @onclick="() => VerDetalleTaller(taller.Id)" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => ConfirmarEliminar(taller)" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No se encontraron talleres</h5>
+                        <p class="text-muted">No hay talleres que coincidan con los filtros aplicados.</p>
+                        <button class="btn btn-primary" @onclick="LimpiarFiltros">
+                            <i class="fas fa-refresh me-1"></i>
+                            Mostrar todos
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal para crear/editar taller -->
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @if (tallerEditar?.Id == 0)
+                        {
+                            <text><i class="fas fa-plus me-2"></i>Nuevo Taller</text>
+                        }
+                        else
+                        {
+                            <text><i class="fas fa-edit me-2"></i>Editar Taller</text>
+                        }
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <form @onsubmit="GuardarTaller" @onsubmit:preventDefault="true">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nombre del Taller *</label>
+                                <input type="text" class="form-control" @bind="tallerEditar.Nombre" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" @bind="tallerEditar.Telefono">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" rows="3" @bind="tallerEditar.Descripcion"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Dirección *</label>
+                                <input type="text" class="form-control" @bind="tallerEditar.Direccion" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ciudad *</label>
+                                <input type="text" class="form-control" @bind="tallerEditar.Ciudad" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Región *</label>
+                                <select class="form-select" @bind="tallerEditar.Region" required>
+                                    <option value="">Seleccionar región...</option>
+                                    <option value="Región de Arica y Parinacota">Región de Arica y Parinacota</option>
+                                    <option value="Región de Tarapacá">Región de Tarapacá</option>
+                                    <option value="Región de Antofagasta">Región de Antofagasta</option>
+                                    <option value="Región de Atacama">Región de Atacama</option>
+                                    <option value="Región de Coquimbo">Región de Coquimbo</option>
+                                    <option value="Región de Valparaíso">Región de Valparaíso</option>
+                                    <option value="Región Metropolitana">Región Metropolitana</option>
+                                    <option value="Región del Libertador General Bernardo O'Higgins">Región del Libertador General Bernardo O'Higgins</option>
+                                    <option value="Región del Maule">Región del Maule</option>
+                                    <option value="Región de Ñuble">Región de Ñuble</option>
+                                    <option value="Región del Biobío">Región del Biobío</option>
+                                    <option value="Región de la Araucanía">Región de la Araucanía</option>
+                                    <option value="Región de Los Ríos">Región de Los Ríos</option>
+                                    <option value="Región de Los Lagos">Región de Los Lagos</option>
+                                    <option value="Región Aysén del General Carlos Ibáñez del Campo">Región Aysén del General Carlos Ibáñez del Campo</option>
+                                    <option value="Región de Magallanes y de la Antártica Chilena">Región de Magallanes y de la Antártica Chilena</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" @bind="tallerEditar.Email">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Horario de Atención</label>
+                                <input type="text" class="form-control" @bind="tallerEditar.HorarioAtencion" placeholder="Ej: Lunes a Viernes 8:00-18:00">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Especialidades</label>
+                                <input type="text" class="form-control" @bind="tallerEditar.Especialidades" placeholder="Ej: Frenos, Suspensión, Motor (separados por comas)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Latitud (opcional)</label>
+                                <input type="number" step="any" class="form-control" @bind="tallerEditar.Latitud">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Longitud (opcional)</label>
+                                <input type="number" step="any" class="form-control" @bind="tallerEditar.Longitud">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" @bind="tallerEditar.EsVerificado" id="esVerificado">
+                                    <label class="form-check-label" for="esVerificado">
+                                        Taller verificado
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" disabled="@guardando">
+                            @if (guardando)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="fas fa-save me-1"></i>
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool cargando = true;
+    private bool mostrarModal = false;
+    private bool guardando = false;
+    private IEnumerable<TallerDto> talleres = new List<TallerDto>();
+    private IEnumerable<TallerDto> talleresFiltrados = new List<TallerDto>();
+    private TallerDto tallerEditar = new();
+    private string filtroTexto = "";
+    private string filtroVerificado = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTalleres();
+    }
+
+    private async Task CargarTalleres()
+    {
+        try
+        {
+            cargando = true;
+            StateHasChanged();
+
+            talleres = await TallerService.ObtenerTalleresAsync();
+            talleresFiltrados = talleres;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando talleres: {ex.Message}");
+            // Aquí podrías mostrar un mensaje de error al usuario
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void AplicarFiltros()
+    {
+        talleresFiltrados = talleres;
+
+        if (!string.IsNullOrEmpty(filtroTexto))
+        {
+            var filtro = filtroTexto.ToLower();
+            talleresFiltrados = talleresFiltrados.Where(t =>
+                t.Nombre.ToLower().Contains(filtro) ||
+                t.Ciudad.ToLower().Contains(filtro) ||
+                t.Region.ToLower().Contains(filtro) ||
+                (t.Descripcion?.ToLower().Contains(filtro) ?? false));
+        }
+
+        if (!string.IsNullOrEmpty(filtroVerificado))
+        {
+            var esVerificado = bool.Parse(filtroVerificado);
+            talleresFiltrados = talleresFiltrados.Where(t => t.EsVerificado == esVerificado);
+        }
+
+        StateHasChanged();
+    }
+
+    private void LimpiarFiltros()
+    {
+        filtroTexto = "";
+        filtroVerificado = "";
+        talleresFiltrados = talleres;
+        StateHasChanged();
+    }
+
+    private void MostrarModalCrear()
+    {
+        tallerEditar = new TallerDto { Id = 0 };
+        mostrarModal = true;
+    }
+
+    private void MostrarModalEditar(TallerDto taller)
+    {
+        tallerEditar = new TallerDto
+        {
+            Id = taller.Id,
+            Nombre = taller.Nombre,
+            Descripcion = taller.Descripcion,
+            Direccion = taller.Direccion,
+            Ciudad = taller.Ciudad,
+            Region = taller.Region,
+            Telefono = taller.Telefono,
+            Email = taller.Email,
+            HorarioAtencion = taller.HorarioAtencion,
+            Especialidades = taller.Especialidades,
+            Latitud = taller.Latitud,
+            Longitud = taller.Longitud,
+            EsVerificado = taller.EsVerificado
+        };
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+        tallerEditar = new TallerDto();
+    }
+
+    private async Task GuardarTaller()
+    {
+        try
+        {
+            guardando = true;
+            StateHasChanged();
+
+            if (tallerEditar.Id == 0)
+            {
+                // Crear nuevo taller
+                var crearDto = new CrearTallerDto
+                {
+                    Nombre = tallerEditar.Nombre,
+                    Descripcion = tallerEditar.Descripcion,
+                    Direccion = tallerEditar.Direccion,
+                    Ciudad = tallerEditar.Ciudad,
+                    Region = tallerEditar.Region,
+                    Telefono = tallerEditar.Telefono,
+                    Email = tallerEditar.Email,
+                    Latitud = tallerEditar.Latitud,
+                    Longitud = tallerEditar.Longitud,
+                    HorarioAtencion = tallerEditar.HorarioAtencion,
+                    Especialidades = tallerEditar.Especialidades,
+                    EsVerificado = tallerEditar.EsVerificado
+                };
+
+                var nuevoId = await TallerService.CrearTallerAsync(crearDto);
+                await JSRuntime.InvokeVoidAsync("alert", $"Taller creado exitosamente con ID: {nuevoId}");
+            }
+            else
+            {
+                // Actualizar taller existente
+                var actualizarDto = new ActualizarTallerDto
+                {
+                    Nombre = tallerEditar.Nombre,
+                    Descripcion = tallerEditar.Descripcion,
+                    Direccion = tallerEditar.Direccion,
+                    Ciudad = tallerEditar.Ciudad,
+                    Region = tallerEditar.Region,
+                    Telefono = tallerEditar.Telefono,
+                    Email = tallerEditar.Email,
+                    Latitud = tallerEditar.Latitud,
+                    Longitud = tallerEditar.Longitud,
+                    HorarioAtencion = tallerEditar.HorarioAtencion,
+                    Especialidades = tallerEditar.Especialidades,
+                    EsVerificado = tallerEditar.EsVerificado
+                };
+
+                var actualizado = await TallerService.ActualizarTallerAsync(tallerEditar.Id, actualizarDto);
+                if (actualizado)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Taller actualizado exitosamente");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error: No se pudo actualizar el taller");
+                    return;
+                }
+            }
+            
+            // Recargar la lista
+            await CargarTalleres();
+            CerrarModal();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error guardando taller: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Error guardando taller: {ex.Message}");
+        }
+        finally
+        {
+            guardando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmarEliminar(TallerDto taller)
+    {
+        var confirmado = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"¿Está seguro de que desea eliminar el taller '{taller.Nombre}'?\n\nEsta acción marcará el taller como inactivo y no se podrá deshacer.");
+
+        if (confirmado)
+        {
+            try
+            {
+                var eliminado = await TallerService.EliminarTallerAsync(taller.Id);
+                
+                if (eliminado)
+                {
+                    await CargarTalleres();
+                    await JSRuntime.InvokeVoidAsync("alert", "Taller eliminado exitosamente");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error: No se pudo eliminar el taller");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando taller: {ex.Message}");
+                await JSRuntime.InvokeVoidAsync("alert", $"Error eliminando taller: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task VerDetalleTaller(int tallerId)
+    {
+        // Por ahora, mostraremos un alert con el ID del taller
+        // En el futuro se puede navegar a una página de detalle
+        await JSRuntime.InvokeVoidAsync("alert", $"Ver detalle del taller ID: {tallerId}");
+    }
+}

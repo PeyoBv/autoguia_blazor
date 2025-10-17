@@ -91,5 +91,104 @@ namespace AutoGuia.Infrastructure.Services
                 EsVerificado = taller.EsVerificado
             };
         }
+
+        /// <summary>
+        /// Crea un nuevo taller en la base de datos
+        /// </summary>
+        /// <param name="tallerDto">Datos del taller a crear</param>
+        /// <returns>ID del taller creado</returns>
+        public async Task<int> CrearTallerAsync(CrearTallerDto tallerDto)
+        {
+            var taller = new Taller
+            {
+                Nombre = tallerDto.Nombre,
+                Descripcion = tallerDto.Descripcion,
+                Direccion = tallerDto.Direccion,
+                Ciudad = tallerDto.Ciudad,
+                Region = tallerDto.Region,
+                Telefono = tallerDto.Telefono,
+                Email = tallerDto.Email,
+                Latitud = tallerDto.Latitud,
+                Longitud = tallerDto.Longitud,
+                HorarioAtencion = tallerDto.HorarioAtencion,
+                Especialidades = tallerDto.Especialidades,
+                EsVerificado = tallerDto.EsVerificado,
+                EsActivo = true,
+                FechaRegistro = DateTime.UtcNow
+            };
+
+            _context.Talleres.Add(taller);
+            await _context.SaveChangesAsync();
+            
+            return taller.Id;
+        }
+
+        /// <summary>
+        /// Actualiza un taller existente
+        /// </summary>
+        /// <param name="id">ID del taller a actualizar</param>
+        /// <param name="tallerDto">Datos actualizados del taller</param>
+        /// <returns>True si se actualizó correctamente, False si no se encontró el taller</returns>
+        public async Task<bool> ActualizarTallerAsync(int id, ActualizarTallerDto tallerDto)
+        {
+            var taller = await _context.Talleres
+                .FirstOrDefaultAsync(t => t.Id == id && t.EsActivo);
+
+            if (taller == null)
+                return false;
+
+            taller.Nombre = tallerDto.Nombre;
+            taller.Descripcion = tallerDto.Descripcion;
+            taller.Direccion = tallerDto.Direccion;
+            taller.Ciudad = tallerDto.Ciudad;
+            taller.Region = tallerDto.Region;
+            taller.Telefono = tallerDto.Telefono;
+            taller.Email = tallerDto.Email;
+            taller.Latitud = tallerDto.Latitud;
+            taller.Longitud = tallerDto.Longitud;
+            taller.HorarioAtencion = tallerDto.HorarioAtencion;
+            taller.Especialidades = tallerDto.Especialidades;
+            taller.EsVerificado = tallerDto.EsVerificado;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Elimina un taller de forma lógica (marca como inactivo)
+        /// </summary>
+        /// <param name="id">ID del taller a eliminar</param>
+        /// <returns>True si se eliminó correctamente, False si no se encontró el taller</returns>
+        public async Task<bool> EliminarTallerAsync(int id)
+        {
+            var taller = await _context.Talleres
+                .FirstOrDefaultAsync(t => t.Id == id && t.EsActivo);
+
+            if (taller == null)
+                return false;
+
+            taller.EsActivo = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Cambia el estado de verificación de un taller
+        /// </summary>
+        /// <param name="id">ID del taller</param>
+        /// <param name="esVerificado">Nuevo estado de verificación</param>
+        /// <returns>True si se actualizó correctamente, False si no se encontró el taller</returns>
+        public async Task<bool> CambiarEstadoVerificacionAsync(int id, bool esVerificado)
+        {
+            var taller = await _context.Talleres
+                .FirstOrDefaultAsync(t => t.Id == id && t.EsActivo);
+
+            if (taller == null)
+                return false;
+
+            taller.EsVerificado = esVerificado;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

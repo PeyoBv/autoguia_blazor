@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using AutoGuia.Web.Client.Pages;
 using AutoGuia.Web.Components;
 using AutoGuia.Web.Components.Account;
@@ -44,13 +45,18 @@ builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
 builder.Services.AddScoped<IResenaService, ResenaService>();
+builder.Services.AddScoped<IRepuestoService, RepuestoService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() // Habilitar roles
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+// Agregar RoleManager para gestión de roles
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
@@ -88,6 +94,61 @@ using (var scope = app.Services.CreateScope())
 {
     var autoGuiaContext = scope.ServiceProvider.GetRequiredService<AutoGuiaDbContext>();
     autoGuiaContext.Database.EnsureCreated();
+    
+    // Inicializar roles y usuario administrador
+    await InicializarRolesYAdminAsync(scope.ServiceProvider);
 }
 
 app.Run();
+
+/// <summary>
+/// Inicializa los roles del sistema y crea el usuario administrador inicial
+/// </summary>
+static async Task InicializarRolesYAdminAsync(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    
+    // Crear rol Admin si no existe
+    const string adminRole = "Admin";
+    if (!await roleManager.RoleExistsAsync(adminRole))
+    {
+        await roleManager.CreateAsync(new IdentityRole(adminRole));
+    }
+    
+    // Crear usuario administrador si no existe
+    const string adminEmail = "admin@autoguia.cl";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    
+    if (adminUser == null)
+    {
+        adminUser = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true // Para que pueda iniciar sesión sin confirmación
+        };
+        
+        const string adminPassword = "Admin123!"; // En producción, usar variables de entorno
+        var result = await userManager.CreateAsync(adminUser, adminPassword);
+        
+        if (result.Succeeded)
+        {
+            // Asignar rol Admin al usuario
+            await userManager.AddToRoleAsync(adminUser, adminRole);
+            Console.WriteLine($"Usuario administrador creado: {adminEmail} / {adminPassword}");
+        }
+        else
+        {
+            Console.WriteLine($"Error creando usuario administrador: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    else
+    {
+        // Asegurar que el usuario existente tenga el rol Admin
+        if (!await userManager.IsInRoleAsync(adminUser, adminRole))
+        {
+            await userManager.AddToRoleAsync(adminUser, adminRole);
+        }
+    }
+}

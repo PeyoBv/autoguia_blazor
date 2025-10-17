@@ -16,6 +16,8 @@ namespace AutoGuia.Infrastructure.Data
         public DbSet<Resena> Resenas { get; set; }
         public DbSet<PublicacionForo> PublicacionesForo { get; set; }
         public DbSet<RespuestaForo> RespuestasForo { get; set; }
+        public DbSet<CategoriaRepuesto> CategoriasRepuesto { get; set; }
+        public DbSet<Repuesto> Repuestos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -95,6 +97,27 @@ namespace AutoGuia.Infrastructure.Data
             modelBuilder.Entity<Resena>()
                 .HasIndex(r => new { r.TallerId, r.UsuarioId })
                 .IsUnique(); // Un usuario solo puede reseñar un taller una vez
+
+            // Configuración para entidades de repuestos
+            modelBuilder.Entity<Repuesto>()
+                .HasOne(r => r.CategoriaRepuesto)
+                .WithMany(c => c.Repuestos)
+                .HasForeignKey(r => r.CategoriaRepuestoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Índices para mejor rendimiento en repuestos
+            modelBuilder.Entity<Repuesto>()
+                .HasIndex(r => r.NumeroDeParte);
+
+            modelBuilder.Entity<Repuesto>()
+                .HasIndex(r => r.CategoriaRepuestoId);
+
+            modelBuilder.Entity<Repuesto>()
+                .HasIndex(r => new { r.Nombre, r.Marca });
+
+            modelBuilder.Entity<CategoriaRepuesto>()
+                .HasIndex(c => c.Nombre)
+                .IsUnique();
 
             // Datos semilla para el MVP
             SeedData(modelBuilder);
@@ -350,6 +373,168 @@ namespace AutoGuia.Infrastructure.Data
                     TallerId = 6, // TallerPro La Serena
                     UsuarioId = "user8@example.com",
                     NombreUsuario = "Fernando Díaz"
+                }
+            );
+
+            // Categorías de repuestos de ejemplo
+            modelBuilder.Entity<CategoriaRepuesto>().HasData(
+                new CategoriaRepuesto
+                {
+                    Id = 1,
+                    Nombre = "Frenos",
+                    Descripcion = "Pastillas, discos, tambores y componentes del sistema de frenado",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                },
+                new CategoriaRepuesto
+                {
+                    Id = 2,
+                    Nombre = "Filtros",
+                    Descripcion = "Filtros de aceite, aire, combustible y habitáculo",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                },
+                new CategoriaRepuesto
+                {
+                    Id = 3,
+                    Nombre = "Suspensión",
+                    Descripcion = "Amortiguadores, resortes, bujes y componentes de suspensión",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                },
+                new CategoriaRepuesto
+                {
+                    Id = 4,
+                    Nombre = "Motor",
+                    Descripcion = "Aceites, bujías, correas y componentes del motor",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                },
+                new CategoriaRepuesto
+                {
+                    Id = 5,
+                    Nombre = "Transmisión",
+                    Descripcion = "Embrague, caja de cambios y componentes de transmisión",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                },
+                new CategoriaRepuesto
+                {
+                    Id = 6,
+                    Nombre = "Eléctrico",
+                    Descripcion = "Baterías, alternadores, cables y componentes eléctricos",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
+                }
+            );
+
+            // Repuestos de ejemplo
+            modelBuilder.Entity<Repuesto>().HasData(
+                // Frenos
+                new Repuesto
+                {
+                    Id = 1,
+                    Nombre = "Pastillas de Freno Delanteras",
+                    Descripcion = "Pastillas de freno cerámicas para mayor durabilidad y menor ruido",
+                    NumeroDeParte = "BP-1234",
+                    PrecioEstimado = 35000m,
+                    Marca = "Bosch",
+                    Modelo = "Universal",
+                    CategoriaRepuestoId = 1,
+                    ImagenUrl = "/images/repuestos/pastillas-freno.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-20)
+                },
+                new Repuesto
+                {
+                    Id = 2,
+                    Nombre = "Disco de Freno Ventilado",
+                    Descripcion = "Disco de freno ventilado de 280mm, compatible con varios modelos",
+                    NumeroDeParte = "DF-5678",
+                    PrecioEstimado = 65000m,
+                    Marca = "Brembo",
+                    Modelo = "Universal",
+                    CategoriaRepuestoId = 1,
+                    ImagenUrl = "/images/repuestos/disco-freno.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-18)
+                },
+                // Filtros
+                new Repuesto
+                {
+                    Id = 3,
+                    Nombre = "Filtro de Aceite",
+                    Descripcion = "Filtro de aceite de alta calidad para motor",
+                    NumeroDeParte = "FO-9012",
+                    PrecioEstimado = 8500m,
+                    Marca = "Mann-Filter",
+                    Modelo = "Corolla, Yaris",
+                    Anio = "2015-2023",
+                    CategoriaRepuestoId = 2,
+                    ImagenUrl = "/images/repuestos/filtro-aceite.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-15)
+                },
+                new Repuesto
+                {
+                    Id = 4,
+                    Nombre = "Filtro de Aire",
+                    Descripcion = "Filtro de aire de papel plisado de alta eficiencia",
+                    NumeroDeParte = "FA-3456",
+                    PrecioEstimado = 12000m,
+                    Marca = "K&N",
+                    Modelo = "Civic, Accord",
+                    Anio = "2016-2024",
+                    CategoriaRepuestoId = 2,
+                    ImagenUrl = "/images/repuestos/filtro-aire.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-12)
+                },
+                // Suspensión
+                new Repuesto
+                {
+                    Id = 5,
+                    Nombre = "Amortiguador Delantero",
+                    Descripcion = "Amortiguador de gas presurizado para mejor confort y control",
+                    NumeroDeParte = "AD-7890",
+                    PrecioEstimado = 85000m,
+                    Marca = "Monroe",
+                    Modelo = "Sentra, Versa",
+                    Anio = "2013-2020",
+                    CategoriaRepuestoId = 3,
+                    ImagenUrl = "/images/repuestos/amortiguador.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-10)
+                },
+                // Motor
+                new Repuesto
+                {
+                    Id = 6,
+                    Nombre = "Aceite Motor 5W-30 Sintético",
+                    Descripcion = "Aceite sintético premium para motores de alta performance",
+                    NumeroDeParte = "AM-2468",
+                    PrecioEstimado = 45000m,
+                    Marca = "Castrol",
+                    Modelo = "Universal",
+                    CategoriaRepuestoId = 4,
+                    ImagenUrl = "/images/repuestos/aceite-motor.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-8)
+                },
+                new Repuesto
+                {
+                    Id = 7,
+                    Nombre = "Bujías Iridium",
+                    Descripcion = "Bujías de iridium para mayor eficiencia y durabilidad",
+                    NumeroDeParte = "BI-1357",
+                    PrecioEstimado = 18000m,
+                    Marca = "NGK",
+                    Modelo = "Multiple",
+                    CategoriaRepuestoId = 4,
+                    ImagenUrl = "/images/repuestos/bujias.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-5)
+                },
+                // Eléctrico
+                new Repuesto
+                {
+                    Id = 8,
+                    Nombre = "Batería 12V 65Ah",
+                    Descripcion = "Batería de arranque libre de mantenimiento",
+                    NumeroDeParte = "BT-9753",
+                    PrecioEstimado = 120000m,
+                    Marca = "Bosch",
+                    Modelo = "Universal",
+                    CategoriaRepuestoId = 6,
+                    ImagenUrl = "/images/repuestos/bateria.jpg",
+                    FechaCreacion = DateTime.UtcNow.AddDays(-3)
                 }
             );
         }
