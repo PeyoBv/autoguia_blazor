@@ -17,6 +17,81 @@
                     Nueva Publicación
                 </button>
             </div>
+
+            <!-- Categorías Temáticas -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">Categorías de Discusión</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="card h-100 category-card @(categoriaSeleccionada == "valoraciones" ? "border-primary" : "")" 
+                                 @onclick="@(() => FiltrarPorCategoria("valoraciones"))" style="cursor: pointer;">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                    <h6>Valoraciones y Reseñas</h6>
+                                    <p class="card-text small text-muted">Comparte experiencias con talleres, productos y servicios</p>
+                                    <span class="badge bg-warning">@((publicaciones?.Count(p => p.Categoria == "Valoraciones")) ?? 0) publicaciones</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 category-card @(categoriaSeleccionada == "consultas" ? "border-primary" : "")" 
+                                 @onclick="@(() => FiltrarPorCategoria("consultas"))" style="cursor: pointer;">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-question-circle fa-2x text-info mb-2"></i>
+                                    <h6>Consultas Técnicas</h6>
+                                    <p class="card-text small text-muted">Preguntas mecánicas y técnicas sobre vehículos</p>
+                                    <span class="badge bg-info">@((publicaciones?.Count(p => p.Categoria == "Consultas Mecánicas")) ?? 0) publicaciones</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 category-card @(categoriaSeleccionada == "rendimiento" ? "border-primary" : "")" 
+                                 @onclick="@(() => FiltrarPorCategoria("rendimiento"))" style="cursor: pointer;">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tachometer-alt fa-2x text-success mb-2"></i>
+                                    <h6>Rendimiento y Tuning</h6>
+                                    <p class="card-text small text-muted">Discusiones sobre performance y modificaciones</p>
+                                    <span class="badge bg-success">@((publicaciones?.Count(p => p.Categoria == "Rendimiento")) ?? 0) publicaciones</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 category-card @(categoriaSeleccionada == "productos" ? "border-primary" : "")" 
+                                 @onclick="@(() => FiltrarPorCategoria("productos"))" style="cursor: pointer;">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tools fa-2x text-danger mb-2"></i>
+                                    <h6>Productos Alternativos</h6>
+                                    <p class="card-text small text-muted">Alternativas de repuestos y productos automotrices</p>
+                                    <span class="badge bg-danger">@((publicaciones?.Count(p => p.Categoria == "Productos Alternativos")) ?? 0) publicaciones</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros y búsqueda -->
+                    <div class="mt-3 d-flex gap-2 align-items-center flex-wrap">
+                        <button class="btn btn-outline-secondary btn-sm @(categoriaSeleccionada == "" ? "active" : "")" 
+                                @onclick="@(() => FiltrarPorCategoria(""))">
+                            <i class="fas fa-list me-1"></i>Todas las categorías
+                        </button>
+                        @if (!string.IsNullOrEmpty(categoriaSeleccionada))
+                        {
+                            <button class="btn btn-outline-danger btn-sm" @onclick="LimpiarFiltros">
+                                <i class="fas fa-times me-1"></i>Limpiar filtro
+                            </button>
+                        }
+                        <div class="ms-auto d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 small">Ordenar por:</label>
+                            <select class="form-select form-select-sm" value="@ordenSeleccionado" @onchange="OnOrdenChanged" style="width: auto;">
+                                <option value="fecha">Más recientes</option>
+                                <option value="populares">Más populares</option>
+                                <option value="respuestas">Más comentadas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -45,12 +120,12 @@
                                 <label class="form-label">Categoría</label>
                                 <InputSelect @bind-Value="nuevaPublicacion.Categoria" class="form-select">
                                     <option value="">Selecciona una categoría</option>
-                                    <option value="Mantenimiento">Mantenimiento</option>
-                                    <option value="Problemas Mecánicos">Problemas Mecánicos</option>
-                                    <option value="Recomendaciones">Recomendaciones</option>
-                                    <option value="Modificaciones">Modificaciones</option>
-                                    <option value="Compra/Venta">Compra/Venta</option>
-                                    <option value="General">General</option>
+                                    <option value="Valoraciones">🌟 Valoraciones y Reseñas</option>
+                                    <option value="Consultas Mecánicas">❓ Consultas Técnicas</option>
+                                    <option value="Rendimiento">🏎️ Rendimiento y Tuning</option>
+                                    <option value="Productos Alternativos">🔧 Productos Alternativos</option>
+                                    <option value="Mantenimiento">🛠️ Mantenimiento General</option>
+                                    <option value="Compra/Venta">💰 Compra y Venta</option>
                                 </InputSelect>
                             </div>
                             
@@ -147,18 +222,37 @@
                             }
                             
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex gap-3">
+                                <div class="d-flex gap-3 align-items-center">
                                     <small class="text-muted">
                                         <i class="fas fa-eye me-1"></i>@publicacion.Vistas vistas
                                     </small>
                                     <small class="text-muted">
                                         <i class="fas fa-comments me-1"></i>@publicacion.TotalRespuestas respuestas
                                     </small>
-                                    <small class="text-muted">
-                                        <i class="fas fa-heart me-1"></i>@publicacion.Likes likes
-                                    </small>
+                                    
+                                    <!-- Sistema de puntuación -->
+                                    <div class="d-flex align-items-center gap-1">
+                                        <button class="btn btn-outline-success btn-sm p-1" @onclick="() => DarLike(publicacion.Id)" title="Me gusta">
+                                            <i class="fas fa-thumbs-up"></i>
+                                        </button>
+                                        <small class="text-success fw-bold">@publicacion.Likes</small>
+                                        
+                                        <button class="btn btn-outline-danger btn-sm p-1 ms-1" @onclick="() => DarDislike(publicacion.Id)" title="No me gusta">
+                                            <i class="fas fa-thumbs-down"></i>
+                                        </button>
+                                        <small class="text-danger fw-bold">@publicacion.Dislikes</small>
+                                        
+                                        <!-- Puntuación neta -->
+                                        @{
+                                            var puntuacionNeta = publicacion.Likes - publicacion.Dislikes;
+                                        }
+                                        <span class="ms-2 badge @(puntuacionNeta >= 0 ? "bg-success" : "bg-danger")">
+                                            @(puntuacionNeta >= 0 ? "+" : "")@puntuacionNeta
+                                        </span>
+                                    </div>
                                 </div>
                                 <a href="/foro/@publicacion.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-arrow-right me-1"></i>
                                     Leer más
                                 </a>
                             </div>
@@ -238,11 +332,16 @@
 
 @code {
     private IEnumerable<PublicacionForoDto>? publicaciones;
+    private IEnumerable<PublicacionForoDto>? todasLasPublicaciones; // Para filtrado
     private bool cargando = true;
     private bool cargandoMas = false;
     private bool mostrarFormulario = false;
     private bool publicando = false;
     private int paginaActual = 1;
+    
+    // Variables para filtrado y ordenamiento
+    private string categoriaSeleccionada = "";
+    private string ordenSeleccionado = "fecha";
     
     private CrearPublicacionDto nuevaPublicacion = new();
 
@@ -255,7 +354,8 @@
     {
         try
         {
-            publicaciones = await ForoService.ObtenerPublicacionesAsync(paginaActual);
+            todasLasPublicaciones = await ForoService.ObtenerPublicacionesAsync(paginaActual);
+            FiltrarYOrdenarPublicaciones();
         }
         catch (Exception ex)
         {
@@ -265,6 +365,97 @@
         {
             cargando = false;
             StateHasChanged();
+        }
+    }
+
+    private void FiltrarYOrdenarPublicaciones()
+    {
+        if (todasLasPublicaciones == null) return;
+
+        var filtradas = todasLasPublicaciones.AsEnumerable();
+
+        // Filtrar por categoría
+        if (!string.IsNullOrEmpty(categoriaSeleccionada))
+        {
+            var categoriaFiltro = categoriaSeleccionada switch
+            {
+                "valoraciones" => "Valoraciones",
+                "consultas" => "Consultas Mecánicas", 
+                "rendimiento" => "Rendimiento",
+                "productos" => "Productos Alternativos",
+                _ => categoriaSeleccionada
+            };
+            filtradas = filtradas.Where(p => p.Categoria == categoriaFiltro);
+        }
+
+        // Ordenar
+        filtradas = ordenSeleccionado switch
+        {
+            "populares" => filtradas.OrderByDescending(p => p.Likes - p.Dislikes),
+            "respuestas" => filtradas.OrderByDescending(p => p.TotalRespuestas),
+            _ => filtradas.OrderByDescending(p => p.FechaCreacion)
+        };
+
+        publicaciones = filtradas;
+        StateHasChanged();
+    }
+
+    private void FiltrarPorCategoria(string categoria)
+    {
+        categoriaSeleccionada = categoria;
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void LimpiarFiltros()
+    {
+        categoriaSeleccionada = "";
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void OrdenarPublicaciones()
+    {
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void OnOrdenChanged(ChangeEventArgs e)
+    {
+        ordenSeleccionado = e.Value?.ToString() ?? "fecha";
+        OrdenarPublicaciones();
+    }
+
+    private async Task DarLike(int publicacionId)
+    {
+        try
+        {
+            var publicacion = todasLasPublicaciones?.FirstOrDefault(p => p.Id == publicacionId);
+            if (publicacion != null)
+            {
+                publicacion.Likes++;
+                FiltrarYOrdenarPublicaciones();
+                // En producción: await ForoService.DarLikeAsync(publicacionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error dando like: {ex.Message}");
+        }
+    }
+
+    private async Task DarDislike(int publicacionId)
+    {
+        try
+        {
+            var publicacion = todasLasPublicaciones?.FirstOrDefault(p => p.Id == publicacionId);
+            if (publicacion != null)
+            {
+                publicacion.Dislikes++;
+                FiltrarYOrdenarPublicaciones();
+                // En producción: await ForoService.DarDislikeAsync(publicacionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error dando dislike: {ex.Message}");
         }
     }
 
@@ -335,3 +526,37 @@
         }
     }
 }
+
+<style>
+    .category-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: #007bff !important;
+    }
+    
+    .category-card.border-primary {
+        border-color: #007bff !important;
+        background-color: rgba(0,123,255,0.05);
+    }
+    
+    .btn-outline-success.btn-sm,
+    .btn-outline-danger.btn-sm {
+        font-size: 0.75rem;
+        border-width: 1px;
+    }
+    
+    .btn-outline-success.btn-sm:hover {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .btn-outline-danger.btn-sm:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>

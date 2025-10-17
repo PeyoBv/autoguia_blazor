@@ -1,10 +1,8 @@
 @page "/taller/{TallerId:int}"
 @rendermode InteractiveServer
 @inject ITallerService TallerService
-@inject IResenaService ResenaService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
-@using AutoGuia.Web.Components.Shared
 
 <PageTitle>@(taller?.Nombre ?? "Taller") - AutoGuía</PageTitle>
 
@@ -129,14 +127,103 @@
                     </div>
                 </div>
 
-                <!-- Formulario para nueva reseña -->
+                <!-- Sección de Experiencias de Usuarios -->
                 <div class="mt-4">
-                    <FormularioResena TallerId="@TallerId" OnResenaCreada="@OnResenaCreada" />
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-comments me-2"></i>
+                                Experiencias de Usuarios
+                            </h5>
+                            <button class="btn btn-primary btn-sm" @onclick="MostrarModalNuevaExperiencia">
+                                <i class="fas fa-plus me-1"></i>
+                                Compartir Experiencia
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if (experiencias?.Any() == true)
+                            {
+                                @foreach (var experiencia in experiencias.OrderByDescending(e => e.Fecha))
+                                {
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-2">
+                                                    @experiencia.UsuarioInicial
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">@experiencia.Usuario</h6>
+                                                    <small class="text-muted">@experiencia.Fecha.ToString("dd/MM/yyyy HH:mm")</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                @if (experiencia.EsPositiva)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-thumbs-up me-1"></i>Experiencia Positiva
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-thumbs-down me-1"></i>Experiencia Negativa
+                                                    </span>
+                                                }
+                                                <div class="ms-2">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="fas fa-star @(i <= experiencia.Calificacion ? "text-warning" : "text-muted")"></i>
+                                                    }
+                                                    <small class="text-muted ms-1">(@experiencia.Calificacion/5)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mb-2">@experiencia.Comentario</p>
+                                        @if (!string.IsNullOrWhiteSpace(experiencia.ServicioTipo))
+                                        {
+                                            <small class="text-muted">
+                                                <i class="fas fa-wrench me-1"></i>Servicio: @experiencia.ServicioTipo
+                                            </small>
+                                        }
+                                        
+                                        <!-- Botones de interacción -->
+                                        <div class="mt-2">
+                                            <button class="btn btn-outline-primary btn-sm me-2" @onclick="() => ToggleLike(experiencia.Id)">
+                                                <i class="fas fa-thumbs-up me-1"></i>
+                                                Útil (@experiencia.Likes)
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" @onclick="() => ResponderExperiencia(experiencia.Id)">
+                                                <i class="fas fa-reply me-1"></i>
+                                                Responder
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                    <h6>No hay experiencias compartidas aún</h6>
+                                    <p class="text-muted">¡Sé el primero en compartir tu experiencia con este taller!</p>
+                                    <button class="btn btn-primary" @onclick="MostrarModalNuevaExperiencia">
+                                        <i class="fas fa-plus me-2"></i>
+                                        Compartir Primera Experiencia
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Lista de reseñas -->
+                <!-- Información adicional del taller -->
                 <div class="mt-4">
-                    <ListaResenas @ref="listaResenasRef" TallerId="@TallerId" />
+                    <div class="alert alert-info">
+                        <h6>AutoGuía - Nueva Arquitectura</h6>
+                        <p class="mb-0">Este taller forma parte del directorio tradicional de AutoGuía. 
+                        Para comparación de precios de repuestos automotrices, 
+                        visite la sección de <a href="/productos" class="alert-link">Comparador de Precios</a>.</p>
+                    </div>
                 </div>
             </div>
 
@@ -240,11 +327,16 @@
 
     private TallerDto? taller;
     private bool cargando = true;
-    private ListaResenas? listaResenasRef;
+    
+    // Variables para experiencias de usuarios
+    private List<ExperienciaUsuarioDto> experiencias = new();
+    private bool mostrarModalExperiencia = false;
+    private ExperienciaUsuarioDto nuevaExperiencia = new();
 
     protected override async Task OnInitializedAsync()
     {
         await CargarTaller();
+        await CargarExperiencias();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -274,17 +366,7 @@
         }
     }
 
-    private async Task OnResenaCreada()
-    {
-        // Recargar los datos del taller para actualizar las estadísticas
-        await CargarTaller();
-        
-        // Recargar la lista de reseñas
-        if (listaResenasRef != null)
-        {
-            await listaResenasRef.RecargarResenas();
-        }
-    }
+    // Método OnResenaCreada eliminado - funcionalidad de reseñas removida en nueva arquitectura
 
     private async Task CompartirTaller()
     {
@@ -301,4 +383,236 @@
             Console.WriteLine($"Error compartiendo: {ex.Message}");
         }
     }
+
+    private async Task CargarExperiencias()
+    {
+        try
+        {
+            // Simular datos de experiencias mientras no tengamos el servicio real
+            await Task.Delay(100); // Simular latencia
+            
+            experiencias = new List<ExperienciaUsuarioDto>
+            {
+                new ExperienciaUsuarioDto
+                {
+                    Id = 1,
+                    Usuario = "Carlos Martinez",
+                    UsuarioInicial = "CM",
+                    Comentario = "Excelente servicio! Llevé mi auto para mantención y quedó perfecto. El personal es muy profesional y me explicaron todo detalladamente. Los precios son justos y respetan los tiempos acordados.",
+                    EsPositiva = true,
+                    Calificacion = 5,
+                    ServicioTipo = "Mantención Preventiva",
+                    Fecha = DateTime.Now.AddDays(-3),
+                    Likes = 12
+                },
+                new ExperienciaUsuarioDto
+                {
+                    Id = 2,
+                    Usuario = "María González",
+                    UsuarioInicial = "MG",
+                    Comentario = "Servicio regular. Arreglaron mi problema de frenos pero tardaron más de lo prometido. El trabajo quedó bien pero la comunicación podría mejorar.",
+                    EsPositiva = false,
+                    Calificacion = 3,
+                    ServicioTipo = "Frenos",
+                    Fecha = DateTime.Now.AddDays(-7),
+                    Likes = 5
+                },
+                new ExperienciaUsuarioDto
+                {
+                    Id = 3,
+                    Usuario = "Roberto Silva",
+                    UsuarioInicial = "RS",
+                    Comentario = "Muy recomendado! Solucionaron un problema complejo con la transmisión que otros talleres no pudieron resolver. Precio competitivo y garantía del trabajo.",
+                    EsPositiva = true,
+                    Calificacion = 5,
+                    ServicioTipo = "Transmisión",
+                    Fecha = DateTime.Now.AddDays(-10),
+                    Likes = 18
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando experiencias: {ex.Message}");
+            experiencias = new List<ExperienciaUsuarioDto>();
+        }
+    }
+
+    private void MostrarModalNuevaExperiencia()
+    {
+        nuevaExperiencia = new ExperienciaUsuarioDto
+        {
+            EsPositiva = true,
+            Calificacion = 5,
+            Usuario = "Usuario Anónimo", // En producción obtener del contexto de usuario
+            UsuarioInicial = "UA",
+            Fecha = DateTime.Now,
+            Likes = 0
+        };
+        mostrarModalExperiencia = true;
+        StateHasChanged();
+    }
+
+    private void CerrarModalExperiencia()
+    {
+        mostrarModalExperiencia = false;
+        StateHasChanged();
+    }
+
+    private async Task GuardarExperiencia()
+    {
+        if (string.IsNullOrWhiteSpace(nuevaExperiencia.Comentario) || nuevaExperiencia.Comentario.Length < 10)
+            return;
+
+        try
+        {
+            // En producción, guardar en base de datos a través del servicio
+            nuevaExperiencia.Id = experiencias.Count + 1;
+            experiencias.Insert(0, nuevaExperiencia);
+            
+            CerrarModalExperiencia();
+            
+            // Mostrar mensaje de éxito (opcional)
+            await JSRuntime.InvokeVoidAsync("alert", "¡Experiencia publicada exitosamente! Gracias por compartir tu opinión.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error guardando experiencia: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la experiencia. Intenta nuevamente.");
+        }
+    }
+
+    private async Task ToggleLike(int experienciaId)
+    {
+        try
+        {
+            var experiencia = experiencias.FirstOrDefault(e => e.Id == experienciaId);
+            if (experiencia != null)
+            {
+                experiencia.Likes++;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error con like: {ex.Message}");
+        }
+    }
+
+    private async Task ResponderExperiencia(int experienciaId)
+    {
+        // En el futuro, abrir modal para responder a experiencia específica
+        await JSRuntime.InvokeVoidAsync("alert", "Funcionalidad de respuestas en desarrollo.");
+    }
 }
+
+<!-- Modal para Nueva Experiencia -->
+@if (mostrarModalExperiencia)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-star me-2"></i>
+                        Compartir Experiencia - @taller?.Nombre
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalExperiencia"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="GuardarExperiencia" @onsubmit:preventDefault="true">
+                        <!-- Tipo de Experiencia -->
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Experiencia</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipoExperiencia" id="positiva" 
+                                           @onchange="() => nuevaExperiencia.EsPositiva = true" checked="@nuevaExperiencia.EsPositiva">
+                                    <label class="form-check-label text-success" for="positiva">
+                                        <i class="fas fa-thumbs-up me-1"></i>Experiencia Positiva
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipoExperiencia" id="negativa"
+                                           @onchange="() => nuevaExperiencia.EsPositiva = false" checked="@(!nuevaExperiencia.EsPositiva)">
+                                    <label class="form-check-label text-danger" for="negativa">
+                                        <i class="fas fa-thumbs-down me-1"></i>Experiencia Negativa
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calificación -->
+                        <div class="mb-3">
+                            <label class="form-label">Calificación General</label>
+                            <div class="d-flex align-items-center">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var rating = i;
+                                    <button type="button" class="btn btn-link p-0 me-1" @onclick="() => nuevaExperiencia.Calificacion = rating">
+                                        <i class="fas fa-star fa-lg @(rating <= nuevaExperiencia.Calificacion ? "text-warning" : "text-muted")"></i>
+                                    </button>
+                                }
+                                <span class="ms-2 text-muted">(@nuevaExperiencia.Calificacion/5 estrellas)</span>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Servicio -->
+                        <div class="mb-3">
+                            <label for="servicioTipo" class="form-label">Tipo de Servicio</label>
+                            <select class="form-select" id="servicioTipo" @bind="nuevaExperiencia.ServicioTipo">
+                                <option value="">Seleccionar tipo de servicio...</option>
+                                <option value="Mecánica General">Mecánica General</option>
+                                <option value="Frenos">Frenos</option>
+                                <option value="Suspensión">Suspensión</option>
+                                <option value="Motor">Motor</option>
+                                <option value="Transmisión">Transmisión</option>
+                                <option value="Electricidad">Electricidad</option>
+                                <option value="Aires Acondicionados">Aires Acondicionados</option>
+                                <option value="Neumáticos">Neumáticos</option>
+                                <option value="Chapa y Pintura">Chapa y Pintura</option>
+                                <option value="Mantención Preventiva">Mantención Preventiva</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <!-- Comentario -->
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label">Tu Experiencia *</label>
+                            <textarea class="form-control" id="comentario" rows="4" 
+                                      @bind="nuevaExperiencia.Comentario" required
+                                      placeholder="Comparte los detalles de tu experiencia: calidad del servicio, atención al cliente, tiempo de entrega, precios, etc."></textarea>
+                            <div class="form-text">Mínimo 10 caracteres. Sé específico para ayudar a otros usuarios.</div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" @onclick="CerrarModalExperiencia">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary" disabled="@(string.IsNullOrWhiteSpace(nuevaExperiencia.Comentario) || nuevaExperiencia.Comentario.Length < 10)">
+                                <i class="fas fa-save me-2"></i>
+                                Publicar Experiencia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+    }
+</style>

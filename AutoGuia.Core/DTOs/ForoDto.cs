@@ -11,6 +11,7 @@ namespace AutoGuia.Core.DTOs
         public string NombreUsuario { get; set; } = string.Empty;
         public int Vistas { get; set; }
         public int Likes { get; set; }
+        public int Dislikes { get; set; } = 0; // Nueva propiedad para sistema de puntuación
         public int TotalRespuestas { get; set; }
         public bool EsDestacado { get; set; }
         public bool EsCerrado { get; set; }

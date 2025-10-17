@@ -1,540 +1,345 @@
-using Microsoft.EntityFrameworkCore;
 using AutoGuia.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoGuia.Infrastructure.Data
 {
-    public class AutoGuiaDbContext : DbContext
+    public partial class AutoGuiaDbContext : DbContext
     {
-        public AutoGuiaDbContext(DbContextOptions<AutoGuiaDbContext> options) : base(options)
-        {
-        }
+        public AutoGuiaDbContext(DbContextOptions<AutoGuiaDbContext> options) : base(options) { }
 
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<Taller> Talleres { get; set; }
-        public DbSet<ResenasTaller> ResenasTalleres { get; set; }
-        public DbSet<Resena> Resenas { get; set; }
+        public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<PublicacionForo> PublicacionesForo { get; set; }
         public DbSet<RespuestaForo> RespuestasForo { get; set; }
-        public DbSet<CategoriaRepuesto> CategoriasRepuesto { get; set; }
-        public DbSet<Repuesto> Repuestos { get; set; }
+        public DbSet<ResenasTaller> ResenasTaller { get; set; }
+        
+        // Nuevas entidades para comparación de precios
+        public DbSet<Marca> Marcas { get; set; }
+        public DbSet<Modelo> Modelos { get; set; }
+        public DbSet<Producto> Productos { get; set; }
+        public DbSet<Tienda> Tiendas { get; set; }
+        public DbSet<Oferta> Ofertas { get; set; }
+        public DbSet<ProductoVehiculoCompatible> ProductoVehiculoCompatibles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Configuración de relaciones
-            modelBuilder.Entity<Vehiculo>()
-                .HasOne(v => v.Usuario)
-                .WithMany(u => u.Vehiculos)
-                .HasForeignKey(v => v.UsuarioId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Modelo>()
+                .HasOne(m => m.Marca)
+                .WithMany(ma => ma.Modelos)
+                .HasForeignKey(m => m.MarcaId);
 
-            // Configuración ResenasTaller (legacy - mantenido para compatibilidad)
-            modelBuilder.Entity<ResenasTaller>()
-                .HasOne(r => r.Taller)
-                .WithMany() // Sin relación de navegación para evitar conflictos
-                .HasForeignKey(r => r.TallerId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Oferta>()
+                .HasOne(o => o.Producto)
+                .WithMany(p => p.Ofertas)
+                .HasForeignKey(o => o.ProductoId);
 
-            modelBuilder.Entity<ResenasTaller>()
-                .HasOne(r => r.Usuario)
+            modelBuilder.Entity<Oferta>()
+                .HasOne(o => o.Tienda)
+                .WithMany(t => t.Ofertas)
+                .HasForeignKey(o => o.TiendaId);
+
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasKey(pvc => new { pvc.ProductoId, pvc.ModeloId });
+
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasOne(pvc => pvc.Producto)
+                .WithMany(p => p.VehiculosCompatibles)
+                .HasForeignKey(pvc => pvc.ProductoId);
+
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasOne(pvc => pvc.Modelo)
                 .WithMany()
-                .HasForeignKey(r => r.UsuarioId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(pvc => pvc.ModeloId);
 
-            modelBuilder.Entity<PublicacionForo>()
-                .HasOne(p => p.Usuario)
-                .WithMany(u => u.PublicacionesForo)
-                .HasForeignKey(p => p.UsuarioId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            // Configuración de entidades existentes (talleres y foro)
             modelBuilder.Entity<RespuestaForo>()
                 .HasOne(r => r.Publicacion)
                 .WithMany(p => p.Respuestas)
-                .HasForeignKey(r => r.PublicacionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(r => r.PublicacionId);
 
-            modelBuilder.Entity<RespuestaForo>()
-                .HasOne(r => r.Usuario)
-                .WithMany(u => u.RespuestasForo)
-                .HasForeignKey(r => r.UsuarioId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // ResenasTaller eliminado - no necesario en arquitectura de comparación de precios
 
-            modelBuilder.Entity<RespuestaForo>()
-                .HasOne(r => r.RespuestaPadre)
-                .WithMany(r => r.RespuestasHijas)
-                .HasForeignKey(r => r.RespuestaPadreId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Datos semilla (seed data)
+            
+            // Marcas de vehículos
+            modelBuilder.Entity<Marca>().HasData(
+                new Marca { Id = 1, Nombre = "Toyota", LogoUrl = "/images/marcas/toyota.png" },
+                new Marca { Id = 2, Nombre = "Honda", LogoUrl = "/images/marcas/honda.png" },
+                new Marca { Id = 3, Nombre = "Nissan", LogoUrl = "/images/marcas/nissan.png" },
+                new Marca { Id = 4, Nombre = "Chevrolet", LogoUrl = "/images/marcas/chevrolet.png" },
+                new Marca { Id = 5, Nombre = "Ford", LogoUrl = "/images/marcas/ford.png" }
+            );
 
-            // Configuración para nueva entidad Resena
-            modelBuilder.Entity<Resena>()
-                .HasOne(r => r.Taller)
-                .WithMany(t => t.Resenas)
-                .HasForeignKey(r => r.TallerId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Modelos de vehículos
+            modelBuilder.Entity<Modelo>().HasData(
+                // Toyota
+                new Modelo { Id = 1, Nombre = "Corolla", MarcaId = 1, AnioInicioProduccion = 2000, AnioFinProduccion = 2024 },
+                new Modelo { Id = 2, Nombre = "Yaris", MarcaId = 1, AnioInicioProduccion = 2005, AnioFinProduccion = 2024 },
+                new Modelo { Id = 3, Nombre = "RAV4", MarcaId = 1, AnioInicioProduccion = 2010, AnioFinProduccion = 2024 },
+                // Honda
+                new Modelo { Id = 4, Nombre = "Civic", MarcaId = 2, AnioInicioProduccion = 2000, AnioFinProduccion = 2024 },
+                new Modelo { Id = 5, Nombre = "Accord", MarcaId = 2, AnioInicioProduccion = 2008, AnioFinProduccion = 2024 },
+                new Modelo { Id = 6, Nombre = "CR-V", MarcaId = 2, AnioInicioProduccion = 2012, AnioFinProduccion = 2024 },
+                // Nissan
+                new Modelo { Id = 7, Nombre = "Sentra", MarcaId = 3, AnioInicioProduccion = 2007, AnioFinProduccion = 2024 },
+                new Modelo { Id = 8, Nombre = "Versa", MarcaId = 3, AnioInicioProduccion = 2012, AnioFinProduccion = 2024 },
+                new Modelo { Id = 9, Nombre = "X-Trail", MarcaId = 3, AnioInicioProduccion = 2014, AnioFinProduccion = 2024 }
+            );
 
-            // Configuración de índices para mejor rendimiento
-            modelBuilder.Entity<Usuario>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            modelBuilder.Entity<Taller>()
-                .HasIndex(t => new { t.Ciudad, t.Region });
-
-            modelBuilder.Entity<PublicacionForo>()
-                .HasIndex(p => p.Categoria);
-
-            modelBuilder.Entity<PublicacionForo>()
-                .HasIndex(p => p.FechaCreacion);
-
-            modelBuilder.Entity<Resena>()
-                .HasIndex(r => r.TallerId);
-
-            modelBuilder.Entity<Resena>()
-                .HasIndex(r => r.FechaPublicacion);
-
-            modelBuilder.Entity<Resena>()
-                .HasIndex(r => new { r.TallerId, r.UsuarioId })
-                .IsUnique(); // Un usuario solo puede reseñar un taller una vez
-
-            // Configuración para entidades de repuestos
-            modelBuilder.Entity<Repuesto>()
-                .HasOne(r => r.CategoriaRepuesto)
-                .WithMany(c => c.Repuestos)
-                .HasForeignKey(r => r.CategoriaRepuestoId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Índices para mejor rendimiento en repuestos
-            modelBuilder.Entity<Repuesto>()
-                .HasIndex(r => r.NumeroDeParte);
-
-            modelBuilder.Entity<Repuesto>()
-                .HasIndex(r => r.CategoriaRepuestoId);
-
-            modelBuilder.Entity<Repuesto>()
-                .HasIndex(r => new { r.Nombre, r.Marca });
-
-            modelBuilder.Entity<CategoriaRepuesto>()
-                .HasIndex(c => c.Nombre)
-                .IsUnique();
-
-            // Datos semilla para el MVP
-            SeedData(modelBuilder);
-        }
-
-        private static void SeedData(ModelBuilder modelBuilder)
-        {
-            // Usuarios de ejemplo
-            modelBuilder.Entity<Usuario>().HasData(
-                new Usuario
+            // Tiendas
+            modelBuilder.Entity<Tienda>().HasData(
+                new Tienda
                 {
                     Id = 1,
-                    Nombre = "Juan",
-                    Apellido = "Pérez",
-                    Email = "juan.perez@example.com",
-                    Telefono = "+56912345678",
-                    Biografia = "Mecánico con 15 años de experiencia en motores diésel",
-                    EspecialidadAutomotriz = "Motores Diésel",
-                    AnosExperiencia = 15,
-                    FechaRegistro = DateTime.UtcNow.AddDays(-30)
+                    Nombre = "Repuestos Santiago",
+                    Descripcion = "Tu tienda de confianza para repuestos automotrices",
+                    UrlSitioWeb = "https://repuestossantiago.cl",
+                    LogoUrl = "/images/tiendas/repuestos-santiago.png"
                 },
-                new Usuario
+                new Tienda
                 {
                     Id = 2,
-                    Nombre = "María",
-                    Apellido = "González",
-                    Email = "maria.gonzalez@example.com",
-                    Telefono = "+56987654321",
-                    Biografia = "Especialista en sistemas eléctricos automotrices",
-                    EspecialidadAutomotriz = "Sistemas Eléctricos",
-                    AnosExperiencia = 8,
-                    FechaRegistro = DateTime.UtcNow.AddDays(-20)
+                    Nombre = "AutoPartes Chile",
+                    Descripcion = "Especialistas en repuestos importados y nacionales",
+                    UrlSitioWeb = "https://autoparteschile.cl",
+                    LogoUrl = "/images/tiendas/autopartes-chile.png"
                 },
-                new Usuario
+                new Tienda
                 {
                     Id = 3,
-                    Nombre = "Carlos",
-                    Apellido = "Silva",
-                    Email = "carlos.silva@example.com",
-                    Biografia = "Aficionado a los autos clásicos",
-                    FechaRegistro = DateTime.UtcNow.AddDays(-10)
+                    Nombre = "MegaRepuestos",
+                    Descripcion = "Los mejores precios en repuestos automotrices",
+                    UrlSitioWeb = "https://megarepuestos.cl",
+                    LogoUrl = "/images/tiendas/mega-repuestos.png"
                 }
             );
 
-            // Talleres de ejemplo
-            modelBuilder.Entity<Taller>().HasData(
-                new Taller
-                {
-                    Id = 1,
-                    Nombre = "Taller Mecánico Central",
-                    Descripcion = "Taller especializado en reparaciones generales y mantención preventiva",
-                    Direccion = "Av. Libertador Bernardo O'Higgins 1234",
-                    Ciudad = "Santiago",
-                    Region = "Región Metropolitana",
-                    Telefono = "+56222345678",
-                    Email = "contacto@tallercentral.cl",
-                    Latitud = -33.4489,
-                    Longitud = -70.6693,
-                    HorarioAtencion = "Lunes a Viernes 8:00-18:00, Sábados 8:00-14:00",
-                    CalificacionPromedio = 4.5m,
-                    TotalResenas = 23,
-                    Especialidades = "Frenos, Suspensión, Motor",
-                    EsVerificado = true
-                },
-                new Taller
-                {
-                    Id = 2,
-                    Nombre = "AutoService Las Condes",
-                    Descripcion = "Centro de servicio premium para vehículos de gama alta",
-                    Direccion = "Av. Apoquindo 4567",
-                    Ciudad = "Las Condes",
-                    Region = "Región Metropolitana",
-                    Telefono = "+56233456789",
-                    Email = "info@autoserviceslc.cl",
-                    Latitud = -33.4167,
-                    Longitud = -70.6000,
-                    HorarioAtencion = "Lunes a Viernes 7:30-19:00, Sábados 8:00-16:00",
-                    CalificacionPromedio = 4.8m,
-                    TotalResenas = 45,
-                    Especialidades = "Diagnóstico computarizado, Aire acondicionado, Cambio de aceite",
-                    EsVerificado = true
-                },
-                new Taller
-                {
-                    Id = 3,
-                    Nombre = "Taller Rodriguez - Valparaíso",
-                    Descripcion = "Taller familiar con más de 20 años de experiencia",
-                    Direccion = "Calle Errázuriz 789",
-                    Ciudad = "Valparaíso",
-                    Region = "Región de Valparaíso",
-                    Telefono = "+56324567890",
-                    Latitud = -33.0458,
-                    Longitud = -71.6197,
-                    HorarioAtencion = "Lunes a Sábado 8:30-18:30",
-                    CalificacionPromedio = 4.2m,
-                    TotalResenas = 12,
-                    Especialidades = "Soldadura, Pintura, Enderezado",
-                    EsVerificado = false
-                }
-            );
-
-            // Publicaciones del foro de ejemplo
-            modelBuilder.Entity<PublicacionForo>().HasData(
-                new PublicacionForo
-                {
-                    Id = 1,
-                    Titulo = "¿Cada cuánto cambiar el aceite del motor?",
-                    Contenido = "Hola comunidad, tengo un Toyota Corolla 2018 y quería saber con qué frecuencia debería cambiar el aceite. He escuchado diferentes opiniones, algunos dicen cada 5.000 km, otros cada 10.000 km. ¿Cuál es su experiencia?",
-                    Categoria = "Mantenimiento",
-                    Etiquetas = "aceite,motor,mantenimiento,toyota",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-5),
-                    UsuarioId = 3,
-                    Vistas = 45,
-                    Likes = 8,
-                    EsDestacado = true
-                },
-                new PublicacionForo
-                {
-                    Id = 2,
-                    Titulo = "Problema con frenos que rechinan",
-                    Contenido = "Mi auto ha comenzado a hacer un ruido extraño cuando freno, como un rechinar. ¿Es normal? ¿Debería preocuparme? El vehículo tiene 60.000 km.",
-                    Categoria = "Problemas Mecánicos",
-                    Etiquetas = "frenos,ruido,seguridad",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-2),
-                    UsuarioId = 3,
-                    Vistas = 23,
-                    Likes = 3
-                },
-                new PublicacionForo
-                {
-                    Id = 3,
-                    Titulo = "Recomendaciones de talleres en Santiago Centro",
-                    Contenido = "Necesito un taller confiable en Santiago Centro para hacerle el service a mi auto. ¿Alguna recomendación? Preferiblemente que no sea muy caro pero que hagan buen trabajo.",
-                    Categoria = "Recomendaciones",
-                    Etiquetas = "taller,santiago,recomendacion,service",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-1),
-                    UsuarioId = 3,
-                    Vistas = 12,
-                    Likes = 2
-                }
-            );
-
-            // Respuestas del foro de ejemplo
-            modelBuilder.Entity<RespuestaForo>().HasData(
-                new RespuestaForo
-                {
-                    Id = 1,
-                    Contenido = "Para un Toyota Corolla 2018, te recomiendo cambiar el aceite cada 10.000 km o cada 6 meses, lo que ocurra primero. Usa aceite 5W-30 sintético para mejor protección.",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-4),
-                    PublicacionId = 1,
-                    UsuarioId = 1,
-                    Likes = 5,
-                    EsRespuestaAceptada = true
-                },
-                new RespuestaForo
-                {
-                    Id = 2,
-                    Contenido = "El rechinar en los frenos generalmente indica que las pastillas están gastadas. Te recomiendo revisarlas pronto, es un tema de seguridad. No esperes mucho.",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-1),
-                    PublicacionId = 2,
-                    UsuarioId = 1,
-                    Likes = 2
-                },
-                new RespuestaForo
-                {
-                    Id = 3,
-                    Contenido = "Yo he tenido buena experiencia con el Taller Mecánico Central en O'Higgins. Son honestos y tienen buenos precios.",
-                    FechaCreacion = DateTime.UtcNow.AddHours(-12),
-                    PublicacionId = 3,
-                    UsuarioId = 2,
-                    Likes = 1
-                }
-            );
-
-            // Datos semilla para Reseñas
-            modelBuilder.Entity<Resena>().HasData(
-                new Resena
-                {
-                    Id = 1,
-                    Calificacion = 5,
-                    Comentario = "Excelente servicio, muy profesionales y precios justos. Recomendado al 100%.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-30),
-                    TallerId = 1, // Taller Mecánico Central
-                    UsuarioId = "user1@example.com",
-                    NombreUsuario = "María González"
-                },
-                new Resena
-                {
-                    Id = 2,
-                    Calificacion = 4,
-                    Comentario = "Buen trabajo, aunque tuve que esperar un poco más de lo esperado.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-25),
-                    TallerId = 1,
-                    UsuarioId = "user2@example.com",
-                    NombreUsuario = "Carlos Rodríguez"
-                },
-                new Resena
-                {
-                    Id = 3,
-                    Calificacion = 5,
-                    Comentario = "Atención de primera, solucionaron mi problema rápidamente.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-20),
-                    TallerId = 2, // AutoService Las Condes
-                    UsuarioId = "user3@example.com",
-                    NombreUsuario = "Ana López"
-                },
-                new Resena
-                {
-                    Id = 4,
-                    Calificacion = 3,
-                    Comentario = "Servicio regular, cumplieron pero nada excepcional.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-18),
-                    TallerId = 3, // Taller Rodríguez - Valparaíso
-                    UsuarioId = "user4@example.com",
-                    NombreUsuario = "Luis Hernández"
-                },
-                new Resena
-                {
-                    Id = 5,
-                    Calificacion = 4,
-                    Comentario = "Buenos mecánicos, precios competitivos. Volveré sin duda.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-15),
-                    TallerId = 3,
-                    UsuarioId = "user5@example.com",
-                    NombreUsuario = "Patricia Silva"
-                },
-                new Resena
-                {
-                    Id = 6,
-                    Calificacion = 5,
-                    Comentario = "Perfecta atención, muy recomendable para trabajos de carrocería.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-10),
-                    TallerId = 4, // AutoMaster Concepción
-                    UsuarioId = "user6@example.com",
-                    NombreUsuario = "Roberto Muñoz"
-                },
-                new Resena
-                {
-                    Id = 7,
-                    Calificacion = 2,
-                    Comentario = "Tuve algunos inconvenientes con los tiempos de entrega.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-8),
-                    TallerId = 5, // Mecánica Express Viña del Mar
-                    UsuarioId = "user7@example.com",
-                    NombreUsuario = "Sandra Torres"
-                },
-                new Resena
-                {
-                    Id = 8,
-                    Calificacion = 4,
-                    Comentario = "Muy buena experiencia, personal capacitado y instalaciones limpias.",
-                    FechaPublicacion = DateTime.UtcNow.AddDays(-5),
-                    TallerId = 6, // TallerPro La Serena
-                    UsuarioId = "user8@example.com",
-                    NombreUsuario = "Fernando Díaz"
-                }
-            );
-
-            // Categorías de repuestos de ejemplo
-            modelBuilder.Entity<CategoriaRepuesto>().HasData(
-                new CategoriaRepuesto
-                {
-                    Id = 1,
-                    Nombre = "Frenos",
-                    Descripcion = "Pastillas, discos, tambores y componentes del sistema de frenado",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                },
-                new CategoriaRepuesto
-                {
-                    Id = 2,
-                    Nombre = "Filtros",
-                    Descripcion = "Filtros de aceite, aire, combustible y habitáculo",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                },
-                new CategoriaRepuesto
-                {
-                    Id = 3,
-                    Nombre = "Suspensión",
-                    Descripcion = "Amortiguadores, resortes, bujes y componentes de suspensión",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                },
-                new CategoriaRepuesto
-                {
-                    Id = 4,
-                    Nombre = "Motor",
-                    Descripcion = "Aceites, bujías, correas y componentes del motor",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                },
-                new CategoriaRepuesto
-                {
-                    Id = 5,
-                    Nombre = "Transmisión",
-                    Descripcion = "Embrague, caja de cambios y componentes de transmisión",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                },
-                new CategoriaRepuesto
-                {
-                    Id = 6,
-                    Nombre = "Eléctrico",
-                    Descripcion = "Baterías, alternadores, cables y componentes eléctricos",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-30)
-                }
-            );
-
-            // Repuestos de ejemplo
-            modelBuilder.Entity<Repuesto>().HasData(
-                // Frenos
-                new Repuesto
+            // Productos
+            modelBuilder.Entity<Producto>().HasData(
+                new Producto
                 {
                     Id = 1,
                     Nombre = "Pastillas de Freno Delanteras",
                     Descripcion = "Pastillas de freno cerámicas para mayor durabilidad y menor ruido",
                     NumeroDeParte = "BP-1234",
-                    PrecioEstimado = 35000m,
-                    Marca = "Bosch",
-                    Modelo = "Universal",
-                    CategoriaRepuestoId = 1,
-                    ImagenUrl = "/images/repuestos/pastillas-freno.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-20)
+                    ImagenUrl = "/images/productos/pastillas-freno-bosch.jpg"
                 },
-                new Repuesto
+                new Producto
                 {
                     Id = 2,
-                    Nombre = "Disco de Freno Ventilado",
-                    Descripcion = "Disco de freno ventilado de 280mm, compatible con varios modelos",
-                    NumeroDeParte = "DF-5678",
-                    PrecioEstimado = 65000m,
-                    Marca = "Brembo",
-                    Modelo = "Universal",
-                    CategoriaRepuestoId = 1,
-                    ImagenUrl = "/images/repuestos/disco-freno.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-18)
-                },
-                // Filtros
-                new Repuesto
-                {
-                    Id = 3,
                     Nombre = "Filtro de Aceite",
                     Descripcion = "Filtro de aceite de alta calidad para motor",
                     NumeroDeParte = "FO-9012",
-                    PrecioEstimado = 8500m,
-                    Marca = "Mann-Filter",
-                    Modelo = "Corolla, Yaris",
-                    Anio = "2015-2023",
-                    CategoriaRepuestoId = 2,
-                    ImagenUrl = "/images/repuestos/filtro-aceite.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-15)
+                    ImagenUrl = "/images/productos/filtro-aceite-mann.jpg"
                 },
-                new Repuesto
+                new Producto
                 {
-                    Id = 4,
-                    Nombre = "Filtro de Aire",
-                    Descripcion = "Filtro de aire de papel plisado de alta eficiencia",
-                    NumeroDeParte = "FA-3456",
-                    PrecioEstimado = 12000m,
-                    Marca = "K&N",
-                    Modelo = "Civic, Accord",
-                    Anio = "2016-2024",
-                    CategoriaRepuestoId = 2,
-                    ImagenUrl = "/images/repuestos/filtro-aire.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-12)
-                },
-                // Suspensión
-                new Repuesto
-                {
-                    Id = 5,
+                    Id = 3,
                     Nombre = "Amortiguador Delantero",
                     Descripcion = "Amortiguador de gas presurizado para mejor confort y control",
                     NumeroDeParte = "AD-7890",
-                    PrecioEstimado = 85000m,
-                    Marca = "Monroe",
-                    Modelo = "Sentra, Versa",
-                    Anio = "2013-2020",
-                    CategoriaRepuestoId = 3,
-                    ImagenUrl = "/images/repuestos/amortiguador.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-10)
+                    ImagenUrl = "/images/productos/amortiguador-monroe.jpg"
                 },
-                // Motor
-                new Repuesto
+                new Producto
                 {
-                    Id = 6,
-                    Nombre = "Aceite Motor 5W-30 Sintético",
-                    Descripcion = "Aceite sintético premium para motores de alta performance",
-                    NumeroDeParte = "AM-2468",
-                    PrecioEstimado = 45000m,
-                    Marca = "Castrol",
-                    Modelo = "Universal",
-                    CategoriaRepuestoId = 4,
-                    ImagenUrl = "/images/repuestos/aceite-motor.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-8)
-                },
-                new Repuesto
-                {
-                    Id = 7,
-                    Nombre = "Bujías Iridium",
-                    Descripcion = "Bujías de iridium para mayor eficiencia y durabilidad",
-                    NumeroDeParte = "BI-1357",
-                    PrecioEstimado = 18000m,
-                    Marca = "NGK",
-                    Modelo = "Multiple",
-                    CategoriaRepuestoId = 4,
-                    ImagenUrl = "/images/repuestos/bujias.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-5)
-                },
-                // Eléctrico
-                new Repuesto
-                {
-                    Id = 8,
+                    Id = 4,
                     Nombre = "Batería 12V 65Ah",
                     Descripcion = "Batería de arranque libre de mantenimiento",
                     NumeroDeParte = "BT-9753",
-                    PrecioEstimado = 120000m,
-                    Marca = "Bosch",
-                    Modelo = "Universal",
-                    CategoriaRepuestoId = 6,
-                    ImagenUrl = "/images/repuestos/bateria.jpg",
-                    FechaCreacion = DateTime.UtcNow.AddDays(-3)
+                    ImagenUrl = "/images/productos/bateria-bosch.jpg"
+                },
+                new Producto
+                {
+                    Id = 5,
+                    Nombre = "Aceite Motor 5W-30 Sintético",
+                    Descripcion = "Aceite sintético premium para motores de alta performance",
+                    NumeroDeParte = "AM-2468",
+                    ImagenUrl = "/images/productos/aceite-castrol.jpg"
+                }
+            );
+
+            // Ofertas
+            modelBuilder.Entity<Oferta>().HasData(
+                new Oferta
+                {
+                    Id = 1,
+                    ProductoId = 1,
+                    TiendaId = 1,
+                    Precio = 35000m,
+                    PrecioAnterior = 42000m,
+                    EsOferta = true,
+                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/pastillas-freno-bp1234",
+                    SKU = "BP-1234-RS"
+                },
+                new Oferta
+                {
+                    Id = 2,
+                    ProductoId = 1,
+                    TiendaId = 2,
+                    Precio = 38000m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://autoparteschile.cl/pastillas-bosch-bp1234",
+                    SKU = "BP-1234-AC"
+                },
+                new Oferta
+                {
+                    Id = 3,
+                    ProductoId = 1,
+                    TiendaId = 3,
+                    Precio = 33000m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://megarepuestos.cl/frenos/pastillas-bp1234",
+                    SKU = "BP-1234-MR"
+                },
+                new Oferta
+                {
+                    Id = 4,
+                    ProductoId = 2,
+                    TiendaId = 1,
+                    Precio = 8500m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/filtro-aceite-fo9012",
+                    SKU = "FO-9012-RS"
+                },
+                new Oferta
+                {
+                    Id = 5,
+                    ProductoId = 2,
+                    TiendaId = 2,
+                    Precio = 9200m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://autoparteschile.cl/filtros/aceite-mann-fo9012",
+                    SKU = "FO-9012-AC"
+                },
+                new Oferta
+                {
+                    Id = 6,
+                    ProductoId = 3,
+                    TiendaId = 2,
+                    Precio = 85000m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://autoparteschile.cl/suspension/amortiguador-monroe-ad7890",
+                    SKU = "AD-7890-AC"
+                },
+                new Oferta
+                {
+                    Id = 7,
+                    ProductoId = 4,
+                    TiendaId = 1,
+                    Precio = 89000m,
+                    EsOferta = false,
+                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/bateria-bosch-bt9753",
+                    SKU = "BT-9753-RS"
+                },
+                new Oferta
+                {
+                    Id = 8,
+                    ProductoId = 5,
+                    TiendaId = 3,
+                    Precio = 43500m,
+                    PrecioAnterior = 48000m,
+                    EsOferta = true,
+                    UrlProductoEnTienda = "https://megarepuestos.cl/lubricantes/aceite-am2468",
+                    SKU = "AM-2468-MR"
+                }
+            );
+
+            // Compatibilidad de productos con vehículos
+            modelBuilder.Entity<ProductoVehiculoCompatible>().HasData(
+                // Pastillas de Freno - Compatible con Toyota Corolla y Yaris
+                new ProductoVehiculoCompatible { ProductoId = 1, ModeloId = 1 }, // Toyota Corolla
+                new ProductoVehiculoCompatible { ProductoId = 1, ModeloId = 2 }, // Toyota Yaris
+                
+                // Filtro de Aceite - Compatible con Toyota Corolla, Yaris y Honda Civic
+                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 1 }, // Toyota Corolla
+                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 2 }, // Toyota Yaris
+                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 4 }, // Honda Civic
+                
+                // Amortiguador - Compatible con Nissan Sentra y Versa
+                new ProductoVehiculoCompatible { ProductoId = 3, ModeloId = 7 }, // Nissan Sentra
+                new ProductoVehiculoCompatible { ProductoId = 3, ModeloId = 8 }, // Nissan Versa
+                
+                // Batería - Universal (compatible con múltiples modelos)
+                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 1 }, // Toyota Corolla
+                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 2 }, // Toyota Yaris
+                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 4 }, // Honda Civic
+                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 5 }, // Honda Accord
+                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 7 }, // Nissan Sentra
+                
+                // Aceite Motor - Compatible con varios modelos
+                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 1 }, // Toyota Corolla
+                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 4 }, // Honda Civic
+                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 5 }, // Honda Accord
+                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 7 }  // Nissan Sentra
+            );
+
+            // Seed data para talleres y foro (datos existentes)
+            modelBuilder.Entity<Taller>().HasData(
+                new Taller
+                {
+                    Id = 1,
+                    Nombre = "Taller Mecánico San Miguel",
+                    Direccion = "Av. San Miguel 1234, Santiago",
+                    Telefono = "+56912345678",
+                    Email = "contacto@tallersanmiguel.cl",
+                    Especialidades = "Mecánica general, Frenos, Suspensión",
+                    HorarioAtencion = "Lunes a Viernes: 8:00 - 18:00, Sábados: 8:00 - 14:00",
+                    CalificacionPromedio = 4.5m
+                },
+                new Taller
+                {
+                    Id = 2,
+                    Nombre = "AutoServicio Express",
+                    Direccion = "Las Condes 5678, Las Condes",
+                    Telefono = "+56987654321",
+                    Email = "info@autoserviceexpress.cl",
+                    Especialidades = "Mantención preventiva, Cambio de aceite, Afinación",
+                    HorarioAtencion = "Lunes a Viernes: 7:30 - 19:00, Sábados: 8:00 - 15:00",
+                    CalificacionPromedio = 4.2m
+                }
+            );
+
+            modelBuilder.Entity<PublicacionForo>().HasData(
+                new PublicacionForo
+                {
+                    Id = 1,
+                    Titulo = "¿Cada cuánto cambiar el aceite del motor?",
+                    Contenido = "Hola comunidad, tengo un Toyota Corolla 2018 y me gustaría saber cada cuántos kilómetros debo cambiar el aceite. He escuchado diferentes opiniones.",
+                    UsuarioId = 1,
+                    FechaCreacion = DateTime.UtcNow.AddDays(-5),
+                    Categoria = "Mantenimiento"
+                },
+                new PublicacionForo
+                {
+                    Id = 2,
+                    Titulo = "Ruido extraño en los frenos",
+                    Contenido = "Mi auto hace un ruido chirriante cuando freno. ¿Será necesario cambiar las pastillas de freno? ¿Algún taller recomendado en Santiago?",
+                    UsuarioId = 2,
+                    FechaCreacion = DateTime.UtcNow.AddDays(-3),
+                    Categoria = "Problemas Técnicos"
+                }
+            );
+
+            modelBuilder.Entity<RespuestaForo>().HasData(
+                new RespuestaForo
+                {
+                    Id = 1,
+                    PublicacionId = 1,
+                    Contenido = "Para un Corolla 2018, te recomiendo cambiar el aceite cada 10,000 km si usas aceite sintético, o cada 5,000 km con aceite convencional.",
+                    UsuarioId = 3,
+                    FechaCreacion = DateTime.UtcNow.AddDays(-4)
+                },
+                new RespuestaForo
+                {
+                    Id = 2,
+                    PublicacionId = 2,
+                    Contenido = "Ese ruido indica que las pastillas están gastadas. Te recomiendo el Taller San Miguel, son muy buenos con los frenos.",
+                    UsuarioId = 4,
+                    FechaCreacion = DateTime.UtcNow.AddDays(-2)
                 }
             );
         }

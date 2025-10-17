@@ -1,0 +1,401 @@
+@page "/productos"
+@rendermode InteractiveServer
+@inject IComparadorService ComparadorService
+@inject IVehiculoService VehiculoService
+@inject NavigationManager Navigation
+@using AutoGuia.Core.DTOs
+
+<PageTitle>Comparador de Precios - AutoGuía</PageTitle>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-3">
+                <i class="fas fa-search-dollar me-2 text-primary"></i>
+                Comparador de Precios
+            </h1>
+            <p class="lead text-muted">
+                Encuentra los mejores precios de repuestos automotrices en Chile
+            </p>
+        </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="busqueda" class="form-label">Buscar repuesto</label>
+                            <input @bind="terminoBusqueda" @onkeypress="@(async (e) => { if (e.Key == "Enter") await BuscarProductos(); })"
+                                   type="text" class="form-control" id="busqueda" 
+                                   placeholder="Ej: pastillas de freno, filtro de aceite..." />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="marca" class="form-label">Marca del vehículo</label>
+                            <select value="@marcaSeleccionada" @onchange="OnMarcaChanged" class="form-select">
+                                <option value="">Todas las marcas</option>
+                                @if (marcas != null)
+                                {
+                                    @foreach (var marca in marcas)
+                                    {
+                                        <option value="@marca.Id">@marca.Nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="modelo" class="form-label">Modelo</label>
+                            <select @bind="modeloSeleccionado" class="form-select" disabled="@(modelos?.Any() != true)">
+                                <option value="">Todos los modelos</option>
+                                @if (modelos != null)
+                                {
+                                    @foreach (var modelo in modelos)
+                                    {
+                                        <option value="@modelo.Id">@modelo.Nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button @onclick="BuscarProductos" class="btn btn-primary" disabled="@cargando">
+                                @if (cargando)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                            <button @onclick="LimpiarFiltros" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-eraser me-2"></i>Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    @if (resultadoBusqueda != null)
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5>@resultadoBusqueda.Total resultados encontrados</h5>
+                    <small class="text-muted">
+                        Página @resultadoBusqueda.Pagina de @((resultadoBusqueda.Total + resultadoBusqueda.TamanoPagina - 1) / resultadoBusqueda.TamanoPagina)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        @if (resultadoBusqueda.Productos?.Any() == true)
+        {
+            <div class="row">
+                @foreach (var producto in resultadoBusqueda.Productos)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                            {
+                                <img src="@producto.ImagenUrl" class="card-img-top" style="height: 200px; object-fit: cover;" 
+                                     alt="@producto.Nombre" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-cog fa-3x text-muted"></i>
+                                </div>
+                            }
+                            
+                            <div class="card-body">
+                                <h6 class="card-title">@producto.Nombre</h6>
+                                <p class="card-text text-muted small">@producto.NumeroDeParte</p>
+                                <p class="card-text">@producto.Descripcion</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h5 text-success">$@producto.PrecioMinimo.ToString("N0")</span>
+                                        @if (producto.PrecioMaximo > producto.PrecioMinimo)
+                                        {
+                                            <small class="text-muted">- $@producto.PrecioMaximo.ToString("N0")</small>
+                                        }
+                                    </div>
+                                    <small class="text-muted">@producto.TotalOfertas ofertas</small>
+                                </div>
+
+                                @if (producto.MejorOferta != null)
+                                {
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mejor oferta en:</small>
+                                        <div class="d-flex align-items-center mt-1">
+                                            @if (!string.IsNullOrEmpty(producto.MejorOferta.TiendaLogo))
+                                            {
+                                                <img src="@producto.MejorOferta.TiendaLogo" alt="@producto.MejorOferta.TiendaNombre" 
+                                                     style="width: 20px; height: 20px; object-fit: contain;" class="me-2" />
+                                            }
+                                            <small>@producto.MejorOferta.TiendaNombre</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <div class="card-footer">
+                                <button @onclick="(() => VerDetalle(producto.Id))" class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-eye me-2"></i>Ver Ofertas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Paginación -->
+            @if (resultadoBusqueda.Total > resultadoBusqueda.TamanoPagina)
+            {
+                <div class="row mt-4">
+                    <div class="col-12 d-flex justify-content-center">
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item @(resultadoBusqueda.Pagina <= 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="(() => CambiarPagina(resultadoBusqueda.Pagina - 1))">Anterior</button>
+                                </li>
+                                
+                                @for (int i = Math.Max(1, resultadoBusqueda.Pagina - 2); i <= Math.Min((resultadoBusqueda.Total + resultadoBusqueda.TamanoPagina - 1) / resultadoBusqueda.TamanoPagina, resultadoBusqueda.Pagina + 2); i++)
+                                {
+                                    <li class="page-item @(i == resultadoBusqueda.Pagina ? "active" : "")">
+                                        <button class="page-link" @onclick="(() => CambiarPagina(i))">@i</button>
+                                    </li>
+                                }
+                                
+                                <li class="page-item @(resultadoBusqueda.Pagina >= (resultadoBusqueda.Total + resultadoBusqueda.TamanoPagina - 1) / resultadoBusqueda.TamanoPagina ? "disabled" : "")">
+                                    <button class="page-link" @onclick="(() => CambiarPagina(resultadoBusqueda.Pagina + 1))">Siguiente</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-search fa-2x mb-3"></i>
+                        <h5>No se encontraron productos</h5>
+                        <p class="mb-0">Intenta con otros términos de búsqueda o ajusta los filtros.</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Ofertas destacadas -->
+    @if (ofertasDestacadas?.Any() == true && resultadoBusqueda == null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4>
+                    <i class="fas fa-fire me-2 text-danger"></i>
+                    Ofertas Destacadas
+                </h4>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var oferta in ofertasDestacadas)
+            {
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100 shadow-sm border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <small class="fw-bold">
+                                <i class="fas fa-percentage me-1"></i>
+                                @oferta.PorcentajeDescuento% OFF
+                            </small>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(oferta.ProductoImagen))
+                        {
+                            <img src="@oferta.ProductoImagen" class="card-img-top" style="height: 150px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="fas fa-cog fa-2x text-muted"></i>
+                            </div>
+                        }
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">@oferta.ProductoNombre</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="h6 text-success">$@oferta.Precio.ToString("N0")</span>
+                                    @if (oferta.PrecioAnterior.HasValue)
+                                    {
+                                        <small class="text-muted text-decoration-line-through">$@oferta.PrecioAnterior.Value.ToString("N0")</small>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(oferta.TiendaLogo))
+                                    {
+                                        <img src="@oferta.TiendaLogo" alt="@oferta.TiendaNombre" 
+                                             style="width: 20px; height: 20px; object-fit: contain;" class="me-2" />
+                                    }
+                                    <small class="text-muted">@oferta.TiendaNombre</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            @if (!string.IsNullOrEmpty(oferta.UrlTienda))
+                            {
+                                <a href="@oferta.UrlTienda" target="_blank" class="btn btn-success btn-sm w-100">
+                                    <i class="fas fa-external-link-alt me-2"></i>Ver en Tienda
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string terminoBusqueda = "";
+    private string marcaSeleccionada = "";
+    private string modeloSeleccionado = "";
+    private bool cargando = false;
+
+    private IEnumerable<MarcaDto>? marcas;
+    private IEnumerable<ModeloDto>? modelos;
+    private ResultadoBusquedaDto? resultadoBusqueda;
+    private IEnumerable<OfertaDestacadaDto>? ofertasDestacadas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatosIniciales();
+    }
+
+    private async Task CargarDatosIniciales()
+    {
+        try
+        {
+            marcas = await VehiculoService.ObtenerMarcasAsync();
+            ofertasDestacadas = await ComparadorService.ObtenerOfertasDestacadasAsync(8);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos iniciales: {ex.Message}");
+        }
+    }
+
+    private async Task OnMarcaChanged(ChangeEventArgs e)
+    {
+        marcaSeleccionada = e.Value?.ToString() ?? "";
+        modeloSeleccionado = "";
+        
+        if (!string.IsNullOrEmpty(marcaSeleccionada) && int.TryParse(marcaSeleccionada, out int marcaId))
+        {
+            try
+            {
+                modelos = await VehiculoService.ObtenerModelosPorMarcaAsync(marcaId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando modelos: {ex.Message}");
+            }
+        }
+        else
+        {
+            modelos = null;
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task BuscarProductos()
+    {
+        if (cargando) return;
+        
+        cargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var busqueda = new BusquedaProductoDto
+            {
+                TerminoBusqueda = terminoBusqueda,
+                MarcaVehiculoId = !string.IsNullOrEmpty(marcaSeleccionada) && int.TryParse(marcaSeleccionada, out int marcaId) ? marcaId : null,
+                ModeloVehiculoId = !string.IsNullOrEmpty(modeloSeleccionado) && int.TryParse(modeloSeleccionado, out int modeloId) ? modeloId : null,
+                Pagina = 1,
+                TamanoPagina = 12
+            };
+
+            resultadoBusqueda = await ComparadorService.BuscarProductosAsync(busqueda);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error en búsqueda: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CambiarPagina(int nuevaPagina)
+    {
+        if (resultadoBusqueda == null || cargando) return;
+        
+        cargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var busqueda = new BusquedaProductoDto
+            {
+                TerminoBusqueda = terminoBusqueda,
+                MarcaVehiculoId = !string.IsNullOrEmpty(marcaSeleccionada) && int.TryParse(marcaSeleccionada, out int marcaId) ? marcaId : null,
+                ModeloVehiculoId = !string.IsNullOrEmpty(modeloSeleccionado) && int.TryParse(modeloSeleccionado, out int modeloId) ? modeloId : null,
+                Pagina = nuevaPagina,
+                TamanoPagina = 12
+            };
+
+            resultadoBusqueda = await ComparadorService.BuscarProductosAsync(busqueda);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cambiando página: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LimpiarFiltros()
+    {
+        terminoBusqueda = "";
+        marcaSeleccionada = "";
+        modeloSeleccionado = "";
+        modelos = null;
+        resultadoBusqueda = null;
+        StateHasChanged();
+    }
+
+    private void VerDetalle(int productoId)
+    {
+        Navigation.NavigateTo($"/producto/{productoId}");
+    }
+}

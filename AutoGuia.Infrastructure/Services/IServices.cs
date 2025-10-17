@@ -25,15 +25,7 @@ namespace AutoGuia.Infrastructure.Services
         Task<int> CrearRespuestaAsync(CrearRespuestaDto respuesta, int usuarioId);
     }
 
-    public interface IResenaService
-    {
-        Task<IEnumerable<ResenaDto>> ObtenerResenasPorTallerAsync(int tallerId);
-        Task<EstadisticasResenaDto> ObtenerEstadisticasTallerAsync(int tallerId);
-        Task<int> CrearResenaAsync(CrearResenaDto resena, string usuarioId, string nombreUsuario);
-        Task<bool> UsuarioYaResenoTallerAsync(int tallerId, string usuarioId);
-        Task<bool> EliminarResenaAsync(int resenaId, string usuarioId);
-        Task<ResenaDto?> ObtenerResenaPorIdAsync(int resenaId);
-    }
+    // IResenaService eliminado - no necesario en arquitectura de comparación de precios
 
     /// <summary>
     /// Servicio para la gestión e interacción con mapas interactivos
@@ -73,43 +65,141 @@ namespace AutoGuia.Infrastructure.Services
     }
 
     /// <summary>
-    /// Servicio para la gestión del catálogo de repuestos
+    /// Servicio para la gestión del sistema de comparación de precios de productos automotrices
     /// </summary>
-    public interface IRepuestoService
+    public interface IComparadorService
     {
         /// <summary>
-        /// Obtiene todas las categorías de repuestos
+        /// Busca productos por término de búsqueda con comparación de precios
         /// </summary>
-        Task<IEnumerable<CategoriaRepuestoDto>> ObtenerCategoriasAsync();
+        Task<ResultadoBusquedaDto> BuscarProductosAsync(BusquedaProductoDto busqueda);
 
         /// <summary>
-        /// Obtiene repuestos con filtros opcionales
+        /// Obtiene los detalles de un producto específico con todas sus ofertas
         /// </summary>
-        Task<IEnumerable<RepuestoDto>> ObtenerRepuestosAsync(FiltroRepuestosDto? filtros = null);
+        Task<ProductoDetalleDto?> ObtenerProductoDetalleAsync(int productoId);
 
         /// <summary>
-        /// Busca repuestos por término de búsqueda
+        /// Obtiene las mejores ofertas del día
         /// </summary>
-        Task<IEnumerable<RepuestoDto>> BuscarRepuestosAsync(string terminoBusqueda);
+        Task<IEnumerable<OfertaDestacadaDto>> ObtenerOfertasDestacadasAsync(int cantidad = 10);
 
         /// <summary>
-        /// Obtiene repuestos por categoría
+        /// Obtiene productos filtrados por categoría
         /// </summary>
-        Task<IEnumerable<RepuestoDto>> ObtenerRepuestosPorCategoriaAsync(int categoriaId);
+        Task<IEnumerable<ProductoDto>> ObtenerProductosPorCategoriaAsync(string categoria);
 
         /// <summary>
-        /// Obtiene un repuesto por su ID
+        /// Obtiene todas las categorías disponibles
         /// </summary>
-        Task<RepuestoDto?> ObtenerRepuestoPorIdAsync(int id);
+        Task<IEnumerable<string>> ObtenerCategoriasAsync();
 
         /// <summary>
-        /// Obtiene las marcas disponibles
+        /// Obtiene productos compatibles con un vehículo específico
         /// </summary>
-        Task<IEnumerable<string>> ObtenerMarcasAsync();
+        Task<IEnumerable<ProductoDto>> ObtenerProductosCompatiblesAsync(int marcaId, int modeloId);
 
         /// <summary>
-        /// Crea un nuevo repuesto
+        /// Actualiza el precio de una oferta específica
         /// </summary>
-        Task<int> CrearRepuestoAsync(CrearRepuestoDto repuesto);
+        Task<bool> ActualizarPrecioOfertaAsync(int ofertaId, decimal nuevoPrecio);
+    }
+
+    /// <summary>
+    /// Servicio para la gestión de productos
+    /// </summary>
+    public interface IProductoService
+    {
+        /// <summary>
+        /// Obtiene todos los productos
+        /// </summary>
+        Task<IEnumerable<ProductoDto>> ObtenerProductosAsync();
+
+        /// <summary>
+        /// Obtiene un producto por su ID
+        /// </summary>
+        Task<ProductoDto?> ObtenerProductoPorIdAsync(int id);
+
+        /// <summary>
+        /// Crea un nuevo producto
+        /// </summary>
+        Task<int> CrearProductoAsync(CrearProductoDto producto);
+
+        /// <summary>
+        /// Actualiza un producto existente
+        /// </summary>
+        Task<bool> ActualizarProductoAsync(int id, ActualizarProductoDto producto);
+
+        /// <summary>
+        /// Elimina un producto
+        /// </summary>
+        Task<bool> EliminarProductoAsync(int id);
+
+        /// <summary>
+        /// Obtiene las marcas de productos disponibles
+        /// </summary>
+        Task<IEnumerable<string>> ObtenerMarcasProductosAsync();
+    }
+
+    /// <summary>
+    /// Servicio para la gestión de tiendas
+    /// </summary>
+    public interface ITiendaService
+    {
+        /// <summary>
+        /// Obtiene todas las tiendas
+        /// </summary>
+        Task<IEnumerable<TiendaDto>> ObtenerTiendasAsync();
+
+        /// <summary>
+        /// Obtiene una tienda por su ID
+        /// </summary>
+        Task<TiendaDto?> ObtenerTiendaPorIdAsync(int id);
+
+        /// <summary>
+        /// Crea una nueva tienda
+        /// </summary>
+        Task<int> CrearTiendaAsync(CrearTiendaDto tienda);
+
+        /// <summary>
+        /// Actualiza una tienda existente
+        /// </summary>
+        Task<bool> ActualizarTiendaAsync(int id, ActualizarTiendaDto tienda);
+
+        /// <summary>
+        /// Elimina una tienda
+        /// </summary>
+        Task<bool> EliminarTiendaAsync(int id);
+
+        /// <summary>
+        /// Obtiene ofertas de una tienda específica
+        /// </summary>
+        Task<IEnumerable<OfertaDto>> ObtenerOfertasTiendaAsync(int tiendaId);
+    }
+
+    /// <summary>
+    /// Servicio para la gestión de vehículos (marcas y modelos)
+    /// </summary>
+    public interface IVehiculoService
+    {
+        /// <summary>
+        /// Obtiene todas las marcas de vehículos
+        /// </summary>
+        Task<IEnumerable<MarcaDto>> ObtenerMarcasAsync();
+
+        /// <summary>
+        /// Obtiene modelos por marca
+        /// </summary>
+        Task<IEnumerable<ModeloDto>> ObtenerModelosPorMarcaAsync(int marcaId);
+
+        /// <summary>
+        /// Crea una nueva marca
+        /// </summary>
+        Task<int> CrearMarcaAsync(CrearMarcaDto marca);
+
+        /// <summary>
+        /// Crea un nuevo modelo
+        /// </summary>
+        Task<int> CrearModeloAsync(CrearModeloDto modelo);
     }
 }

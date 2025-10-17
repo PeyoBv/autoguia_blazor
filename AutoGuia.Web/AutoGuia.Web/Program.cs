@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components;
 using AutoGuia.Web.Client.Pages;
 using AutoGuia.Web.Components;
 using AutoGuia.Web.Components.Account;
@@ -9,6 +13,8 @@ using AutoGuia.Web.Data;
 using AutoGuia.Web.Configuration;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
+using AutoGuia.Core.DTOs;
+using AutoGuia.Core.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,8 +50,12 @@ builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(G
 builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
-builder.Services.AddScoped<IResenaService, ResenaService>();
-builder.Services.AddScoped<IRepuestoService, RepuestoService>();
+
+// Servicios del sistema de comparación de precios
+builder.Services.AddScoped<IComparadorService, ComparadorService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<ITiendaService, TiendaService>();
+builder.Services.AddScoped<IVehiculoService, VehiculoService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
