@@ -36,12 +36,35 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+var autoGuiaConnectionString = builder.Configuration.GetConnectionString("AutoGuiaConnection") ?? connectionString;
 
-// Configurar AutoGuía DbContext con base de datos en memoria para el MVP
-builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
-    options.UseInMemoryDatabase("AutoGuiaDb"));
+// Configurar ApplicationDbContext (Identity) - SQLite para desarrollo, PostgreSQL para producción
+if (connectionString.Contains("Host=") || connectionString.Contains("Server="))
+{
+    // PostgreSQL para producción
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    // SQLite para desarrollo local
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
+
+// Configurar AutoGuía DbContext - PostgreSQL para producción, InMemory para desarrollo
+if (autoGuiaConnectionString.Contains("Host=") || autoGuiaConnectionString.Contains("Server="))
+{
+    // PostgreSQL para producción
+    builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
+        options.UseNpgsql(autoGuiaConnectionString));
+}
+else
+{
+    // InMemory para desarrollo local
+    builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
+        options.UseInMemoryDatabase("AutoGuiaDb"));
+}
 
 // Configurar Google Maps
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));

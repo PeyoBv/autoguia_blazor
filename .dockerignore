@@ -1,0 +1,54 @@
+# AutoGuía - .dockerignore
+# Archivos y directorios a excluir del contexto Docker
+
+# Directorios de build
+**/bin
+**/obj
+**/out
+
+# Archivos de desarrollo
+**/.vs
+**/.vscode
+.git
+.gitignore
+README.md
+*.md
+
+# Logs y archivos temporales
+**/*.log
+**/*.tmp
+**/*.temp
+**/logs
+
+# Archivos de entorno
+.env
+.env.local
+.env.production
+
+# Archivos de base de datos
+**/*.db
+**/*.sqlite
+
+# Certificados y claves
+**/*.pfx
+**/*.key
+**/*.crt
+
+# Archivos de Node.js (si los hay)
+node_modules
+npm-debug.log
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store
+
+# Docker files (no necesarios en el build)
+Dockerfile*
+docker-compose*
+
+# Archivos de prueba
+**/TestResults
+
+# Archivos de usuario de Visual Studio
+**/*.user
+**/*.suo

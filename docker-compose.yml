@@ -1,0 +1,132 @@
+# AutoGuía - Docker Compose para desarrollo y producción
+version: '3.8'
+
+services:
+  # Aplicación web principal
+  autoguia-web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: autoguia-web
+    ports:
+      - "80:8080"
+      - "443:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PASSWORD:-AutoGuia2025!}
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetcore.pfx
+      - ConnectionStrings__DefaultConnection=Host=autoguia-db;Database=autoguia;Username=autoguia;Password=${POSTGRES_PASSWORD:-AutoGuia2025!}
+      - ConnectionStrings__AutoGuiaConnection=Host=autoguia-db;Database=autoguia;Username=autoguia;Password=${POSTGRES_PASSWORD:-AutoGuia2025!}
+      - GoogleMaps__ApiKey=${GOOGLE_MAPS_API_KEY}
+    depends_on:
+      - autoguia-db
+      - redis
+    volumes:
+      - ~/.aspnet/https:/https:ro
+      - autoguia-logs:/app/logs
+    networks:
+      - autoguia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Sistema de scraping
+  autoguia-scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+    container_name: autoguia-scraper
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=autoguia-db;Database=autoguia;Username=autoguia;Password=${POSTGRES_PASSWORD:-AutoGuia2025!}
+      - ScrapingSettings__RepuestosTotalBaseUrl=https://www.repuestostotal.cl
+      - ScrapingSettings__IntervalMinutes=60
+    depends_on:
+      - autoguia-db
+    volumes:
+      - scraper-logs:/app/logs
+    networks:
+      - autoguia-network
+    restart: unless-stopped
+
+  # Base de datos PostgreSQL
+  autoguia-db:
+    image: postgres:15-alpine
+    container_name: autoguia-db
+    environment:
+      POSTGRES_DB: autoguia
+      POSTGRES_USER: autoguia
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-AutoGuia2025!}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - autoguia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autoguia -d autoguia"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Redis para cache y sesiones
+  redis:
+    image: redis:7-alpine
+    container_name: autoguia-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-AutoGuia2025!}
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - autoguia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+
+  # Adminer para administración de DB (desarrollo)
+  adminer:
+    image: adminer:latest
+    container_name: autoguia-adminer
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: autoguia-db
+    depends_on:
+      - autoguia-db
+    networks:
+      - autoguia-network
+    profiles:
+      - dev
+    restart: unless-stopped
+
+# Volúmenes persistentes
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  autoguia-logs:
+    driver: local
+  scraper-logs:
+    driver: local
+
+# Red interna para comunicación entre servicios
+networks:
+  autoguia-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

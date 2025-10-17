@@ -1,0 +1,43 @@
+# AutoGuía Scraper - Dockerfile para worker de scraping
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+WORKDIR /app
+
+# Configurar usuario no-root para seguridad
+RUN addgroup --system --gid 1001 scraper && \
+    adduser --system --uid 1001 --ingroup scraper scraper
+USER scraper
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+# Copiar archivos de proyecto y restaurar dependencias
+COPY ["AutoGuia.Scraper/AutoGuia.Scraper.csproj", "AutoGuia.Scraper/"]
+COPY ["AutoGuia.Infrastructure/AutoGuia.Infrastructure.csproj", "AutoGuia.Infrastructure/"]
+COPY ["AutoGuia.Core/AutoGuia.Core.csproj", "AutoGuia.Core/"]
+
+RUN dotnet restore "AutoGuia.Scraper/AutoGuia.Scraper.csproj"
+
+# Copiar código fuente
+COPY . .
+WORKDIR "/src/AutoGuia.Scraper"
+
+# Build de la aplicación
+RUN dotnet build "AutoGuia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "AutoGuia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+
+# Copiar archivos publicados
+COPY --from=publish /app/publish .
+
+# Labels para metadatos
+LABEL maintainer="AutoGuia Team" \
+      version="1.0.0" \
+      description="AutoGuía Scraper - Worker de obtención de datos"
+
+ENTRYPOINT ["dotnet", "AutoGuia.Scraper.dll"]

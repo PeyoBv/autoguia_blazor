@@ -69,6 +69,20 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 - Aplicación móvil nativa
 - Análisis avanzado de datos
 
+## 🐳 Docker - COMPLETAMENTE IMPLEMENTADO
+
+### ✅ Containerización Lista para Producción
+
+**¡AutoGuía está completamente dockerizada y lista para despliegue!**
+
+- **🏗️ Multi-stage builds** optimizados para producción
+- **🗄️ PostgreSQL** como base de datos principal
+- **🔴 Redis** para cache y sesiones
+- **🕷️ Scraper separado** en su propio contenedor
+- **🔒 Configuración segura** con usuarios no-root
+- **📊 Health checks** integrados
+- **🛠️ Scripts de desarrollo** incluidos
+
 ## Arquitectura Técnica
 
 ### Estructura de la Solución
@@ -123,7 +137,9 @@ AutoGuía/
 **Stack Tecnológico - Completamente Funcional:**
 - **Framework**: .NET 8 ✅
 - **UI**: Blazor con modo de renderizado Automático (Servidor + WebAssembly) ✅
-- **Base de datos**: Entity Framework Core con InMemory Database (para MVP) ✅
+- **Base de datos**: Entity Framework Core con PostgreSQL (producción) / InMemory (desarrollo) ✅
+- **Containerización**: Docker + Docker Compose ✅
+- **Cache**: Redis para sesiones y cache ✅
 - **Autenticación**: ASP.NET Core Identity con roles ✅
 - **Frontend**: Bootstrap 5 + Font Awesome ✅
 - **IDE**: Visual Studio Code ✅
@@ -268,6 +284,164 @@ AutoGuía/
 **Contraseña**: `Admin123!`
 
 > **Nota**: El usuario administrador se crea automáticamente al iniciar la aplicación
+
+## 🐳 Despliegue con Docker - LISTO PARA PRODUCCIÓN
+
+### 📋 Prerrequisitos Docker
+- Docker Engine 20.10+ ✅
+- Docker Compose V2 ✅
+
+### 🚀 Inicio Rápido con Docker
+
+#### 1. **Clonar y Configurar**
+```bash
+git clone <repository-url>
+cd autoguia
+cp .env.example .env
+# Editar .env con tus configuraciones
+```
+
+#### 2. **Desarrollo Local (Solo DB + Redis)**
+```bash
+# Windows
+.\docker-dev.ps1 up-dev
+
+# Linux/macOS
+./docker-dev.sh up-dev
+```
+
+#### 3. **Producción Completa**
+```bash
+# Windows
+.\docker-dev.ps1 up
+
+# Linux/macOS  
+./docker-dev.sh up
+```
+
+### 🏗️ Arquitectura Docker
+
+```yaml
+AutoGuía Docker Stack:
+├── autoguia-web      # Aplicación Blazor (Puerto 80/443)
+├── autoguia-scraper  # Worker de scraping
+├── autoguia-db       # PostgreSQL 15 (Puerto 5432)
+├── redis             # Cache y sesiones (Puerto 6379)
+└── adminer           # Admin DB (Puerto 8081) [solo desarrollo]
+```
+
+### 📂 Estructura de Archivos Docker
+
+```
+docker/
+├── Dockerfile                 # Imagen principal web
+├── Dockerfile.scraper         # Imagen del scraper
+├── docker-compose.yml         # Producción
+├── docker-compose.dev.yml     # Desarrollo
+├── docker-dev.sh             # Scripts Linux/macOS
+├── docker-dev.ps1            # Scripts Windows
+├── .env.example              # Variables de entorno
+├── .dockerignore             # Exclusiones Docker
+└── docker/
+    └── init-db.sql           # Inicialización PostgreSQL
+```
+
+### ⚙️ Comandos Docker Útiles
+
+#### **Scripts de Desarrollo (Recomendado)**
+```bash
+# Windows PowerShell
+.\docker-dev.ps1 [comando]
+
+# Linux/macOS Bash
+./docker-dev.sh [comando]
+```
+
+**Comandos disponibles:**
+- `up-dev` - Solo servicios de desarrollo (DB + Redis)
+- `up` - Todos los servicios para producción
+- `build` - Construir imágenes
+- `down` - Detener servicios
+- `logs [servicio]` - Ver logs
+- `shell db` - Conectar a PostgreSQL
+- `clean` - Limpiar contenedores
+- `rebuild` - Reconstruir desde cero
+
+#### **Docker Compose Manual**
+```bash
+# Desarrollo (solo infraestructura)
+docker-compose -f docker-compose.dev.yml up -d
+
+# Producción completa
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f autoguia-web
+
+# Conectar a base de datos
+docker-compose exec autoguia-db psql -U autoguia -d autoguia
+```
+
+### 🔧 Configuración de Variables de Entorno
+
+Crear archivo `.env` basado en `.env.example`:
+
+```bash
+# Base de datos
+POSTGRES_PASSWORD=tu_password_seguro
+DB_PASSWORD=tu_password_seguro
+
+# Redis
+REDIS_PASSWORD=tu_redis_password
+
+# Google Maps (opcional)
+GOOGLE_MAPS_API_KEY=tu_api_key
+
+# Certificados SSL para HTTPS
+CERT_PASSWORD=tu_cert_password
+```
+
+### 🚦 Acceso a Servicios
+
+**Desarrollo:**
+- 🗄️ **Base de datos**: `localhost:5433`
+- 🔴 **Redis**: `localhost:6380`  
+- 🛠️ **Adminer**: http://localhost:8080
+
+**Producción:**
+- 🌐 **Aplicación web**: http://localhost (puerto 80)
+- 🔒 **HTTPS**: https://localhost (puerto 443)
+- 🗄️ **Base de datos**: `localhost:5432`
+- 🔴 **Redis**: `localhost:6379`
+- 🛠️ **Adminer**: http://localhost:8081
+
+### 🔍 Health Checks y Monitoreo
+
+Todos los servicios incluyen health checks:
+
+```bash
+# Verificar estado de servicios
+docker-compose ps
+
+# Logs específicos
+docker-compose logs -f autoguia-web
+docker-compose logs -f autoguia-scraper
+```
+
+### 📊 Volúmenes Persistentes
+
+- `postgres-data` - Datos de PostgreSQL
+- `redis-data` - Cache de Redis  
+- `autoguia-logs` - Logs de aplicación
+- `scraper-logs` - Logs del scraper
+
+### 🛡️ Seguridad Docker
+
+- ✅ **Usuarios no-root** en todos los contenedores
+- ✅ **Variables de entorno** para credenciales
+- ✅ **Red interna** para comunicación entre servicios
+- ✅ **Health checks** para monitoreo
+- ✅ **Multi-stage builds** para imágenes optimizadas
 
 ## Funcionalidades Principales
 
@@ -456,15 +630,17 @@ AutoGuia.Web/Components/
 
 ### Mejoras Técnicas
 1. **Optimización de consultas** de base de datos
-2. **Cache** para mejorar performance
+2. ✅ **Cache con Redis** - Implementado con Docker
 3. **Validación de formularios** más robusta
 4. **Manejo de errores** centralizado
 5. **Logging** estructurado con Serilog
 6. **Tests unitarios** y de integración
 7. **CI/CD Pipeline** con GitHub Actions
-8. **Containerización** con Docker
+8. ✅ **Containerización completa** - Docker implementado
 9. **Monitoreo y métricas** de aplicación
 10. **Seguridad avanzada** con rate limiting
+11. **Kubernetes deployment** para escalabilidad
+12. **SSL/TLS automático** con Let's Encrypt
 
 ## Contribución
 
