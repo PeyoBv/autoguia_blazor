@@ -32,7 +32,7 @@
    ```json
    {
      "GoogleMaps": {
-       "ApiKey": "TU_CLAVE_REAL_AQUI"
+       "ApiKey": "AIzaSyDDrpPXn4n09DqNBwtuzVzwuHAsRnlB23M"
      }
    }
    ```

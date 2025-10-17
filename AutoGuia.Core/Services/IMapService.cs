@@ -10,11 +10,11 @@ namespace AutoGuia.Core.Services
         /// <summary>
         /// Inicializa un mapa interactivo en el elemento HTML especificado
         /// </summary>
-        /// <param name="mapElement">Referencia al elemento HTML donde se renderizará el mapa</param>
+        /// <param name="mapElementId">ID del elemento HTML donde se renderizará el mapa</param>
         /// <param name="talleres">Colección de talleres para mostrar como marcadores</param>
         /// <param name="apiKey">Clave de API para el servicio de mapas</param>
         /// <returns>Task que representa la operación asíncrona</returns>
-        Task InicializarMapaAsync(object mapElement, IEnumerable<Taller> talleres, string apiKey);
+        Task InicializarMapaAsync(string mapElementId, IEnumerable<Taller> talleres, string apiKey);
 
         /// <summary>
         /// Agrega un marcador individual al mapa existente

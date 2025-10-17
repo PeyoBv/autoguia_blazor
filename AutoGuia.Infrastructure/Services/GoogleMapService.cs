@@ -21,7 +21,7 @@ namespace AutoGuia.Infrastructure.Services
         /// <summary>
         /// Inicializa el mapa de Google Maps con los talleres especificados
         /// </summary>
-        public async Task InicializarMapaAsync(object mapElement, IEnumerable<Taller> talleres, string apiKey)
+        public async Task InicializarMapaAsync(string mapElementId, IEnumerable<Taller> talleres, string apiKey)
         {
             try
             {
@@ -29,7 +29,7 @@ namespace AutoGuia.Infrastructure.Services
                 var talleresData = talleres.Select(ConvertirTallerAMarcador).ToArray();
 
                 // Invocar función JavaScript para inicializar el mapa
-                await _jsRuntime.InvokeAsync<string>("autoguiaMap.initMap", mapElement, talleresData, apiKey);
+                await _jsRuntime.InvokeAsync<string>("autoguiaMap.initMap", mapElementId, talleresData, apiKey);
             }
             catch (Exception ex)
             {

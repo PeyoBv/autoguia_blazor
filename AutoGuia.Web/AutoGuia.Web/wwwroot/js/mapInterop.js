@@ -7,11 +7,40 @@ window.autoguiaMap = {
     infoWindow: null,
 
     // Inicializa el mapa de Google Maps
-    initMap: function (mapElement, talleresData, apiKey) {
+    initMap: function (mapElementId, talleresData, apiKey) {
         return new Promise((resolve, reject) => {
             try {
+                // Obtener el elemento del DOM usando el ID
+                const mapElement = document.getElementById(mapElementId);
+                if (!mapElement) {
+                    reject(`Elemento del mapa no encontrado: ${mapElementId}`);
+                    return;
+                }
+                
+                // Verificar si ya existe un script de Google Maps cargándose
+                const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+                
                 // Verificar si Google Maps ya está cargado
-                if (typeof google === 'undefined') {
+                if (typeof google !== 'undefined' && google.maps) {
+                    // Si Google Maps ya está cargado, inicializar directamente
+                    this.createMap(mapElement, talleresData);
+                    resolve('Mapa inicializado correctamente');
+                } else if (existingScript) {
+                    // Si ya hay un script cargándose, esperar a que termine
+                    const checkGoogle = setInterval(() => {
+                        if (typeof google !== 'undefined' && google.maps) {
+                            clearInterval(checkGoogle);
+                            this.createMap(mapElement, talleresData);
+                            resolve('Mapa inicializado correctamente');
+                        }
+                    }, 100);
+                    
+                    // Timeout de seguridad
+                    setTimeout(() => {
+                        clearInterval(checkGoogle);
+                        reject('Timeout esperando la carga de Google Maps API');
+                    }, 10000);
+                } else {
                     // Cargar la API de Google Maps dinámicamente
                     const script = document.createElement('script');
                     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=autoguiaMap.initializeMapCallback`;
@@ -28,10 +57,6 @@ window.autoguiaMap = {
                     
                     script.onerror = () => reject('Error al cargar Google Maps API');
                     document.head.appendChild(script);
-                } else {
-                    // Si Google Maps ya está cargado, inicializar directamente
-                    this.createMap(mapElement, talleresData);
-                    resolve('Mapa inicializado correctamente');
                 }
             } catch (error) {
                 reject(`Error en initMap: ${error.message}`);
@@ -43,13 +68,26 @@ window.autoguiaMap = {
     initializeMapCallback: function () {
         try {
             const data = window.autoguiaMapData;
+            if (!data) {
+                console.error('No se encontraron datos de mapa para inicializar');
+                return;
+            }
+            
+            if (!data.mapElement) {
+                data.reject('Elemento del mapa no disponible en el callback');
+                return;
+            }
+            
             autoguiaMap.createMap(data.mapElement, data.talleresData);
             data.resolve('Mapa inicializado correctamente');
             
             // Limpiar datos temporales
             delete window.autoguiaMapData;
         } catch (error) {
-            window.autoguiaMapData.reject(`Error en callback: ${error.message}`);
+            console.error('Error en callback de Google Maps:', error);
+            if (window.autoguiaMapData && window.autoguiaMapData.reject) {
+                window.autoguiaMapData.reject(`Error en callback: ${error.message}`);
+            }
         }
     },
 
@@ -267,11 +305,8 @@ window.autoguiaMap = {
 
     // Función para ver detalles del taller (callback a Blazor)
     verDetalles: function (tallerId) {
-        if (window.blazorInterop && window.blazorInterop.verDetallesTaller) {
-            window.blazorInterop.verDetallesTaller(tallerId);
-        } else {
-            console.log(`Ver detalles del taller ID: ${tallerId}`);
-        }
+        console.log(`Ver detalles del taller ID: ${tallerId}`);
+        // TODO: Implementar callback a Blazor cuando sea necesario
     },
 
     // Función para obtener direcciones
