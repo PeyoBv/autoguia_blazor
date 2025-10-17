@@ -1,0 +1,198 @@
+@using AutoGuia.Core.DTOs
+@using AutoGuia.Infrastructure.Services
+@inject IResenaService ResenaService
+
+<div class="resenas-container">
+    @if (cargando)
+    {
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando reseñas...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Estadísticas de reseñas -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="display-6 text-primary">@estadisticas?.PromedioFormateado</span>
+                                <small class="text-muted d-block">de 5 estrellas</small>
+                            </div>
+                            <div>
+                                <div class="mb-1">
+                                    @if (estadisticas != null)
+                                    {
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= Math.Round(estadisticas.CalificacionPromedio) ? "text-warning" : "text-muted")"></i>
+                                        }
+                                    }
+                                </div>
+                                <small class="text-muted">
+                                    @(estadisticas?.TotalResenas ?? 0) reseña@(estadisticas?.TotalResenas != 1 ? "s" : "")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (estadisticas?.TotalResenas > 0)
+                    {
+                        <div class="col-md-6">
+                            <div class="small">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    var cantidad = estadisticas.DistribucionCalificaciones.GetValueOrDefault(i, 0);
+                                    var porcentaje = estadisticas.TotalResenas > 0 ? (cantidad * 100.0 / estadisticas.TotalResenas) : 0;
+                                    
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="me-2" style="width: 15px;">@i</span>
+                                        <i class="fas fa-star text-warning me-2"></i>
+                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: @porcentaje%"></div>
+                                        </div>
+                                        <span style="width: 30px; font-size: 0.8em;">@cantidad</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de reseñas -->
+        @if (resenas?.Any() == true)
+        {
+            <div class="resenas-list">
+                <h6 class="mb-3">
+                    <i class="fas fa-comments me-2"></i>
+                    Reseñas de usuarios
+                </h6>
+                
+                                @foreach (var resena in resenas.Take(resenasMostradas))
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                                            <span class="fw-bold">@resena.NombreUsuario.Take(1).FirstOrDefault().ToString().ToUpper()</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">@resena.NombreUsuario</h6>
+                                        <div class="mb-1">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= resena.Calificacion ? "text-warning" : "text-muted") small"></i>
+                                            }
+                                            <span class="ms-1 small text-muted">(@resena.Calificacion)/5</span>
+                                        </div>
+                                        <small class="text-muted">@resena.TiempoTranscurrido</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (!string.IsNullOrWhiteSpace(resena.Comentario))
+                            {
+                                <p class="mb-0">@resena.Comentario</p>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                @if (resenas.Count() > resenasMostradas)
+                {
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-primary btn-sm" @onclick="CargarMasResenas">
+                            <i class="fas fa-chevron-down me-1"></i>
+                            Ver más reseñas
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+        else if (!cargando)
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Este taller aún no tiene reseñas.</p>
+                <p class="small text-muted">Sé el primero en compartir tu experiencia.</p>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int TallerId { get; set; }
+    
+    private IEnumerable<ResenaDto>? resenas;
+    private EstadisticasResenaDto? estadisticas;
+    private bool cargando = true;
+    private int resenasMostradas = 5; // Mostrar 5 reseñas inicialmente
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarResenas();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (TallerId > 0)
+        {
+            cargando = true;
+            StateHasChanged();
+            await CargarResenas();
+        }
+    }
+
+    private async Task CargarResenas()
+    {
+        try
+        {
+            var tareaResenas = ResenaService.ObtenerResenasPorTallerAsync(TallerId);
+            var tareaEstadisticas = ResenaService.ObtenerEstadisticasTallerAsync(TallerId);
+
+            await Task.WhenAll(tareaResenas, tareaEstadisticas);
+            
+            resenas = tareaResenas.Result;
+            estadisticas = tareaEstadisticas.Result;
+            
+            // Resetear contador al cargar reseñas nuevas
+            resenasMostradas = 5;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando reseñas: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CargarMasResenas()
+    {
+        // Incrementar la cantidad de reseñas mostradas
+        resenasMostradas += 5;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Método público para recargar las reseñas (útil cuando se agrega una nueva)
+    /// </summary>
+    public async Task RecargarResenas()
+    {
+        cargando = true;
+        StateHasChanged();
+        await CargarResenas();
+    }
+}

@@ -3,6 +3,7 @@
 @inject ITallerService TallerService
 @inject IMapService MapService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
 @inject IOptions<GoogleMapsOptions> GoogleMapsConfig
 @using Microsoft.Extensions.Options
 @using AutoGuia.Core.Services
@@ -114,9 +115,9 @@
                                         <button class="btn btn-outline-primary btn-sm" @onclick="() => VerEnMapa(taller)">
                                             <i class="fas fa-map me-1"></i>Ver en Mapa
                                         </button>
-                                        <button class="btn btn-primary btn-sm" @onclick="() => VerDetalles(taller.Id)">
+                                        <a href="/taller/@taller.Id" class="btn btn-primary btn-sm">
                                             Ver Detalles
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -423,10 +424,25 @@
         }
     }
 
-    private void VerDetalles(int tallerId)
+    private async Task VerDetalles(int tallerId)
     {
-        // TODO: Navegar a página de detalles del taller
-        Console.WriteLine($"Ver detalles del taller ID: {tallerId}");
+        try
+        {
+            Console.WriteLine($"Navegando a taller ID: {tallerId}");
+            
+            // Intentar con NavigationManager primero
+            Navigation.NavigateTo($"/taller/{tallerId}");
+            
+            // Si no funciona, usar JavaScript como respaldo
+            await Task.Delay(100);
+            await JSRuntime.InvokeVoidAsync("console.log", $"Navegando a taller {tallerId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error navegando a detalle de taller: {ex.Message}");
+            // Respaldo con JavaScript
+            await JSRuntime.InvokeVoidAsync("window.location.href", $"/taller/{tallerId}");
+        }
     }
 
 

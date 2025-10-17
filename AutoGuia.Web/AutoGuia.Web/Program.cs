@@ -44,6 +44,7 @@ builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(G
 builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
+builder.Services.AddScoped<IResenaService, ResenaService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -83,6 +84,7 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 // Inicializar la base de datos de AutoGuía con datos semilla
+// Esto crea automáticamente las tablas y carga los datos de prueba
 using (var scope = app.Services.CreateScope())
 {
     var autoGuiaContext = scope.ServiceProvider.GetRequiredService<AutoGuiaDbContext>();

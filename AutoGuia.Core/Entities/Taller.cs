@@ -66,6 +66,6 @@ namespace AutoGuia.Core.Entities
         public DateTime? FechaVerificacion { get; set; }
         
         // Relaciones
-        public virtual ICollection<ResenasTaller> Resenas { get; set; } = new List<ResenasTaller>();
+        public virtual ICollection<Resena> Resenas { get; set; } = new List<Resena>();
     }
 }

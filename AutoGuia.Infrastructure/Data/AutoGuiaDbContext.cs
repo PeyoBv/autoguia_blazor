@@ -13,6 +13,7 @@ namespace AutoGuia.Infrastructure.Data
         public DbSet<Vehiculo> Vehiculos { get; set; }
         public DbSet<Taller> Talleres { get; set; }
         public DbSet<ResenasTaller> ResenasTalleres { get; set; }
+        public DbSet<Resena> Resenas { get; set; }
         public DbSet<PublicacionForo> PublicacionesForo { get; set; }
         public DbSet<RespuestaForo> RespuestasForo { get; set; }
 
@@ -27,9 +28,10 @@ namespace AutoGuia.Infrastructure.Data
                 .HasForeignKey(v => v.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configuración ResenasTaller (legacy - mantenido para compatibilidad)
             modelBuilder.Entity<ResenasTaller>()
                 .HasOne(r => r.Taller)
-                .WithMany(t => t.Resenas)
+                .WithMany() // Sin relación de navegación para evitar conflictos
                 .HasForeignKey(r => r.TallerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -63,6 +65,13 @@ namespace AutoGuia.Infrastructure.Data
                 .HasForeignKey(r => r.RespuestaPadreId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configuración para nueva entidad Resena
+            modelBuilder.Entity<Resena>()
+                .HasOne(r => r.Taller)
+                .WithMany(t => t.Resenas)
+                .HasForeignKey(r => r.TallerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Configuración de índices para mejor rendimiento
             modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Email)
@@ -76,6 +85,16 @@ namespace AutoGuia.Infrastructure.Data
 
             modelBuilder.Entity<PublicacionForo>()
                 .HasIndex(p => p.FechaCreacion);
+
+            modelBuilder.Entity<Resena>()
+                .HasIndex(r => r.TallerId);
+
+            modelBuilder.Entity<Resena>()
+                .HasIndex(r => r.FechaPublicacion);
+
+            modelBuilder.Entity<Resena>()
+                .HasIndex(r => new { r.TallerId, r.UsuarioId })
+                .IsUnique(); // Un usuario solo puede reseñar un taller una vez
 
             // Datos semilla para el MVP
             SeedData(modelBuilder);
@@ -247,6 +266,90 @@ namespace AutoGuia.Infrastructure.Data
                     PublicacionId = 3,
                     UsuarioId = 2,
                     Likes = 1
+                }
+            );
+
+            // Datos semilla para Reseñas
+            modelBuilder.Entity<Resena>().HasData(
+                new Resena
+                {
+                    Id = 1,
+                    Calificacion = 5,
+                    Comentario = "Excelente servicio, muy profesionales y precios justos. Recomendado al 100%.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-30),
+                    TallerId = 1, // Taller Mecánico Central
+                    UsuarioId = "user1@example.com",
+                    NombreUsuario = "María González"
+                },
+                new Resena
+                {
+                    Id = 2,
+                    Calificacion = 4,
+                    Comentario = "Buen trabajo, aunque tuve que esperar un poco más de lo esperado.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-25),
+                    TallerId = 1,
+                    UsuarioId = "user2@example.com",
+                    NombreUsuario = "Carlos Rodríguez"
+                },
+                new Resena
+                {
+                    Id = 3,
+                    Calificacion = 5,
+                    Comentario = "Atención de primera, solucionaron mi problema rápidamente.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-20),
+                    TallerId = 2, // AutoService Las Condes
+                    UsuarioId = "user3@example.com",
+                    NombreUsuario = "Ana López"
+                },
+                new Resena
+                {
+                    Id = 4,
+                    Calificacion = 3,
+                    Comentario = "Servicio regular, cumplieron pero nada excepcional.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-18),
+                    TallerId = 3, // Taller Rodríguez - Valparaíso
+                    UsuarioId = "user4@example.com",
+                    NombreUsuario = "Luis Hernández"
+                },
+                new Resena
+                {
+                    Id = 5,
+                    Calificacion = 4,
+                    Comentario = "Buenos mecánicos, precios competitivos. Volveré sin duda.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-15),
+                    TallerId = 3,
+                    UsuarioId = "user5@example.com",
+                    NombreUsuario = "Patricia Silva"
+                },
+                new Resena
+                {
+                    Id = 6,
+                    Calificacion = 5,
+                    Comentario = "Perfecta atención, muy recomendable para trabajos de carrocería.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-10),
+                    TallerId = 4, // AutoMaster Concepción
+                    UsuarioId = "user6@example.com",
+                    NombreUsuario = "Roberto Muñoz"
+                },
+                new Resena
+                {
+                    Id = 7,
+                    Calificacion = 2,
+                    Comentario = "Tuve algunos inconvenientes con los tiempos de entrega.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-8),
+                    TallerId = 5, // Mecánica Express Viña del Mar
+                    UsuarioId = "user7@example.com",
+                    NombreUsuario = "Sandra Torres"
+                },
+                new Resena
+                {
+                    Id = 8,
+                    Calificacion = 4,
+                    Comentario = "Muy buena experiencia, personal capacitado y instalaciones limpias.",
+                    FechaPublicacion = DateTime.UtcNow.AddDays(-5),
+                    TallerId = 6, // TallerPro La Serena
+                    UsuarioId = "user8@example.com",
+                    NombreUsuario = "Fernando Díaz"
                 }
             );
         }

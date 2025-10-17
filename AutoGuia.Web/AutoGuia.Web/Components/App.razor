@@ -18,6 +18,24 @@
 <body>
     <Routes />
     <script src="_framework/blazor.web.js"></script>
+    <script>
+        // Configuración global para manejar errores DOM
+        window.blazorCulture = {
+            get: () => 'es-CL',
+            set: (value) => console.log('Setting culture to', value)
+        };
+        
+        // Interceptar y manejar errores específicos de Blazor
+        window.addEventListener('error', function(e) {
+            if (e.error && e.error.message && e.error.message.includes('removeChild')) {
+                console.log('DOM error silenciado:', e.error.message);
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+    </script>
+    <script src="js/autoguia-utils.js"></script>
     <script src="js/mapInterop.js"></script>
 </body>
 

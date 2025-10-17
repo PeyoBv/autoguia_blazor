@@ -1,0 +1,304 @@
+@page "/taller/{TallerId:int}"
+@rendermode InteractiveServer
+@inject ITallerService TallerService
+@inject IResenaService ResenaService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@using AutoGuia.Web.Components.Shared
+
+<PageTitle>@(taller?.Nombre ?? "Taller") - AutoGuía</PageTitle>
+
+<div class="container py-4">
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando información del taller...</span>
+            </div>
+            <p class="mt-2">Cargando información del taller...</p>
+        </div>
+    }
+    else if (taller == null)
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <h3>Taller no encontrado</h3>
+            <p class="text-muted">El taller que buscas no existe o no está disponible.</p>
+            <a href="/talleres" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver a talleres
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/" class="text-decoration-none">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/talleres" class="text-decoration-none">Talleres</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">@taller.Nombre</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Información principal del taller -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <!-- Encabezado -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h1 class="h3 mb-2">
+                                    @taller.Nombre
+                                    @if (taller.EsVerificado)
+                                    {
+                                        <span class="badge bg-success ms-2">
+                                            <i class="fas fa-check-circle"></i> Verificado
+                                        </span>
+                                    }
+                                </h1>
+                                
+                                <!-- Calificación -->
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (taller.CalificacionPromedio.HasValue && taller.CalificacionPromedio > 0)
+                                    {
+                                        <div class="me-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= Math.Round(taller.CalificacionPromedio.Value) ? "text-warning" : "text-muted")"></i>
+                                            }
+                                        </div>
+                                        <span class="fw-bold me-2">@taller.CalificacionPromedio.Value.ToString("F1")</span>
+                                        <span class="text-muted">(@taller.TotalResenas reseña@(taller.TotalResenas != 1 ? "s" : ""))</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Sin calificaciones aún</span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <!-- Botones de acción -->
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm" @onclick="CompartirTaller">
+                                    <i class="fas fa-share-alt"></i>
+                                    <span class="d-none d-md-inline ms-1">Compartir</span>
+                                </button>
+                                
+                                @if (taller.Latitud.HasValue && taller.Longitud.HasValue)
+                                {
+                                    <a href="https://www.google.com/maps/dir/?api=1&destination=@taller.Latitud,@taller.Longitud" 
+                                       target="_blank" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-directions"></i>
+                                        <span class="d-none d-md-inline ms-1">Cómo llegar</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        @if (!string.IsNullOrWhiteSpace(taller.Descripcion))
+                        {
+                            <div class="mb-4">
+                                <h5>Descripción</h5>
+                                <p class="text-muted">@taller.Descripcion</p>
+                            </div>
+                        }
+
+                        <!-- Especialidades -->
+                        @if (!string.IsNullOrWhiteSpace(taller.Especialidades))
+                        {
+                            <div class="mb-4">
+                                <h5>Especialidades</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var especialidad in taller.Especialidades.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <span class="badge bg-light text-dark border">@especialidad.Trim()</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Formulario para nueva reseña -->
+                <div class="mt-4">
+                    <FormularioResena TallerId="@TallerId" OnResenaCreada="@OnResenaCreada" />
+                </div>
+
+                <!-- Lista de reseñas -->
+                <div class="mt-4">
+                    <ListaResenas @ref="listaResenasRef" TallerId="@TallerId" />
+                </div>
+            </div>
+
+            <!-- Información de contacto y ubicación -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Información de contacto
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Dirección -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-map-marker-alt text-primary me-3 mt-1"></i>
+                                <div>
+                                    <strong>Dirección</strong><br>
+                                    <span class="text-muted">@taller.Direccion</span><br>
+                                    <span class="text-muted">@taller.Ciudad, @taller.Region</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Teléfono -->
+                        @if (!string.IsNullOrWhiteSpace(taller.Telefono))
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-phone text-primary me-3"></i>
+                                    <div>
+                                        <strong>Teléfono</strong><br>
+                                        <a href="tel:@taller.Telefono" class="text-decoration-none">@taller.Telefono</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Email -->
+                        @if (!string.IsNullOrWhiteSpace(taller.Email))
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-envelope text-primary me-3"></i>
+                                    <div>
+                                        <strong>Email</strong><br>
+                                        <a href="mailto:@taller.Email" class="text-decoration-none">@taller.Email</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Horario -->
+                        @if (!string.IsNullOrWhiteSpace(taller.HorarioAtencion))
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-clock text-primary me-3 mt-1"></i>
+                                    <div>
+                                        <strong>Horario de atención</strong><br>
+                                        <span class="text-muted">@taller.HorarioAtencion</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Botones de contacto -->
+                        <hr>
+                        <div class="d-grid gap-2">
+                            @if (!string.IsNullOrWhiteSpace(taller.Telefono))
+                            {
+                                <a href="tel:@taller.Telefono" class="btn btn-primary">
+                                    <i class="fas fa-phone me-2"></i>
+                                    Llamar ahora
+                                </a>
+                            }
+                            
+                            @if (!string.IsNullOrWhiteSpace(taller.Email))
+                            {
+                                <a href="mailto:@taller.Email" class="btn btn-outline-primary">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    Enviar email
+                                </a>
+                            }
+
+                            <a href="/talleres" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver a talleres
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int TallerId { get; set; }
+
+    private TallerDto? taller;
+    private bool cargando = true;
+    private ListaResenas? listaResenasRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTaller();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (TallerId > 0)
+        {
+            cargando = true;
+            StateHasChanged();
+            await CargarTaller();
+        }
+    }
+
+    private async Task CargarTaller()
+    {
+        try
+        {
+            taller = await TallerService.ObtenerTallerPorIdAsync(TallerId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando taller: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnResenaCreada()
+    {
+        // Recargar los datos del taller para actualizar las estadísticas
+        await CargarTaller();
+        
+        // Recargar la lista de reseñas
+        if (listaResenasRef != null)
+        {
+            await listaResenasRef.RecargarResenas();
+        }
+    }
+
+    private async Task CompartirTaller()
+    {
+        try
+        {
+            var url = Navigation.Uri;
+            var texto = $"Mira este taller: {taller?.Nombre}";
+            
+            // Usar la función mejorada de compartir
+            await JSRuntime.InvokeVoidAsync("autoguiaTest.shareContent", taller?.Nombre ?? "Taller", texto, url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error compartiendo: {ex.Message}");
+        }
+    }
+}
