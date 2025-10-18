@@ -303,3 +303,14 @@ healthchecksdb
 
 # AutoGuia - Exclude nested git repository
 autoguia/
+
+# AutoGuia - Archivos temporales y documentación de trabajo
+AUDITORIA_COMPLETA.md
+AUDITORIA_PROYECTO.md
+REPARACIONES_COMPLETADAS.md
+RESUMEN_REPARACIONES.md
+SOLUCIÓN_OMNISHARP.md
+TAREAS_PENDIENTES.md
+REPORTE_PRUEBAS.md
+**/PASO_*_COMPLETADO.md
+**/*TestService.cs
