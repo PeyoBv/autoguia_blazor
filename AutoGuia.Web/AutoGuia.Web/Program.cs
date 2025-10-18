@@ -121,15 +121,30 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-// Inicializar la base de datos de AutoGuía con datos semilla
-// Esto crea automáticamente las tablas y carga los datos de prueba
+// ✅ PLAN DE ACCIÓN: Inicialización completa de base de datos
+// 1. Aplicar migraciones automáticamente
+// 2. Poblar datos iniciales de Identity
 using (var scope = app.Services.CreateScope())
 {
-    var autoGuiaContext = scope.ServiceProvider.GetRequiredService<AutoGuiaDbContext>();
-    autoGuiaContext.Database.EnsureCreated();
-    
-    // Inicializar roles y usuario administrador
-    await InicializarRolesYAdminAsync(scope.ServiceProvider);
+    try
+    {
+        // Paso 1: Aplicar migraciones de Identity
+        var identityContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await identityContext.Database.MigrateAsync();
+        
+        // Paso 2: Aplicar migraciones de AutoGuía
+        var autoGuiaContext = scope.ServiceProvider.GetRequiredService<AutoGuiaDbContext>();
+        await autoGuiaContext.Database.MigrateAsync();
+        
+        // Paso 3: Inicializar roles y usuario administrador
+        await InicializarRolesYAdminAsync(scope.ServiceProvider);
+        
+        Console.WriteLine("✅ Base de datos inicializada correctamente");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Error inicializando base de datos: {ex.Message}");
+    }
 }
 
 app.Run();

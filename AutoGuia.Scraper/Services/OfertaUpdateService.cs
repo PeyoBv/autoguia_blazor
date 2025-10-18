@@ -150,8 +150,7 @@ public class OfertaUpdateService : IOfertaUpdateService
                 .Where(o => o.ProductoId == productoId && o.TiendaId == tiendaId)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(o => o.EsDisponible, false)
-                    .SetProperty(o => o.FechaActualizacion, DateTime.UtcNow),
-                    cancellationToken);
+                    .SetProperty(o => o.FechaActualizacion, DateTime.UtcNow));
 
             if (filasActualizadas > 0)
             {
