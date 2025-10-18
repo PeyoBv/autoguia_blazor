@@ -11,10 +11,13 @@ using AutoGuia.Web.Components;
 using AutoGuia.Web.Components.Account;
 using AutoGuia.Web.Data;
 using AutoGuia.Web.Configuration;
+using AutoGuia.Web.Services;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
+using AutoGuia.Scraper.Interfaces;
+using AutoGuia.Scraper.Extensions; // ⭐ Para método de extensión AddScraperServices
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,39 +38,34 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-var autoGuiaConnectionString = builder.Configuration.GetConnectionString("AutoGuiaConnection") ?? connectionString;
+var identityConnectionString = builder.Configuration.GetConnectionString("IdentityConnection") ?? 
+    builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+    throw new InvalidOperationException("Connection string 'DefaultConnection' o 'IdentityConnection' not found.");
+var autoGuiaConnectionString = builder.Configuration.GetConnectionString("AutoGuiaConnection") ?? identityConnectionString;
 
-// Configurar ApplicationDbContext (Identity) - SQLite para desarrollo, PostgreSQL para producción
-if (connectionString.Contains("Host=") || connectionString.Contains("Server="))
-{
-    // PostgreSQL para producción
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connectionString));
-}
-else
-{
-    // SQLite para desarrollo local
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(connectionString));
-}
+// Configurar bases de datos separadas para Identity y AutoGuía
+Console.WriteLine("✅ Configurando bases de datos separadas:");
+Console.WriteLine($"   Identity DB: Puerto 5434 - identity_dev");
+Console.WriteLine($"   AutoGuía DB: Puerto 5433 - autoguia_dev");
 
-// Configurar AutoGuía DbContext - PostgreSQL para producción, InMemory para desarrollo
-if (autoGuiaConnectionString.Contains("Host=") || autoGuiaConnectionString.Contains("Server="))
-{
-    // PostgreSQL para producción
-    builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
-        options.UseNpgsql(autoGuiaConnectionString));
-}
-else
-{
-    // InMemory para desarrollo local
-    builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
-        options.UseInMemoryDatabase("AutoGuiaDb"));
-}
+// Identity en base de datos dedicada
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(identityConnectionString));
+
+// AutoGuía en base de datos separada
+builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
+    options.UseNpgsql(autoGuiaConnectionString));
+
+
 
 // Configurar Google Maps
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));
+
+// ✨ Registrar todos los servicios de scraping (HttpClient, Cache, Scrapers, Orchestrator)
+builder.Services.AddScraperServices(excludePlaywright: true);
+
+// Registrar servicio de integración Web ↔ Scraper
+builder.Services.AddScoped<IScraperIntegrationService, ScraperIntegrationService>();
 
 // Registrar servicios de AutoGuía
 builder.Services.AddScoped<ITallerService, TallerService>();
@@ -136,67 +134,16 @@ using (var scope = app.Services.CreateScope())
         var autoGuiaContext = scope.ServiceProvider.GetRequiredService<AutoGuiaDbContext>();
         await autoGuiaContext.Database.MigrateAsync();
         
-        // Paso 3: Inicializar roles y usuario administrador
-        await InicializarRolesYAdminAsync(scope.ServiceProvider);
+        // Paso 3: Ejecutar seeding de datos (Identity + Aplicación)
+        await DataSeeder.SeedData(app.Services);
         
-        Console.WriteLine("✅ Base de datos inicializada correctamente");
+        Console.WriteLine("✅ Base de datos inicializada correctamente con datos de prueba");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Error inicializando base de datos: {ex.Message}");
+        Console.WriteLine($"⚠️ Error en inicialización de BD: {ex.Message}");
+        Console.WriteLine("✅ La aplicación continuará ejecutándose...");
     }
 }
 
 app.Run();
-
-/// <summary>
-/// Inicializa los roles del sistema y crea el usuario administrador inicial
-/// </summary>
-static async Task InicializarRolesYAdminAsync(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    
-    // Crear rol Admin si no existe
-    const string adminRole = "Admin";
-    if (!await roleManager.RoleExistsAsync(adminRole))
-    {
-        await roleManager.CreateAsync(new IdentityRole(adminRole));
-    }
-    
-    // Crear usuario administrador si no existe
-    const string adminEmail = "admin@autoguia.cl";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    
-    if (adminUser == null)
-    {
-        adminUser = new ApplicationUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true // Para que pueda iniciar sesión sin confirmación
-        };
-        
-        const string adminPassword = "Admin123!"; // En producción, usar variables de entorno
-        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        
-        if (result.Succeeded)
-        {
-            // Asignar rol Admin al usuario
-            await userManager.AddToRoleAsync(adminUser, adminRole);
-            Console.WriteLine($"Usuario administrador creado: {adminEmail} / {adminPassword}");
-        }
-        else
-        {
-            Console.WriteLine($"Error creando usuario administrador: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-        }
-    }
-    else
-    {
-        // Asegurar que el usuario existente tenga el rol Admin
-        if (!await userManager.IsInRoleAsync(adminUser, adminRole))
-        {
-            await userManager.AddToRoleAsync(adminUser, adminRole);
-        }
-    }
-}

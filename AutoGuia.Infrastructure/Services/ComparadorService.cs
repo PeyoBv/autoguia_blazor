@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Infrastructure.Data;
@@ -8,13 +9,20 @@ namespace AutoGuia.Infrastructure.Services
     /// <summary>
     /// Servicio para el sistema de comparación de precios de productos automotrices
     /// </summary>
-    public class ComparadorService : IComparadorService
+    public partial class ComparadorService : IComparadorService
     {
         private readonly AutoGuiaDbContext _context;
+        private readonly IScraperIntegrationService? _scraperService;
+        private readonly ILogger<ComparadorService> _logger;
 
-        public ComparadorService(AutoGuiaDbContext context)
+        public ComparadorService(
+            AutoGuiaDbContext context,
+            ILogger<ComparadorService> logger,
+            IScraperIntegrationService? scraperService = null)
         {
             _context = context;
+            _logger = logger;
+            _scraperService = scraperService;
         }
 
         public async Task<ResultadoBusquedaDto> BuscarProductosAsync(BusquedaProductoDto busqueda)

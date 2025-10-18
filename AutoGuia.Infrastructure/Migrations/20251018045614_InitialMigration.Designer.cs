@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoGuia.Infrastructure.Migrations
 {
     [DbContext(typeof(AutoGuiaDbContext))]
-    [Migration("20251017235133_InicialMigration")]
-    partial class InicialMigration
+    [Migration("20251018045614_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,7 +61,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 1,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(671),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9472),
                             LogoUrl = "/images/marcas/toyota.png",
                             Nombre = "Toyota"
                         },
@@ -69,7 +69,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 2,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(675),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9474),
                             LogoUrl = "/images/marcas/honda.png",
                             Nombre = "Honda"
                         },
@@ -77,7 +77,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 3,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(676),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9475),
                             LogoUrl = "/images/marcas/nissan.png",
                             Nombre = "Nissan"
                         },
@@ -85,7 +85,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 4,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(677),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9477),
                             LogoUrl = "/images/marcas/chevrolet.png",
                             Nombre = "Chevrolet"
                         },
@@ -93,7 +93,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 5,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(678),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9478),
                             LogoUrl = "/images/marcas/ford.png",
                             Nombre = "Ford"
                         });
@@ -148,7 +148,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2000,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(820),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9713),
                             MarcaId = 1,
                             Nombre = "Corolla"
                         },
@@ -158,7 +158,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2005,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(828),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9718),
                             MarcaId = 1,
                             Nombre = "Yaris"
                         },
@@ -168,7 +168,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2010,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(830),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9720),
                             MarcaId = 1,
                             Nombre = "RAV4"
                         },
@@ -178,7 +178,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2000,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(831),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9721),
                             MarcaId = 2,
                             Nombre = "Civic"
                         },
@@ -188,7 +188,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2008,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(833),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9723),
                             MarcaId = 2,
                             Nombre = "Accord"
                         },
@@ -198,7 +198,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2012,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(835),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9724),
                             MarcaId = 2,
                             Nombre = "CR-V"
                         },
@@ -208,7 +208,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2007,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(836),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9726),
                             MarcaId = 3,
                             Nombre = "Sentra"
                         },
@@ -218,7 +218,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2012,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(838),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9727),
                             MarcaId = 3,
                             Nombre = "Versa"
                         },
@@ -228,7 +228,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2014,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(839),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9729),
                             MarcaId = 3,
                             Nombre = "X-Trail"
                         });
@@ -293,8 +293,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = true,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(940),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(940),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9846),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9846),
                             Precio = 35000m,
                             PrecioAnterior = 42000m,
                             ProductoId = 1,
@@ -308,8 +308,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(950),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(950),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9860),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9860),
                             Precio = 38000m,
                             ProductoId = 1,
                             SKU = "BP-1234-AC",
@@ -322,8 +322,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(952),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(952),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9863),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9862),
                             Precio = 33000m,
                             ProductoId = 1,
                             SKU = "BP-1234-MR",
@@ -336,8 +336,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(955),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(955),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9864),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9864),
                             Precio = 8500m,
                             ProductoId = 2,
                             SKU = "FO-9012-RS",
@@ -350,8 +350,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(957),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(957),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9866),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9866),
                             Precio = 9200m,
                             ProductoId = 2,
                             SKU = "FO-9012-AC",
@@ -364,8 +364,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(959),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(959),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9901),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9901),
                             Precio = 85000m,
                             ProductoId = 3,
                             SKU = "AD-7890-AC",
@@ -378,8 +378,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = false,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(961),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(960),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9904),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9904),
                             Precio = 89000m,
                             ProductoId = 4,
                             SKU = "BT-9753-RS",
@@ -392,8 +392,8 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsDisponible = true,
                             EsOferta = true,
-                            FechaActualizacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(962),
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(962),
+                            FechaActualizacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9906),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9905),
                             Precio = 43500m,
                             PrecioAnterior = 48000m,
                             ProductoId = 5,
@@ -445,7 +445,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 1,
                             Descripcion = "Pastillas de freno cerámicas para mayor durabilidad y menor ruido",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(905),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9802),
                             ImagenUrl = "/images/productos/pastillas-freno-bosch.jpg",
                             Nombre = "Pastillas de Freno Delanteras",
                             NumeroDeParte = "BP-1234"
@@ -455,7 +455,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 2,
                             Descripcion = "Filtro de aceite de alta calidad para motor",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(910),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9810),
                             ImagenUrl = "/images/productos/filtro-aceite-mann.jpg",
                             Nombre = "Filtro de Aceite",
                             NumeroDeParte = "FO-9012"
@@ -465,7 +465,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 3,
                             Descripcion = "Amortiguador de gas presurizado para mejor confort y control",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(911),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9812),
                             ImagenUrl = "/images/productos/amortiguador-monroe.jpg",
                             Nombre = "Amortiguador Delantero",
                             NumeroDeParte = "AD-7890"
@@ -475,7 +475,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 4,
                             Descripcion = "Batería de arranque libre de mantenimiento",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(913),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9813),
                             ImagenUrl = "/images/productos/bateria-bosch.jpg",
                             Nombre = "Batería 12V 65Ah",
                             NumeroDeParte = "BT-9753"
@@ -485,7 +485,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 5,
                             Descripcion = "Aceite sintético premium para motores de alta performance",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(915),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9815),
                             ImagenUrl = "/images/productos/aceite-castrol.jpg",
                             Nombre = "Aceite Motor 5W-30 Sintético",
                             NumeroDeParte = "AM-2468"
@@ -531,7 +531,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 1,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(992)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9938)
                         },
                         new
                         {
@@ -539,7 +539,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 2,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(994)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9940)
                         },
                         new
                         {
@@ -547,7 +547,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 1,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(995)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9940)
                         },
                         new
                         {
@@ -555,7 +555,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 2,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(996)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9941)
                         },
                         new
                         {
@@ -563,7 +563,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 4,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(997)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9942)
                         },
                         new
                         {
@@ -571,7 +571,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 7,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(998)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9943)
                         },
                         new
                         {
@@ -579,7 +579,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 8,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(999)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9944)
                         },
                         new
                         {
@@ -587,7 +587,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 1,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1000)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9945)
                         },
                         new
                         {
@@ -595,7 +595,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 2,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1001)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9945)
                         },
                         new
                         {
@@ -603,7 +603,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 4,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1002)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9946)
                         },
                         new
                         {
@@ -611,7 +611,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 5,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1002)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9947)
                         },
                         new
                         {
@@ -619,7 +619,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 7,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1003)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9948)
                         },
                         new
                         {
@@ -627,7 +627,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 1,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1004)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9949)
                         },
                         new
                         {
@@ -635,7 +635,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 4,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1005)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9949)
                         },
                         new
                         {
@@ -643,7 +643,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 5,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1006)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9950)
                         },
                         new
                         {
@@ -651,7 +651,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             ModeloId = 7,
                             Ano = 0,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1006)
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9951)
                         });
                 });
 
@@ -710,36 +710,6 @@ namespace AutoGuia.Infrastructure.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("PublicacionesForo");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Categoria = "Mantenimiento",
-                            Contenido = "Hola comunidad, tengo un Toyota Corolla 2018 y me gustaría saber cada cuántos kilómetros debo cambiar el aceite. He escuchado diferentes opiniones.",
-                            EsActivo = true,
-                            EsCerrado = false,
-                            EsDestacado = false,
-                            FechaCreacion = new DateTime(2025, 10, 12, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1139),
-                            Likes = 0,
-                            Titulo = "¿Cada cuánto cambiar el aceite del motor?",
-                            UsuarioId = 1,
-                            Vistas = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Categoria = "Problemas Técnicos",
-                            Contenido = "Mi auto hace un ruido chirriante cuando freno. ¿Será necesario cambiar las pastillas de freno? ¿Algún taller recomendado en Santiago?",
-                            EsActivo = true,
-                            EsCerrado = false,
-                            EsDestacado = false,
-                            FechaCreacion = new DateTime(2025, 10, 14, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1148),
-                            Likes = 0,
-                            Titulo = "Ruido extraño en los frenos",
-                            UsuarioId = 2,
-                            Vistas = 0
-                        });
                 });
 
             modelBuilder.Entity("AutoGuia.Core.Entities.Resena", b =>
@@ -861,30 +831,6 @@ namespace AutoGuia.Infrastructure.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("RespuestasForo");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Contenido = "Para un Corolla 2018, te recomiendo cambiar el aceite cada 10,000 km si usas aceite sintético, o cada 5,000 km con aceite convencional.",
-                            EsActivo = true,
-                            EsRespuestaAceptada = false,
-                            FechaCreacion = new DateTime(2025, 10, 13, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1170),
-                            Likes = 0,
-                            PublicacionId = 1,
-                            UsuarioId = 3
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Contenido = "Ese ruido indica que las pastillas están gastadas. Te recomiendo el Taller San Miguel, son muy buenos con los frenos.",
-                            EsActivo = true,
-                            EsRespuestaAceptada = false,
-                            FechaCreacion = new DateTime(2025, 10, 15, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1172),
-                            Likes = 0,
-                            PublicacionId = 2,
-                            UsuarioId = 4
-                        });
                 });
 
             modelBuilder.Entity("AutoGuia.Core.Entities.Taller", b =>
@@ -986,7 +932,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsVerificado = false,
                             Especialidades = "Mecánica general, Frenos, Suspensión",
-                            FechaRegistro = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1093),
+                            FechaRegistro = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9991),
                             HorarioAtencion = "Lunes a Viernes: 8:00 - 18:00, Sábados: 8:00 - 14:00",
                             Nombre = "Taller Mecánico San Miguel",
                             Region = "",
@@ -1003,7 +949,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsVerificado = false,
                             Especialidades = "Mantención preventiva, Cambio de aceite, Afinación",
-                            FechaRegistro = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(1103),
+                            FechaRegistro = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9999),
                             HorarioAtencion = "Lunes a Viernes: 7:30 - 19:00, Sábados: 8:00 - 15:00",
                             Nombre = "AutoServicio Express",
                             Region = "",
@@ -1054,7 +1000,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 1,
                             Descripcion = "Tu tienda de confianza para repuestos automotrices",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(874),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9767),
                             LogoUrl = "/images/tiendas/repuestos-santiago.png",
                             Nombre = "Repuestos Santiago",
                             UrlSitioWeb = "https://repuestossantiago.cl"
@@ -1064,7 +1010,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 2,
                             Descripcion = "Especialistas en repuestos importados y nacionales",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(878),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9771),
                             LogoUrl = "/images/tiendas/autopartes-chile.png",
                             Nombre = "AutoPartes Chile",
                             UrlSitioWeb = "https://autoparteschile.cl"
@@ -1074,7 +1020,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 3,
                             Descripcion = "Los mejores precios en repuestos automotrices",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 17, 23, 51, 32, 944, DateTimeKind.Utc).AddTicks(880),
+                            FechaCreacion = new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9772),
                             LogoUrl = "/images/tiendas/mega-repuestos.png",
                             Nombre = "MegaRepuestos",
                             UrlSitioWeb = "https://megarepuestos.cl"

@@ -46,7 +46,7 @@ public class ScraperWorker : BackgroundService
             _scrapingSettings.IntervalInMinutes);
 
         // Verificar si el scraping está habilitado globalmente
-        if (!_scrapingSettings.Enabled)
+        if (!_scrapingSettings.IsEnabled)
         {
             _logger.LogWarning("⚠️ Scraping deshabilitado globalmente en configuración");
             return;

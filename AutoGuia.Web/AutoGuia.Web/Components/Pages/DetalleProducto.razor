@@ -1,6 +1,7 @@
 @page "/producto/{ProductoId:int}"
 @rendermode InteractiveServer
 @inject IComparadorService ComparadorService
+@inject IScraperIntegrationService IntegrationService
 @inject NavigationManager Navigation
 @using AutoGuia.Core.DTOs
 
@@ -118,14 +119,36 @@
         <!-- Ofertas disponibles -->
         @if (producto.Ofertas?.Any() == true)
         {
-            <div class="row">
-                <div class="col-12">
+            <div class="row mb-3">
+                <div class="col-md-8">
                     <h4 class="mb-3">
                         <i class="fas fa-store me-2"></i>
                         Ofertas Disponibles (@producto.Ofertas.Count())
                     </h4>
                 </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary" @onclick="ActualizarPreciosProducto" disabled="@actualizandoPrecios">
+                        @if (actualizandoPrecios)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Actualizando...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-sync-alt me-2"></i>
+                            <span>Actualizar Precios Ahora</span>
+                        }
+                    </button>
+                </div>
             </div>
+
+            @if (!string.IsNullOrEmpty(mensajeActualizacion))
+            {
+                <div class="alert @(mensajeActualizacion.Contains("✅") ? "alert-success" : mensajeActualizacion.Contains("⚠️") ? "alert-warning" : "alert-danger") alert-dismissible fade show" role="alert">
+                    @mensajeActualizacion
+                    <button type="button" class="btn-close" @onclick="@(() => mensajeActualizacion = null)"></button>
+                </div>
+            }
 
             <div class="row">
                 @foreach (var oferta in producto.Ofertas.OrderBy(o => o.Precio))
@@ -219,6 +242,8 @@
     
     private ProductoDetalleDto? producto;
     private bool cargando = true;
+    private bool actualizandoPrecios = false;
+    private string? mensajeActualizacion;
 
     protected override async Task OnInitializedAsync()
     {
@@ -249,6 +274,50 @@
         finally
         {
             cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Actualiza los precios del producto ejecutando los scrapers en tiempo real
+    /// </summary>
+    private async Task ActualizarPreciosProducto()
+    {
+        if (producto == null || actualizandoPrecios) return;
+
+        actualizandoPrecios = true;
+        mensajeActualizacion = null;
+        StateHasChanged();
+
+        try
+        {
+            Console.WriteLine($"🔄 Iniciando actualización de precios para ProductoId: {ProductoId}");
+
+            // Llamar al servicio de integración para ejecutar scrapers y actualizar BD
+            var ofertasProcesadas = await IntegrationService.EjecutarYActualizarPrecios(ProductoId);
+
+            if (ofertasProcesadas > 0)
+            {
+                mensajeActualizacion = $"✅ Se procesaron {ofertasProcesadas} ofertas exitosamente";
+                Console.WriteLine(mensajeActualizacion);
+
+                // Recargar el producto para mostrar los precios actualizados
+                await CargarProducto();
+            }
+            else
+            {
+                mensajeActualizacion = "⚠️ No se encontraron ofertas nuevas";
+                Console.WriteLine(mensajeActualizacion);
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeActualizacion = $"❌ Error al actualizar precios: {ex.Message}";
+            Console.WriteLine($"❌ Error en ActualizarPreciosProducto: {ex}");
+        }
+        finally
+        {
+            actualizandoPrecios = false;
             StateHasChanged();
         }
     }

@@ -51,11 +51,16 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 - **Autorización por roles** para acceso
 - **CRUD completo** de entidades
 
-### 🕷️ Sistema de Scraping - **IMPLEMENTADO**
-- **Worker en segundo plano** funcional
+### 🕷️ Sistema de Scraping - **COMPLETAMENTE INTEGRADO**
+- **3 Scrapers activos**: Autoplanet, MercadoLibre, MundoRepuestos
+- **Worker en segundo plano** funcional (AutoGuia.Scraper)
+- **Integración web** con botón manual "Actualizar Precios"
 - **Scraping automático** cada 60 minutos
-- **Manejo robusto** de errores
-- **Actualización de ofertas** automática
+- **Arquitectura modular** con patrón Strategy
+- **Service Extension** para registro DI simplificado
+- **Manejo robusto** de errores y reintentos
+- **Actualización de ofertas** en tiempo real
+- **Compatible con EF Core 8.0.11** y PostgreSQL
 
 ### 🎨 Interfaz de Usuario - **PROFESIONAL**
 - **Diseño responsive** con Bootstrap 5
@@ -152,6 +157,36 @@ AutoGuía/
 3. **AutoGuia.Web** - Aplicación Blazor principal (✅ Funcional)
 4. **AutoGuia.Scraper** - Sistema de scraping automático (✅ Funcional)
 5. **AutoGuia.Web.Client** - Cliente WebAssembly (✅ Funcional)
+
+### 🕷️ Sistema de Scraping - Detalles Técnicos
+
+**Arquitectura Modular:**
+- **Patrón Strategy** para scrapers intercambiables
+- **Dependency Injection** con extension methods personalizados
+- **Orquestador centralizado** para coordinación de scrapers
+- **Service de actualización** con transacciones atómicas
+
+**Scrapers Implementados:**
+1. **AutoplanetScraperService** - Scraping de Autoplanet.cl
+2. **MercadoLibreScraperService** - Scraping de MercadoLibre.cl
+3. **MundoRepuestosScraperService** - Scraping de MundoRepuestos.cl
+
+**Características Técnicas:**
+- ✅ **EF Core 8.0.11** - Compatible con Npgsql 8.0.10
+- ✅ **HttpClient** reutilizable con pooling
+- ✅ **MemoryCache** para optimización de consultas
+- ✅ **ExecuteUpdateAsync** para actualizaciones eficientes
+- ✅ **ScraperOrchestratorService** - Coordinación de múltiples scrapers
+- ✅ **OfertaUpdateService** - Lógica de negocio de actualización
+- ✅ **ServiceCollectionExtensions** - Registro DI simplificado
+- ✅ **Integración web** - Botón manual en página de productos
+
+**Flujo de Trabajo:**
+1. Usuario hace clic en "Actualizar Precios Ahora"
+2. `ScraperIntegrationService` coordina la operación
+3. `ScraperOrchestratorService` ejecuta scrapers en paralelo
+4. `OfertaUpdateService` actualiza base de datos
+5. UI se actualiza automáticamente con nuevos precios
 
 ## Entidades del Dominio
 

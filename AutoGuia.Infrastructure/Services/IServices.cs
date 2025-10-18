@@ -103,6 +103,16 @@ namespace AutoGuia.Infrastructure.Services
         /// Actualiza el precio de una oferta específica
         /// </summary>
         Task<bool> ActualizarPrecioOfertaAsync(int ofertaId, decimal nuevoPrecio);
+
+        /// <summary>
+        /// Obtiene ofertas en tiempo real ejecutando scrapers
+        /// </summary>
+        Task<IEnumerable<OfertaDto>> ObtenerOfertasEnTiempoRealAsync(string numeroDeParte, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Limpia el caché de ofertas para un producto específico
+        /// </summary>
+        Task<bool> LimpiarCacheOfertasAsync(string numeroDeParte);
     }
 
     /// <summary>
@@ -175,6 +185,31 @@ namespace AutoGuia.Infrastructure.Services
         /// Obtiene ofertas de una tienda específica
         /// </summary>
         Task<IEnumerable<OfertaDto>> ObtenerOfertasTiendaAsync(int tiendaId);
+    }
+
+    /// <summary>
+    /// Servicio para integrar scrapers con la aplicación web
+    /// </summary>
+    public interface IScraperIntegrationService
+    {
+        /// <summary>
+        /// Obtiene ofertas en tiempo real ejecutando scrapers
+        /// </summary>
+        Task<List<OfertaDto>> ObtenerOfertasEnTiempoRealAsync(string numeroDeParte, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Limpia el caché de ofertas para un producto específico
+        /// </summary>
+        Task<bool> LimpiarCacheAsync(string numeroDeParte);
+
+        /// <summary>
+        /// Ejecuta el scraping para un producto y actualiza/crea ofertas en la base de datos.
+        /// Traduce entre Scraper.DTOs.OfertaDto y Core.Entities.Oferta.
+        /// </summary>
+        /// <param name="productoId">ID del producto a scrapear</param>
+        /// <param name="cancellationToken">Token de cancelación</param>
+        /// <returns>Número de ofertas procesadas (creadas + actualizadas)</returns>
+        Task<int> EjecutarYActualizarPrecios(int productoId, CancellationToken cancellationToken = default);
     }
 
     /// <summary>

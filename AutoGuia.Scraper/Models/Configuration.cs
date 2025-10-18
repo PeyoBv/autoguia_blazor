@@ -29,7 +29,39 @@ public class ScrapingSettings
     /// <summary>
     /// Indica si el scraping está habilitado globalmente.
     /// </summary>
-    public bool Enabled { get; set; } = true;
+    public bool IsEnabled { get; set; } = true;
+}
+
+/// <summary>
+/// Modelo de configuración para las páginas objetivo del scraping.
+/// Mapeado desde la sección "ScrapingTargets" del appsettings.json.
+/// </summary>
+public class ScrapingTarget
+{
+    /// <summary>
+    /// Nombre de la tienda para buscar en la base de datos.
+    /// </summary>
+    public string TiendaNombre { get; set; } = string.Empty;
+
+    /// <summary>
+    /// URL de la página a scrapear.
+    /// </summary>
+    public string Url { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Categoría de productos que se espera encontrar en esta URL.
+    /// </summary>
+    public string Categoria { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Indica si este target está activo para scraping.
+    /// </summary>
+    public bool EsActivo { get; set; } = true;
+
+    /// <summary>
+    /// Delay específico para esta tienda en milisegundos.
+    /// </summary>
+    public int? DelayMs { get; set; }
 }
 
 /// <summary>

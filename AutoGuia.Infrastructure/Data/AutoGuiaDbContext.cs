@@ -303,6 +303,9 @@ namespace AutoGuia.Infrastructure.Data
                 }
             );
 
+            /*
+            // Datos de PublicacionForo y RespuestaForo movidos al DataSeeder 
+            // para controlar mejor el orden de inserción con los usuarios
             modelBuilder.Entity<PublicacionForo>().HasData(
                 new PublicacionForo
                 {
@@ -342,6 +345,7 @@ namespace AutoGuia.Infrastructure.Data
                     FechaCreacion = DateTime.UtcNow.AddDays(-2)
                 }
             );
+            */
         }
     }
 }

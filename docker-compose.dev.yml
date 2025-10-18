@@ -3,6 +3,7 @@ version: '3.8'
 
 services:
   # Solo servicios necesarios para desarrollo
+  # Base de datos principal para AutoGuía
   autoguia-db:
     image: postgres:15-alpine
     container_name: autoguia-db-dev
@@ -15,6 +16,23 @@ services:
       - postgres-dev-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    networks:
+      - autoguia-dev-network
+    restart: unless-stopped
+
+  # Base de datos separada para Identity
+  identity-db:
+    image: postgres:15-alpine
+    container_name: identity-db-dev
+    environment:
+      POSTGRES_DB: identity_dev
+      POSTGRES_USER: identity_dev
+      POSTGRES_PASSWORD: dev123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-identity-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
     networks:
       - autoguia-dev-network
     restart: unless-stopped
@@ -41,12 +59,15 @@ services:
       ADMINER_DEFAULT_SERVER: autoguia-db
     depends_on:
       - autoguia-db
+      - identity-db
     networks:
       - autoguia-dev-network
     restart: unless-stopped
 
 volumes:
   postgres-dev-data:
+    driver: local
+  postgres-identity-data:
     driver: local
   redis-dev-data:
     driver: local
