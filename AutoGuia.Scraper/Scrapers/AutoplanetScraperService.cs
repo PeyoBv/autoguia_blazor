@@ -70,11 +70,42 @@ public class AutoplanetScraperService : IScraper
             if (string.IsNullOrEmpty(html))
             {
                 _logger.LogWarning("⚠️ No se pudo descargar el HTML de Autoplanet");
-                return new List<OfertaDto>
-                {
-                    CrearOfertaConError(tiendaId, "No se pudo descargar la página")
-                };
+                return ofertas; // Devolver lista vacía en lugar de oferta con error
             }
+
+#if DEBUG
+            // 🐛 HERRAMIENTA DE DEBUGGING: Guardar HTML para análisis
+            // Esto ayuda a identificar los selectores correctos cuando cambian
+            try
+            {
+                var debugPath = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory, 
+                    $"autoplanet_debug_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+                
+                await File.WriteAllTextAsync(debugPath, html, cancellationToken);
+                
+                _logger.LogInformation(
+                    "🐛 DEBUG: HTML guardado en {Path} para análisis de selectores", 
+                    debugPath);
+                
+                _logger.LogInformation(
+                    "💡 INSTRUCCIONES:\n" +
+                    "   1. Abre el archivo HTML en un navegador\n" +
+                    "   2. Abre las DevTools (F12)\n" +
+                    "   3. Inspecciona la estructura de los productos\n" +
+                    "   4. Busca los selectores CSS/XPath para:\n" +
+                    "      - Contenedor de producto (ej: .product-card, .item, article)\n" +
+                    "      - Título del producto\n" +
+                    "      - Precio\n" +
+                    "      - URL del producto\n" +
+                    "      - Imagen\n" +
+                    "   5. Actualiza los arrays de selectores en AutoplanetScraperService.cs");
+            }
+            catch (Exception debugEx)
+            {
+                _logger.LogWarning(debugEx, "No se pudo guardar HTML de debug");
+            }
+#endif
 
             // 5. Parsear HTML con HtmlAgilityPack
             var htmlDoc = new HtmlDocument();
@@ -121,18 +152,12 @@ public class AutoplanetScraperService : IScraper
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "❌ Error de red al conectar con Autoplanet");
-            return new List<OfertaDto>
-            {
-                CrearOfertaConError(tiendaId, $"Error de conexión: {ex.Message}")
-            };
+            return ofertas; // Devolver lista vacía, NO ofertas con error
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Error inesperado al scrapear Autoplanet");
-            return new List<OfertaDto>
-            {
-                CrearOfertaConError(tiendaId, $"Error inesperado: {ex.Message}")
-            };
+            return ofertas; // Devolver lista vacía, NO ofertas con error
         }
     }
 

@@ -72,17 +72,7 @@ public class MercadoLibreScraperService : IScraper
                 _logger.LogWarning("⚠️ API de MercadoLibre devolvió código {StatusCode}: {ReasonPhrase}", 
                     response.StatusCode, response.ReasonPhrase);
                 
-                return new List<OfertaDto>
-                {
-                    new OfertaDto
-                    {
-                        TiendaId = tiendaId,
-                        TiendaNombre = TiendaNombre,
-                        TieneErrores = true,
-                        MensajeError = $"HTTP {response.StatusCode}: {response.ReasonPhrase}",
-                        FechaScrapeo = DateTime.UtcNow
-                    }
-                };
+                return ofertas; // Devolver lista vacía, NO ofertas con error
             }
 
             // 5. Parsear respuesta JSON
@@ -127,26 +117,17 @@ public class MercadoLibreScraperService : IScraper
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "❌ Error de red al conectar con MercadoLibre");
-            return new List<OfertaDto>
-            {
-                CrearOfertaConError(tiendaId, $"Error de conexión: {ex.Message}")
-            };
+            return ofertas; // Devolver lista vacía, NO ofertas con error
         }
         catch (JsonException ex)
         {
             _logger.LogError(ex, "❌ Error al parsear JSON de MercadoLibre");
-            return new List<OfertaDto>
-            {
-                CrearOfertaConError(tiendaId, $"Error al procesar respuesta: {ex.Message}")
-            };
+            return ofertas; // Devolver lista vacía, NO ofertas con error
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Error inesperado al scrapear MercadoLibre");
-            return new List<OfertaDto>
-            {
-                CrearOfertaConError(tiendaId, $"Error inesperado: {ex.Message}")
-            };
+            return ofertas; // Devolver lista vacía, NO ofertas con error
         }
     }
 

@@ -251,15 +251,8 @@ public class MundoRepuestosScraperService : IScraper
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error al extraer datos de un nodo de producto");
-                    
-                    // Agregar oferta con error para tracking
-                    ofertas.Add(new OfertaDto
-                    {
-                        TiendaId = tiendaId,
-                        TiendaNombre = TiendaNombre,
-                        TieneErrores = true,
-                        MensajeError = $"Error al parsear producto: {ex.Message}"
-                    });
+                    // NO agregar oferta con error, solo registrar en logs y continuar
+                    continue;
                 }
 
                 // Pequeño delay entre procesamiento de nodos
@@ -275,14 +268,9 @@ public class MundoRepuestosScraperService : IScraper
             _logger.LogError(ex, 
                 "Error crítico durante el scraping de MundoRepuestos para '{NumeroDeParte}'",
                 numeroDeParte);
-
-            ofertas.Add(new OfertaDto
-            {
-                TiendaId = tiendaId,
-                TiendaNombre = TiendaNombre,
-                TieneErrores = true,
-                MensajeError = $"Error crítico en scraping: {ex.Message}"
-            });
+            
+            // Devolver lista vacía, NO ofertas con error
+            return ofertas;
         }
 
         return ofertas;
@@ -305,12 +293,36 @@ public class MundoRepuestosScraperService : IScraper
 
     /// <summary>
     /// Descarga el contenido HTML de la URL especificada.
+    /// ⚠️ NOTA DE SEGURIDAD: Este método desactiva la validación de certificados SSL
+    /// para el sitio MundoRepuestos.cl debido a un problema de RemoteCertificateNameMismatch.
+    /// Esto es un riesgo de seguridad y SOLO debe usarse para este sitio específico.
+    /// En producción, se recomienda contactar al propietario del sitio para corregir el certificado.
     /// </summary>
     private async Task<string> DescargarHtmlAsync(string url, CancellationToken cancellationToken)
     {
         try
         {
-            var httpClient = _httpClientFactory.CreateClient();
+            // ⚠️ CONFIGURACIÓN ESPECIAL PARA SSL
+            // Crear HttpClientHandler que ignore errores de validación de certificados
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+                {
+                    // ⚠️ SOLO ignorar errores para MundoRepuestos
+                    if (url.Contains("mundorepuestos.cl", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogWarning(
+                            "⚠️ Ignorando error de certificado SSL para MundoRepuestos: {Errors}", 
+                            sslPolicyErrors);
+                        return true; // Aceptar el certificado a pesar del error
+                    }
+                    
+                    // Para otros sitios, validar normalmente
+                    return sslPolicyErrors == System.Net.Security.SslPolicyErrors.None;
+                }
+            };
+
+            using var httpClient = new HttpClient(handler);
             
             // Configurar timeout y headers
             httpClient.Timeout = TimeSpan.FromSeconds(_timeoutSeconds);

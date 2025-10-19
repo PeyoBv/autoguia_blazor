@@ -402,6 +402,13 @@ namespace AutoGuia.Infrastructure.Migrations
                     { 2, 4.2m, "", null, null, "Las Condes 5678, Las Condes", "info@autoserviceexpress.cl", true, false, "Mantención preventiva, Cambio de aceite, Afinación", new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9999), null, "Lunes a Viernes: 7:30 - 19:00, Sábados: 8:00 - 15:00", null, null, "AutoServicio Express", "", null, null, "+56987654321", 0 }
                 });
 
+            // ⚠️ TIENDAS COMENTADAS: Ahora se crean desde DataSeeder.cs con nombres correctos
+            // Las tiendas deben coincidir con los nombres de los scrapers:
+            // - Autoplanet (AutoplanetScraperService.TiendaNombre)
+            // - MercadoLibre (MercadoLibreScraperService.TiendaNombre)
+            // - MundoRepuestos (MundoRepuestosScraperService.TiendaNombre)
+            
+            /*
             migrationBuilder.InsertData(
                 table: "Tiendas",
                 columns: new[] { "Id", "Descripcion", "EsActivo", "FechaCreacion", "LogoUrl", "Nombre", "UrlSitioWeb" },
@@ -411,6 +418,7 @@ namespace AutoGuia.Infrastructure.Migrations
                     { 2, "Especialistas en repuestos importados y nacionales", true, new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9771), "/images/tiendas/autopartes-chile.png", "AutoPartes Chile", "https://autoparteschile.cl" },
                     { 3, "Los mejores precios en repuestos automotrices", true, new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9772), "/images/tiendas/mega-repuestos.png", "MegaRepuestos", "https://megarepuestos.cl" }
                 });
+            */
 
             migrationBuilder.InsertData(
                 table: "Modelos",
@@ -428,6 +436,10 @@ namespace AutoGuia.Infrastructure.Migrations
                     { 9, 2024, 2014, null, true, new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9729), null, 3, "X-Trail" }
                 });
 
+            // ⚠️ OFERTAS COMENTADAS: Estas ofertas referencian las tiendas antiguas
+            // Las ofertas reales se generarán dinámicamente mediante los scrapers
+            
+            /*
             migrationBuilder.InsertData(
                 table: "Ofertas",
                 columns: new[] { "Id", "EsActivo", "EsDisponible", "EsOferta", "FechaActualizacion", "FechaCreacion", "Precio", "PrecioAnterior", "ProductoId", "SKU", "TiendaId", "UrlProductoEnTienda" },
@@ -442,6 +454,7 @@ namespace AutoGuia.Infrastructure.Migrations
                     { 7, true, true, false, new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9904), new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9904), 89000m, null, 4, "BT-9753-RS", 1, "https://repuestossantiago.cl/productos/bateria-bosch-bt9753" },
                     { 8, true, true, true, new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9906), new DateTime(2025, 10, 18, 4, 56, 14, 47, DateTimeKind.Utc).AddTicks(9905), 43500m, 48000m, 5, "AM-2468-MR", 3, "https://megarepuestos.cl/lubricantes/aceite-am2468" }
                 });
+            */
 
             migrationBuilder.InsertData(
                 table: "ProductoVehiculoCompatibles",

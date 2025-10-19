@@ -1,0 +1,430 @@
+@page "/repuestos"
+@rendermode InteractiveServer
+@inject IScraperIntegrationService IntegrationService
+@inject IVehiculoService VehiculoService
+@inject NavigationManager Navigation
+@using AutoGuia.Core.DTOs
+@using AutoGuia.Infrastructure.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Repuestos - AutoGuía</PageTitle>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-3">
+                <i class="fas fa-cogs me-2 text-primary"></i>
+                Buscar Repuestos
+            </h1>
+            <p class="lead text-muted">
+                Encuentra los mejores precios en repuestos automotrices comparando entre múltiples tiendas
+            </p>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Búsqueda en tiempo real:</strong> Comparamos precios entre múltiples tiendas para encontrar las mejores ofertas.
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de Búsqueda -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <EditForm Model="@query" OnValidSubmit="HandleSearch">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="row g-3">
+                            <!-- Término de búsqueda -->
+                            <div class="col-md-12">
+                                <label for="termino" class="form-label fw-bold">
+                                    <i class="fas fa-search me-2"></i>¿Qué repuesto buscas?
+                                </label>
+                                <InputText @bind-Value="query.TerminoDeBusqueda" 
+                                           class="form-control form-control-lg" 
+                                           id="termino"
+                                           placeholder="Ej: pastillas de freno, filtro de aceite, bujías..." />
+                                <ValidationMessage For="@(() => query.TerminoDeBusqueda)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Marca del vehículo -->
+                            <div class="col-md-4">
+                                <label for="marca" class="form-label">
+                                    <i class="fas fa-car me-2"></i>Marca del vehículo
+                                </label>
+                                <InputText @bind-Value="query.Marca" 
+                                           class="form-control" 
+                                           id="marca"
+                                           placeholder="Ej: Toyota" />
+                            </div>
+
+                            <!-- Modelo -->
+                            <div class="col-md-4">
+                                <label for="modelo" class="form-label">
+                                    <i class="fas fa-car-side me-2"></i>Modelo
+                                </label>
+                                <InputText @bind-Value="query.Modelo" 
+                                           class="form-control" 
+                                           id="modelo"
+                                           placeholder="Ej: Corolla" />
+                            </div>
+
+                            <!-- Año -->
+                            <div class="col-md-4">
+                                <label for="ano" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>Año
+                                </label>
+                                <InputText @bind-Value="query.Ano" 
+                                           class="form-control" 
+                                           id="ano"
+                                           placeholder="Ej: 2018" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Motor -->
+                            <div class="col-md-6">
+                                <label for="motor" class="form-label">
+                                    <i class="fas fa-cog me-2"></i>Motor (opcional)
+                                </label>
+                                <InputText @bind-Value="query.Motor" 
+                                           class="form-control" 
+                                           id="motor"
+                                           placeholder="Ej: 1.8L" />
+                            </div>
+
+                            <!-- Versión -->
+                            <div class="col-md-6">
+                                <label for="version" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Versión (opcional)
+                                </label>
+                                <InputText @bind-Value="query.Version" 
+                                           class="form-control" 
+                                           id="version"
+                                           placeholder="Ej: XEI" />
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@estaBuscando">
+                                    @if (estaBuscando)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Buscando en tiendas...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-search me-2"></i>
+                                        <span>Buscar Mejores Precios</span>
+                                    }
+                                </button>
+                                <button type="button" @onclick="LimpiarFormulario" class="btn btn-outline-secondary btn-lg ms-2">
+                                    <i class="fas fa-eraser me-2"></i>Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado de búsqueda -->
+    @if (estaBuscando)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-primary text-center">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Buscando...</span>
+                    </div>
+                    <h5>Buscando en múltiples tiendas...</h5>
+                    <p class="mb-0">Estamos comparando precios en Autoplanet, MercadoLibre y MundoRepuestos</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Resultados -->
+    @if (!estaBuscando && resultadosBusqueda != null && resultadosBusqueda.Any())
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>¡Búsqueda exitosa!</strong> Se encontraron <strong>@resultadosBusqueda.Count productos</strong> con <strong>@resultadosBusqueda.Sum(p => p.CantidadOfertas) ofertas</strong> disponibles.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var producto in resultadosBusqueda)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <!-- Imagen del producto -->
+                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        {
+                            <img src="@producto.ImagenUrl" class="card-img-top" style="height: 200px; object-fit: cover;" 
+                                 alt="@producto.Nombre" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-cog fa-3x text-muted"></i>
+                            </div>
+                        }
+                        
+                        <!-- Badge de cantidad de ofertas -->
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-primary">@producto.CantidadOfertas ofertas</span>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Nombre del producto -->
+                            <h6 class="card-title fw-bold">@producto.Nombre</h6>
+                            
+                            <!-- Número de parte -->
+                            @if (!string.IsNullOrEmpty(producto.NumeroDeParte))
+                            {
+                                <p class="card-text text-muted small mb-2">
+                                    <i class="fas fa-barcode me-1"></i>@producto.NumeroDeParte
+                                </p>
+                            }
+                            
+                            <!-- Descripción -->
+                            @if (!string.IsNullOrEmpty(producto.Descripcion))
+                            {
+                                <p class="card-text small text-muted">@producto.Descripcion</p>
+                            }
+                            
+                            <!-- Rango de precios -->
+                            <div class="mt-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block">Desde</small>
+                                        <span class="h4 text-success mb-0">@producto.PrecioMinimo.ToString("C0")</span>
+                                    </div>
+                                    @if (producto.PrecioMaximo > producto.PrecioMinimo)
+                                    {
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">Hasta</small>
+                                            <span class="h6 text-muted">@producto.PrecioMaximo.ToString("C0")</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Lista de ofertas -->
+                            <div class="border-top pt-3">
+                                <small class="text-muted fw-bold d-block mb-2">Ofertas disponibles:</small>
+                                @foreach (var oferta in producto.Ofertas.Take(3))
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(oferta.TiendaLogoUrl))
+                                            {
+                                                <img src="@oferta.TiendaLogoUrl" alt="@oferta.TiendaNombre" 
+                                                     style="width: 24px; height: 24px; object-fit: contain;" class="me-2" />
+                                            }
+                                            <small>@oferta.TiendaNombre</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <strong class="text-success">@oferta.Precio.ToString("C0")</strong>
+                                            @if (oferta.PorcentajeDescuento > 0)
+                                            {
+                                                <span class="badge bg-danger ms-1">-@oferta.PorcentajeDescuento%</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                @if (producto.Ofertas.Count > 3)
+                                {
+                                    <small class="text-muted">Y @(producto.Ofertas.Count - 3) más...</small>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="card-footer bg-white">
+                            <button @onclick="() => VerComparacion(producto.Id)" class="btn btn-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-chart-bar me-2"></i>Ver Comparación Detallada
+                            </button>
+                            @if (producto.Ofertas.Any() && !string.IsNullOrEmpty(producto.Ofertas.First().UrlProductoEnTienda))
+                            {
+                                <a href="@producto.Ofertas.First().UrlProductoEnTienda" 
+                                   target="_blank" 
+                                   class="btn btn-outline-success btn-sm w-100">
+                                    <i class="fas fa-external-link-alt me-2"></i>Ver en Tienda
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (!estaBuscando && resultadosBusqueda != null && !resultadosBusqueda.Any())
+    {
+        <!-- Sin resultados -->
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning text-center py-5">
+                    <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                    <h4>No se encontraron productos</h4>
+                    <p class="mb-3">No pudimos encontrar repuestos que coincidan con tu búsqueda.</p>
+                    <p class="mb-0">
+                        <strong>Sugerencias:</strong><br/>
+                        • Verifica la ortografía<br/>
+                        • Usa términos más generales (ej: "filtro" en lugar de "filtro de aceite sintético")<br/>
+                        • Intenta buscar sin especificar marca o modelo
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Tips de búsqueda -->
+    @if (resultadosBusqueda == null && !estaBuscando)
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4 class="mb-4">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>
+                    Tips para una mejor búsqueda
+                </h4>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-2x text-primary mb-3"></i>
+                        <h5>Sé específico</h5>
+                        <p class="text-muted">Usa el nombre exacto del repuesto: "pastillas de freno delanteras" en lugar de solo "frenos"</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-car fa-2x text-primary mb-3"></i>
+                        <h5>Incluye tu vehículo</h5>
+                        <p class="text-muted">Especifica marca, modelo y año para resultados más precisos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                        <h5>Precios en tiempo real</h5>
+                        <p class="text-muted">Cada búsqueda obtiene los precios actualizados directamente de las tiendas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease-in-out;
+    }
+    
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-2px);
+    }
+</style>
+
+@code {
+    // Variables de estado
+    private BusquedaRepuestoQuery query = new BusquedaRepuestoQuery();
+    private List<ProductoConOfertasDto>? resultadosBusqueda;
+    private bool estaBuscando = false;
+
+    /// <summary>
+    /// Maneja la búsqueda de repuestos ejecutando scraping en tiempo real
+    /// </summary>
+    private async Task HandleSearch()
+    {
+        if (estaBuscando) return;
+
+        estaBuscando = true;
+        resultadosBusqueda = null;
+        StateHasChanged();
+
+        try
+        {
+            // 🔍 DEBUG PASO 1: Verificar el Input
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+            Console.WriteLine("🔍 DEBUG - PASO 1: VERIFICANDO INPUT DE BÚSQUEDA");
+            Console.WriteLine($"   TerminoDeBusqueda: '{query.TerminoDeBusqueda}'");
+            Console.WriteLine($"   Marca: '{query.Marca ?? "(vacío)"}'");
+            Console.WriteLine($"   Modelo: '{query.Modelo ?? "(vacío)"}'");
+            Console.WriteLine($"   Año: '{query.Ano ?? "(vacío)"}'");
+            Console.WriteLine($"   Motor: '{query.Motor ?? "(vacío)"}'");
+            Console.WriteLine($"   Versión: '{query.Version ?? "(vacío)"}'");
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+
+            // Ejecutar búsqueda con scraping en tiempo real
+            Console.WriteLine("⏳ Llamando a IntegrationService.BuscarYDescubrirRepuestos...");
+            resultadosBusqueda = await IntegrationService.BuscarYDescubrirRepuestos(query);
+            
+            // 🔍 DEBUG PASO 4: Verificar el resultado final
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+            Console.WriteLine("🔍 DEBUG - PASO 4: VERIFICANDO RESULTADO FINAL");
+            if (resultadosBusqueda == null)
+            {
+                Console.WriteLine("   ❌ resultadosBusqueda es NULL");
+            }
+            else if (resultadosBusqueda.Count == 0)
+            {
+                Console.WriteLine("   ⚠️ resultadosBusqueda está VACÍA (Count = 0)");
+            }
+            else
+            {
+                Console.WriteLine($"   ✅ resultadosBusqueda tiene {resultadosBusqueda.Count} productos");
+                foreach (var producto in resultadosBusqueda)
+                {
+                    Console.WriteLine($"      - {producto.Nombre}: {producto.CantidadOfertas} ofertas (${producto.PrecioMinimo} - ${producto.PrecioMaximo})");
+                }
+            }
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+            Console.WriteLine($"❌ ERROR CRÍTICO EN BÚSQUEDA: {ex.Message}");
+            Console.WriteLine($"   StackTrace: {ex.StackTrace}");
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+        }
+        finally
+        {
+            estaBuscando = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Limpia el formulario de búsqueda
+    /// </summary>
+    private void LimpiarFormulario()
+    {
+        query = new BusquedaRepuestoQuery();
+        resultadosBusqueda = null;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Navega a la página de detalle/comparación del producto
+    /// </summary>
+    private void VerComparacion(int productoId)
+    {
+        Navigation.NavigateTo($"/producto/{productoId}");
+    }
+}

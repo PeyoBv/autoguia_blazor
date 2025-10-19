@@ -210,6 +210,15 @@ namespace AutoGuia.Infrastructure.Services
         /// <param name="cancellationToken">Token de cancelación</param>
         /// <returns>Número de ofertas procesadas (creadas + actualizadas)</returns>
         Task<int> EjecutarYActualizarPrecios(int productoId, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Busca y descubre productos nuevos ejecutando scraping en todas las tiendas.
+        /// Agrupa ofertas por producto y devuelve resultados para mostrar en UI.
+        /// </summary>
+        /// <param name="query">Criterios de búsqueda</param>
+        /// <param name="cancellationToken">Token de cancelación</param>
+        /// <returns>Lista de productos con sus ofertas</returns>
+        Task<List<ProductoConOfertasDto>> BuscarYDescubrirRepuestos(BusquedaRepuestoQuery query, CancellationToken cancellationToken = default);
     }
 
     /// <summary>

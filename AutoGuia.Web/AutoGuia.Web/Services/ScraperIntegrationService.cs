@@ -273,4 +273,248 @@ public class ScraperIntegrationService : IScraperIntegrationService
             throw; // Re-lanzar para que el llamador pueda manejar el error
         }
     }
+
+    /// <summary>
+    /// Busca y descubre productos nuevos ejecutando scraping en todas las tiendas.
+    /// Agrupa ofertas por producto y devuelve resultados para mostrar en UI.
+    /// </summary>
+    /// <param name="query">Criterios de búsqueda</param>
+    /// <param name="cancellationToken">Token de cancelación</param>
+    /// <returns>Lista de productos con sus ofertas</returns>
+    public async Task<List<ProductoConOfertasDto>> BuscarYDescubrirRepuestos(
+        BusquedaRepuestoQuery query, 
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("═══════════════════════════════════════════════════════════");
+        _logger.LogInformation("🔍 DEBUG - PASO 2: INICIANDO BÚSQUEDA EN SCRAPERS");
+        _logger.LogInformation("   Término de búsqueda: '{Termino}'", query.TerminoDeBusqueda);
+        _logger.LogInformation("   Marca: '{Marca}'", query.Marca ?? "(vacío)");
+        _logger.LogInformation("   Modelo: '{Modelo}'", query.Modelo ?? "(vacío)");
+        _logger.LogInformation("═══════════════════════════════════════════════════════════");
+
+        try
+        {
+            // 1. Obtener tiendas activas
+            var tiendasDict = await _context.Tiendas
+                .Where(t => t.EsActivo)
+                .ToDictionaryAsync(t => t.Id, t => t, cancellationToken);
+
+            if (!tiendasDict.Any())
+            {
+                _logger.LogWarning("⚠️ No hay tiendas activas disponibles");
+                return new List<ProductoConOfertasDto>();
+            }
+
+            // 2. Ejecutar scrapers en paralelo
+            var scrapersActivos = _scrapers.Where(s => s.EstaHabilitado).ToList();
+            _logger.LogInformation("🔧 Ejecutando {Count} scrapers activos", scrapersActivos.Count);
+
+            var tareas = scrapersActivos.Select(async scraper =>
+            {
+                try
+                {
+                    var tienda = tiendasDict.Values.FirstOrDefault(t => t.Nombre == scraper.TiendaNombre);
+                    if (tienda == null)
+                    {
+                        _logger.LogWarning("⚠️ Tienda '{TiendaNombre}' no encontrada", scraper.TiendaNombre);
+                        return Enumerable.Empty<AutoGuia.Scraper.DTOs.OfertaDto>();
+                    }
+
+                    _logger.LogDebug("🔍 Scrapeando en {TiendaNombre}", scraper.TiendaNombre);
+                    var ofertas = await scraper.ScrapearProductosAsync(
+                        query.TerminoDeBusqueda, 
+                        tienda.Id, 
+                        cancellationToken);
+
+                    _logger.LogInformation("✅ {TiendaNombre}: {Count} ofertas encontradas",
+                        scraper.TiendaNombre, ofertas?.Count() ?? 0);
+
+                    return ofertas ?? Enumerable.Empty<AutoGuia.Scraper.DTOs.OfertaDto>();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Error en scraper '{TiendaNombre}'", scraper.TiendaNombre);
+                    return Enumerable.Empty<AutoGuia.Scraper.DTOs.OfertaDto>();
+                }
+            });
+
+            var resultadosScrapers = await Task.WhenAll(tareas);
+            var ofertasScraperDto = resultadosScrapers.SelectMany(r => r).ToList();
+
+            _logger.LogInformation("═══════════════════════════════════════════════════════════");
+            _logger.LogInformation("🔍 DEBUG - PASO 3: VERIFICANDO RESULTADOS DE SCRAPERS");
+            _logger.LogInformation("   Total de tareas ejecutadas: {Count}", resultadosScrapers.Length);
+            for (int i = 0; i < resultadosScrapers.Length; i++)
+            {
+                var result = resultadosScrapers[i];
+                _logger.LogInformation("   Scraper {Index}: {Count} ofertas encontradas", i + 1, result?.Count() ?? 0);
+            }
+            _logger.LogInformation("   Total combinado de ofertas: {Count}", ofertasScraperDto.Count);
+            
+            if (ofertasScraperDto.Any())
+            {
+                _logger.LogInformation("   Primeras 3 ofertas para inspección:");
+                foreach (var oferta in ofertasScraperDto.Take(3))
+                {
+                    _logger.LogInformation("      - TiendaId: {TiendaId}, Precio: {Precio}, Descripción: '{Desc}'",
+                        oferta.TiendaId, oferta.Precio, oferta.Descripcion?.Substring(0, Math.Min(50, oferta.Descripcion?.Length ?? 0)));
+                }
+            }
+            _logger.LogInformation("═══════════════════════════════════════════════════════════");
+
+            if (!ofertasScraperDto.Any())
+            {
+                _logger.LogWarning("⚠️ No se encontraron ofertas para: {Termino}", query.TerminoDeBusqueda);
+                return new List<ProductoConOfertasDto>();
+            }
+
+            _logger.LogInformation("📦 Total de ofertas scrapeadas: {Count}", ofertasScraperDto.Count);
+
+            // 3. Agrupar ofertas por producto (usando descripción normalizada)
+            var gruposProducto = ofertasScraperDto
+                .Where(o => !string.IsNullOrWhiteSpace(o.Descripcion))
+                .GroupBy(o => NormalizarNombre(o.Descripcion ?? string.Empty))
+                .ToList();
+
+            _logger.LogInformation("📊 Productos únicos identificados: {Count}", gruposProducto.Count);
+
+            var productosResultado = new List<ProductoConOfertasDto>();
+
+            // 4. Procesar cada grupo de ofertas
+            foreach (var grupo in gruposProducto)
+            {
+                var primeraOferta = grupo.First();
+                
+                // 4a. Buscar o crear el producto en BD
+                var nombreNormalizado = grupo.Key;
+                var producto = await _context.Productos
+                    .FirstOrDefaultAsync(p => 
+                        p.Nombre.ToLower().Contains(nombreNormalizado.ToLower()),
+                        cancellationToken);
+
+                if (producto == null)
+                {
+                    // Crear nuevo producto
+                    producto = new Producto
+                    {
+                        Nombre = primeraOferta.Descripcion ?? "Producto sin nombre",
+                        NumeroDeParte = query.TerminoDeBusqueda,
+                        Descripcion = primeraOferta.Descripcion,
+                        ImagenUrl = primeraOferta.ImagenUrl,
+                        FechaCreacion = DateTime.UtcNow,
+                        EsActivo = true
+                    };
+
+                    await _context.Productos.AddAsync(producto, cancellationToken);
+                    await _context.SaveChangesAsync(cancellationToken);
+
+                    _logger.LogInformation("➕ Nuevo producto creado: {Nombre} (ID: {Id})", 
+                        producto.Nombre, producto.Id);
+                }
+
+                // 4b. Procesar cada oferta del grupo
+                var ofertasDelProducto = new List<OfertaComparadorDto>();
+
+                foreach (var ofertaDto in grupo)
+                {
+                    // Buscar si la oferta ya existe
+                    var ofertaExistente = await _context.Ofertas
+                        .FirstOrDefaultAsync(o => 
+                            o.ProductoId == producto.Id && 
+                            o.TiendaId == ofertaDto.TiendaId,
+                            cancellationToken);
+
+                    if (ofertaExistente != null)
+                    {
+                        // Actualizar oferta existente
+                        var precioAnterior = ofertaExistente.Precio;
+                        ofertaExistente.Precio = ofertaDto.Precio;
+                        ofertaExistente.UrlProductoEnTienda = ofertaDto.UrlProducto;
+                        ofertaExistente.EsDisponible = ofertaDto.StockDisponible;
+                        ofertaExistente.FechaActualizacion = DateTime.UtcNow;
+
+                        if (ofertaDto.Precio < precioAnterior)
+                        {
+                            ofertaExistente.EsOferta = true;
+                            ofertaExistente.PrecioAnterior = precioAnterior;
+                        }
+
+                        _context.Ofertas.Update(ofertaExistente);
+                    }
+                    else
+                    {
+                        // Crear nueva oferta
+                        ofertaExistente = new Oferta
+                        {
+                            ProductoId = producto.Id,
+                            TiendaId = ofertaDto.TiendaId,
+                            Precio = ofertaDto.Precio,
+                            UrlProductoEnTienda = ofertaDto.UrlProducto,
+                            EsDisponible = ofertaDto.StockDisponible,
+                            EsOferta = false,
+                            FechaCreacion = DateTime.UtcNow,
+                            FechaActualizacion = DateTime.UtcNow,
+                            EsActivo = true
+                        };
+
+                        await _context.Ofertas.AddAsync(ofertaExistente, cancellationToken);
+                    }
+
+                    // Agregar a la lista de ofertas del producto
+                    var tienda = tiendasDict[ofertaDto.TiendaId];
+                    ofertasDelProducto.Add(new OfertaComparadorDto
+                    {
+                        Id = ofertaExistente.Id,
+                        TiendaId = ofertaDto.TiendaId,
+                        TiendaNombre = tienda.Nombre,
+                        TiendaLogoUrl = tienda.LogoUrl,
+                        Precio = ofertaDto.Precio,
+                        PrecioAnterior = ofertaExistente.PrecioAnterior,
+                        EsDisponible = ofertaDto.StockDisponible,
+                        UrlProductoEnTienda = ofertaDto.UrlProducto
+                    });
+                }
+
+                // Guardar cambios de este producto
+                await _context.SaveChangesAsync(cancellationToken);
+
+                // 5. Crear DTO para la UI
+                productosResultado.Add(new ProductoConOfertasDto
+                {
+                    Id = producto.Id,
+                    Nombre = producto.Nombre,
+                    NumeroDeParte = producto.NumeroDeParte,
+                    Descripcion = producto.Descripcion,
+                    ImagenUrl = producto.ImagenUrl,
+                    Ofertas = ofertasDelProducto.OrderBy(o => o.Precio).ToList()
+                });
+            }
+
+            _logger.LogInformation("✅ Búsqueda completada: {Count} productos con ofertas", 
+                productosResultado.Count);
+
+            return productosResultado.OrderBy(p => p.PrecioMinimo).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "❌ Error en BuscarYDescubrirRepuestos: {Message}", ex.Message);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Normaliza el nombre del producto para agrupación
+    /// </summary>
+    private static string NormalizarNombre(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            return string.Empty;
+
+        return nombre
+            .Trim()
+            .ToLower()
+            .Replace("  ", " ")
+            .Replace("-", " ")
+            .Replace("_", " ");
+    }
 }
