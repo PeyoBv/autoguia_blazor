@@ -14,13 +14,9 @@ namespace AutoGuia.Infrastructure.Data
         public DbSet<RespuestaForo> RespuestasForo { get; set; }
         public DbSet<ResenasTaller> ResenasTaller { get; set; }
         
-        // Nuevas entidades para comparación de precios
+        // Entidades de vehículos (solo Marca y Modelo)
         public DbSet<Marca> Marcas { get; set; }
         public DbSet<Modelo> Modelos { get; set; }
-        public DbSet<Producto> Productos { get; set; }
-        public DbSet<Tienda> Tiendas { get; set; }
-        public DbSet<Oferta> Ofertas { get; set; }
-        public DbSet<ProductoVehiculoCompatible> ProductoVehiculoCompatibles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,29 +27,6 @@ namespace AutoGuia.Infrastructure.Data
                 .HasOne(m => m.Marca)
                 .WithMany(ma => ma.Modelos)
                 .HasForeignKey(m => m.MarcaId);
-
-            modelBuilder.Entity<Oferta>()
-                .HasOne(o => o.Producto)
-                .WithMany(p => p.Ofertas)
-                .HasForeignKey(o => o.ProductoId);
-
-            modelBuilder.Entity<Oferta>()
-                .HasOne(o => o.Tienda)
-                .WithMany(t => t.Ofertas)
-                .HasForeignKey(o => o.TiendaId);
-
-            modelBuilder.Entity<ProductoVehiculoCompatible>()
-                .HasKey(pvc => new { pvc.ProductoId, pvc.ModeloId });
-
-            modelBuilder.Entity<ProductoVehiculoCompatible>()
-                .HasOne(pvc => pvc.Producto)
-                .WithMany(p => p.VehiculosCompatibles)
-                .HasForeignKey(pvc => pvc.ProductoId);
-
-            modelBuilder.Entity<ProductoVehiculoCompatible>()
-                .HasOne(pvc => pvc.Modelo)
-                .WithMany()
-                .HasForeignKey(pvc => pvc.ModeloId);
 
             // Configuración de entidades existentes (talleres y foro)
             modelBuilder.Entity<RespuestaForo>()
@@ -90,192 +63,7 @@ namespace AutoGuia.Infrastructure.Data
                 new Modelo { Id = 9, Nombre = "X-Trail", MarcaId = 3, AnioInicioProduccion = 2014, AnioFinProduccion = 2024 }
             );
 
-            // Tiendas
-            modelBuilder.Entity<Tienda>().HasData(
-                new Tienda
-                {
-                    Id = 1,
-                    Nombre = "Repuestos Santiago",
-                    Descripcion = "Tu tienda de confianza para repuestos automotrices",
-                    UrlSitioWeb = "https://repuestossantiago.cl",
-                    LogoUrl = "/images/tiendas/repuestos-santiago.png"
-                },
-                new Tienda
-                {
-                    Id = 2,
-                    Nombre = "AutoPartes Chile",
-                    Descripcion = "Especialistas en repuestos importados y nacionales",
-                    UrlSitioWeb = "https://autoparteschile.cl",
-                    LogoUrl = "/images/tiendas/autopartes-chile.png"
-                },
-                new Tienda
-                {
-                    Id = 3,
-                    Nombre = "MegaRepuestos",
-                    Descripcion = "Los mejores precios en repuestos automotrices",
-                    UrlSitioWeb = "https://megarepuestos.cl",
-                    LogoUrl = "/images/tiendas/mega-repuestos.png"
-                }
-            );
-
-            // Productos
-            modelBuilder.Entity<Producto>().HasData(
-                new Producto
-                {
-                    Id = 1,
-                    Nombre = "Pastillas de Freno Delanteras",
-                    Descripcion = "Pastillas de freno cerámicas para mayor durabilidad y menor ruido",
-                    NumeroDeParte = "BP-1234",
-                    ImagenUrl = "/images/productos/pastillas-freno-bosch.jpg"
-                },
-                new Producto
-                {
-                    Id = 2,
-                    Nombre = "Filtro de Aceite",
-                    Descripcion = "Filtro de aceite de alta calidad para motor",
-                    NumeroDeParte = "FO-9012",
-                    ImagenUrl = "/images/productos/filtro-aceite-mann.jpg"
-                },
-                new Producto
-                {
-                    Id = 3,
-                    Nombre = "Amortiguador Delantero",
-                    Descripcion = "Amortiguador de gas presurizado para mejor confort y control",
-                    NumeroDeParte = "AD-7890",
-                    ImagenUrl = "/images/productos/amortiguador-monroe.jpg"
-                },
-                new Producto
-                {
-                    Id = 4,
-                    Nombre = "Batería 12V 65Ah",
-                    Descripcion = "Batería de arranque libre de mantenimiento",
-                    NumeroDeParte = "BT-9753",
-                    ImagenUrl = "/images/productos/bateria-bosch.jpg"
-                },
-                new Producto
-                {
-                    Id = 5,
-                    Nombre = "Aceite Motor 5W-30 Sintético",
-                    Descripcion = "Aceite sintético premium para motores de alta performance",
-                    NumeroDeParte = "AM-2468",
-                    ImagenUrl = "/images/productos/aceite-castrol.jpg"
-                }
-            );
-
-            // Ofertas
-            modelBuilder.Entity<Oferta>().HasData(
-                new Oferta
-                {
-                    Id = 1,
-                    ProductoId = 1,
-                    TiendaId = 1,
-                    Precio = 35000m,
-                    PrecioAnterior = 42000m,
-                    EsOferta = true,
-                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/pastillas-freno-bp1234",
-                    SKU = "BP-1234-RS"
-                },
-                new Oferta
-                {
-                    Id = 2,
-                    ProductoId = 1,
-                    TiendaId = 2,
-                    Precio = 38000m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://autoparteschile.cl/pastillas-bosch-bp1234",
-                    SKU = "BP-1234-AC"
-                },
-                new Oferta
-                {
-                    Id = 3,
-                    ProductoId = 1,
-                    TiendaId = 3,
-                    Precio = 33000m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://megarepuestos.cl/frenos/pastillas-bp1234",
-                    SKU = "BP-1234-MR"
-                },
-                new Oferta
-                {
-                    Id = 4,
-                    ProductoId = 2,
-                    TiendaId = 1,
-                    Precio = 8500m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/filtro-aceite-fo9012",
-                    SKU = "FO-9012-RS"
-                },
-                new Oferta
-                {
-                    Id = 5,
-                    ProductoId = 2,
-                    TiendaId = 2,
-                    Precio = 9200m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://autoparteschile.cl/filtros/aceite-mann-fo9012",
-                    SKU = "FO-9012-AC"
-                },
-                new Oferta
-                {
-                    Id = 6,
-                    ProductoId = 3,
-                    TiendaId = 2,
-                    Precio = 85000m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://autoparteschile.cl/suspension/amortiguador-monroe-ad7890",
-                    SKU = "AD-7890-AC"
-                },
-                new Oferta
-                {
-                    Id = 7,
-                    ProductoId = 4,
-                    TiendaId = 1,
-                    Precio = 89000m,
-                    EsOferta = false,
-                    UrlProductoEnTienda = "https://repuestossantiago.cl/productos/bateria-bosch-bt9753",
-                    SKU = "BT-9753-RS"
-                },
-                new Oferta
-                {
-                    Id = 8,
-                    ProductoId = 5,
-                    TiendaId = 3,
-                    Precio = 43500m,
-                    PrecioAnterior = 48000m,
-                    EsOferta = true,
-                    UrlProductoEnTienda = "https://megarepuestos.cl/lubricantes/aceite-am2468",
-                    SKU = "AM-2468-MR"
-                }
-            );
-
-            // Compatibilidad de productos con vehículos
-            modelBuilder.Entity<ProductoVehiculoCompatible>().HasData(
-                // Pastillas de Freno - Compatible con Toyota Corolla y Yaris
-                new ProductoVehiculoCompatible { ProductoId = 1, ModeloId = 1 }, // Toyota Corolla
-                new ProductoVehiculoCompatible { ProductoId = 1, ModeloId = 2 }, // Toyota Yaris
-                
-                // Filtro de Aceite - Compatible con Toyota Corolla, Yaris y Honda Civic
-                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 1 }, // Toyota Corolla
-                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 2 }, // Toyota Yaris
-                new ProductoVehiculoCompatible { ProductoId = 2, ModeloId = 4 }, // Honda Civic
-                
-                // Amortiguador - Compatible con Nissan Sentra y Versa
-                new ProductoVehiculoCompatible { ProductoId = 3, ModeloId = 7 }, // Nissan Sentra
-                new ProductoVehiculoCompatible { ProductoId = 3, ModeloId = 8 }, // Nissan Versa
-                
-                // Batería - Universal (compatible con múltiples modelos)
-                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 1 }, // Toyota Corolla
-                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 2 }, // Toyota Yaris
-                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 4 }, // Honda Civic
-                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 5 }, // Honda Accord
-                new ProductoVehiculoCompatible { ProductoId = 4, ModeloId = 7 }, // Nissan Sentra
-                
-                // Aceite Motor - Compatible con varios modelos
-                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 1 }, // Toyota Corolla
-                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 4 }, // Honda Civic
-                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 5 }, // Honda Accord
-                new ProductoVehiculoCompatible { ProductoId = 5, ModeloId = 7 }  // Nissan Sentra
-            );
+            // Seed data de productos/tiendas eliminado - ya no usamos web scraping
 
             // Seed data para talleres y foro (datos existentes)
             modelBuilder.Entity<Taller>().HasData(

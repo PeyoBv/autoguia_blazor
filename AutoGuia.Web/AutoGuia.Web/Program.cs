@@ -11,13 +11,10 @@ using AutoGuia.Web.Components;
 using AutoGuia.Web.Components.Account;
 using AutoGuia.Web.Data;
 using AutoGuia.Web.Configuration;
-using AutoGuia.Web.Services;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
-using AutoGuia.Scraper.Interfaces;
-using AutoGuia.Scraper.Extensions; // ⭐ Para método de extensión AddScraperServices
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,22 +58,32 @@ builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
 // Configurar Google Maps
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));
 
-// ✨ Registrar todos los servicios de scraping (HttpClient, Cache, Scrapers, Orchestrator)
-builder.Services.AddScraperServices(excludePlaywright: true);
-
-// Registrar servicio de integración Web ↔ Scraper
-builder.Services.AddScoped<IScraperIntegrationService, ScraperIntegrationService>();
+// ✨ Registrar HttpClient para NHTSA VIN Decoder API
+builder.Services.AddHttpClient("NHTSA_API", client =>
+{
+    client.BaseAddress = new Uri("https://vpic.nhtsa.dot.gov/api/");
+    client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia-VinDecoder/1.0");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 // Registrar servicios de AutoGuía
 builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
 
-// Servicios del sistema de comparación de precios
-builder.Services.AddScoped<IComparadorService, ComparadorService>();
-builder.Services.AddScoped<IProductoService, ProductoService>();
-builder.Services.AddScoped<ITiendaService, TiendaService>();
-builder.Services.AddScoped<IVehiculoService, VehiculoService>();
+// Servicio de vehículos (solo Marca y Modelo)
+// builder.Services.AddScoped<IVehiculoService, VehiculoService>();
+
+// ✨ Servicios de información vehicular (VIN y Patente) con arquitectura compuesta
+// Registramos las implementaciones concretas primero
+builder.Services.AddScoped<NhtsaVinService>();         // VIN → NHTSA (gratuito)
+builder.Services.AddScoped<GetApiPatenteService>();    // Patente → GetAPI.cl (premium)
+
+// Luego registramos el servicio compuesto como la implementación de la interfaz
+// Este servicio orquesta:
+//   - Para VINs: NHTSA (proveedor principal)
+//   - Para Patentes Chilenas: GetAPI.cl (proveedor único)
+builder.Services.AddScoped<IVehiculoInfoService, CompositeVehiculoInfoService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

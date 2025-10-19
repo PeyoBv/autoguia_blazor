@@ -27,7 +27,6 @@ namespace AutoGuia.Core.Entities
         
         // Propiedades de navegación
         public virtual Marca Marca { get; set; } = null!;
-        public virtual ICollection<ProductoVehiculoCompatible> ProductosCompatibles { get; set; } = new List<ProductoVehiculoCompatible>();
         
         // Propiedades de auditoría
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;

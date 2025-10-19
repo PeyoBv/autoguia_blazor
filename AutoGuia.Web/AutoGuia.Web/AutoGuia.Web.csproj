@@ -27,7 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\AutoGuia.Core\AutoGuia.Core.csproj" />
     <ProjectReference Include="..\..\AutoGuia.Infrastructure\AutoGuia.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\AutoGuia.Scraper\AutoGuia.Scraper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

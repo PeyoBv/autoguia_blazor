@@ -1,0 +1,370 @@
+@page "/consulta-vehiculo"
+@rendermode InteractiveServer
+@inject AutoGuia.Infrastructure.Services.IVehiculoInfoService VehiculoInfoService
+@using AutoGuia.Core.DTOs
+
+<PageTitle>Consulta de Vehículos - AutoGuía</PageTitle>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-car text-primary"></i>
+                    Consulta de Vehículos
+                </h1>
+                <p class="lead text-muted">
+                    Obtén información completa de cualquier vehículo mediante su Patente o VIN
+                </p>
+            </div>
+
+            <!-- Tabs de búsqueda -->
+            <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(tabActivo == "patente" ? "active" : "")" 
+                            type="button" 
+                            @onclick='() => CambiarTab("patente")'>
+                        <i class="fas fa-id-card me-2"></i>
+                        <strong>Buscar por Patente</strong>
+                        <small class="d-block text-muted">Formato: ABCD12 o AB1234</small>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(tabActivo == "vin" ? "active" : "")" 
+                            type="button" 
+                            @onclick='() => CambiarTab("vin")'>
+                        <i class="fas fa-barcode me-2"></i>
+                        <strong>Buscar por VIN</strong>
+                        <small class="d-block text-muted">17 caracteres alfanuméricos</small>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Tab Patente -->
+                @if (tabActivo == "patente")
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-search text-primary me-2"></i>
+                                Buscar por Patente Chilena
+                            </h5>
+                            
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Ingresa una patente chilena en formato <strong>ABCD12</strong> (4 letras + 2 números) 
+                                o <strong>AB1234</strong> (2 letras + 4 números)
+                            </div>
+
+                            <EditForm Model="@this" OnValidSubmit="BuscarPorPatente" FormName="formPatente">
+                                <div class="row g-3">
+                                    <div class="col-md-9">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="patenteInput" 
+                                                       class="form-control form-control-lg text-uppercase" 
+                                                       id="patenteInput" 
+                                                       placeholder="ABCD12"
+                                                       maxlength="6"
+                                                       disabled="@cargando" />
+                                            <label for="patenteInput">
+                                                <i class="fas fa-id-card me-2"></i>Patente
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" 
+                                                class="btn btn-primary btn-lg w-100 h-100" 
+                                                disabled="@cargando">
+                                            @if (cargando)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                                <span>Buscando...</span>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-search me-2"></i>
+                                                <span>Buscar</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            </EditForm>
+
+                            <!-- Ejemplos de patentes -->
+                            <div class="mt-3">
+                                <small class="text-muted">Patentes de prueba:</small>
+                                <div class="btn-group mt-2" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarPatente("ABCD12")'>ABCD12</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarPatente("XY9876")'>XY9876</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarPatente("WXYZ99")'>WXYZ99</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Tab VIN -->
+                @if (tabActivo == "vin")
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-search text-primary me-2"></i>
+                                Buscar por VIN (Vehicle Identification Number)
+                            </h5>
+                            
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Ingresa el VIN de 17 caracteres alfanuméricos. Encuéntralo en la tarjeta de circulación 
+                                o en el parabrisas del vehículo.
+                            </div>
+
+                            <EditForm Model="@this" OnValidSubmit="BuscarPorVin" FormName="formVin">
+                                <div class="row g-3">
+                                    <div class="col-md-9">
+                                        <div class="form-floating">
+                                            <InputText @bind-Value="vinInput" 
+                                                       class="form-control form-control-lg text-uppercase" 
+                                                       id="vinInput" 
+                                                       placeholder="1HGBH41JXMN109186"
+                                                       maxlength="17"
+                                                       disabled="@cargando" />
+                                            <label for="vinInput">
+                                                <i class="fas fa-barcode me-2"></i>VIN (17 caracteres)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" 
+                                                class="btn btn-primary btn-lg w-100 h-100" 
+                                                disabled="@cargando">
+                                            @if (cargando)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                                <span>Decodificando...</span>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-search me-2"></i>
+                                                <span>Buscar</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            </EditForm>
+
+                            <!-- Ejemplos de VINs -->
+                            <div class="mt-3">
+                                <small class="text-muted">VINs de prueba:</small>
+                                <div class="btn-group mt-2 flex-wrap" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarVin("5UXWX7C5*BA")'>BMW X5</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarVin("KL1TD66E9BC000000")'>Chevrolet Cruze</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarVin("1FTFW1ET5BFA44527")'>Ford F-150</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarVin("WBAPK5C50BA677149")'>BMW 330i</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick='() => ProbarVin("JM1BLAS75J1139000")'>Mazda 3</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Resultados -->
+            @if (resultado != null)
+            {
+                @if (resultado.IsValid)
+                {
+                    <div class="card shadow border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Información del Vehículo
+                                <span class="badge bg-light text-success float-end">
+                                    <i class="fas fa-database me-1"></i>@resultado.Source
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Información Principal -->
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                                        <i class="fas fa-car fa-3x me-3"></i>
+                                        <div>
+                                            <h4 class="mb-1">@resultado.Make @resultado.Model</h4>
+                                            <p class="mb-0 text-muted">Año: @resultado.ModelYear</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detalles -->
+                            <div class="row g-3">
+                                @if (!string.IsNullOrWhiteSpace(resultado.Vin))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">VIN</small>
+                                            <p class="mb-0 fw-bold">@resultado.Vin</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.Patente))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Patente</small>
+                                            <p class="mb-0 fw-bold">@resultado.Patente</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.ManufacturerName))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Fabricante</small>
+                                            <p class="mb-0">@resultado.ManufacturerName</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.VehicleType))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Tipo de Vehículo</small>
+                                            <p class="mb-0">@resultado.VehicleType</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.BodyClass))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Carrocería</small>
+                                            <p class="mb-0">@resultado.BodyClass</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.EngineDisplacementL))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Motor</small>
+                                            <p class="mb-0">@resultado.EngineDisplacementL L</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.FuelTypePrimary))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Combustible</small>
+                                            <p class="mb-0">@resultado.FuelTypePrimary</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.TransmissionStyle))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Transmisión</small>
+                                            <p class="mb-0">@resultado.TransmissionStyle</p>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resultado.PlantCountry))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded">
+                                            <small class="text-muted">Fabricado en</small>
+                                            <p class="mb-0">@resultado.PlantCity, @resultado.PlantCountry</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No se encontró información
+                        </h5>
+                        <p class="mb-0">@resultado.ErrorMessage</p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string tabActivo = "patente"; // Por defecto: Patente (principal)
+    private string patenteInput = string.Empty;
+    private string vinInput = string.Empty;
+    private bool cargando = false;
+    private VehiculoInfo? resultado = null;
+
+    private void CambiarTab(string tab)
+    {
+        tabActivo = tab;
+        resultado = null; // Limpiar resultados al cambiar de tab
+    }
+
+    private async Task BuscarPorPatente()
+    {
+        if (string.IsNullOrWhiteSpace(patenteInput))
+            return;
+
+        cargando = true;
+        resultado = null;
+        StateHasChanged();
+
+        try
+        {
+            resultado = await VehiculoInfoService.GetInfoByPatenteAsync(patenteInput.Trim().ToUpperInvariant());
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task BuscarPorVin()
+    {
+        if (string.IsNullOrWhiteSpace(vinInput))
+            return;
+
+        cargando = true;
+        resultado = null;
+        StateHasChanged();
+
+        try
+        {
+            resultado = await VehiculoInfoService.GetInfoByVinAsync(vinInput.Trim().ToUpperInvariant());
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ProbarPatente(string patente)
+    {
+        patenteInput = patente;
+        BuscarPorPatente();
+    }
+
+    private void ProbarVin(string vin)
+    {
+        vinInput = vin;
+        BuscarPorVin();
+    }
+}
