@@ -3,7 +3,7 @@
 @inject AutoGuia.Infrastructure.Services.ICategoriaService CategoriaService
 @inject AutoGuia.Infrastructure.Services.IComparadorService ComparadorService
 @inject NavigationManager Navigation
-@inject ILogger<ConsumiblesBuscar> Logger
+@inject ILogger<ConsumiblesBuscar> _logger
 @using AutoGuia.Core.DTOs
 @using AutoGuia.Infrastructure.Services
 
@@ -22,66 +22,287 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-4">
-                        <i class="fas fa-search me-2"></i>Búsqueda de Consumibles
-                    </h5>
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="terminoBusqueda" class="form-label fw-bold">
-                                <i class="fas fa-keyboard me-2"></i>Buscar producto
-                            </label>
-                            <div class="input-group input-group-lg">
-                                <input type="text" 
-                                       @bind="terminoBusqueda" 
-                                       @bind:event="oninput"
-                                       class="form-control" 
-                                       id="terminoBusqueda" 
-                                       placeholder="Ej: Aceite Castrol 10W-40"
-                                       disabled="@estaBuscando">
-                                <button type="button" 
-                                        @onclick="OnBuscarTermino" 
-                                        class="btn btn-success"
-                                        disabled="@(string.IsNullOrWhiteSpace(terminoBusqueda) || estaBuscando)">
-                                    <i class="fas fa-search me-2"></i>Buscar
-                                </button>
-                            </div>
+    @* SECCIÓN DE CARGA INICIAL *@
+    @if (IsLoading)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-primary shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="spinner-border text-primary mb-4" role="status" style="width: 4rem; height: 4rem;">
+                            <span class="visually-hidden">Cargando...</span>
                         </div>
-                    </div>
-
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            @if (!string.IsNullOrWhiteSpace(terminoBusqueda))
-                            {
-                                <button type="button" @onclick="LimpiarFiltros" class="btn btn-outline-secondary">
-                                    <i class="fas fa-eraser me-2"></i>Limpiar
-                                </button>
-                            }
+                        <h4 class="mb-3">⏳ @EstadoCarga</h4>
+                        <p class="text-muted">Buscando en MercadoLibre, Autoplanet y MundoRepuestos...</p>
+                        
+                        <div class="row g-3 mt-4">
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">🛢️ Aceite 10W-40</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">🔧 Filtro de aire</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">🌧️ Plumillas</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">⚡ Bujías</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">🚗 Neumático</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="badge bg-info text-wrap p-2">📻 Radio</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
 
-    @if (estaBuscando)
+    @* RESULTADOS PRE-CARGADOS *@
+    @if (!IsLoading && ProductosEncontrados.Count > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            📊 @ProductosEncontrados.Count Productos Populares Encontrados
+                        </h5>
+                        <small>✅ Cargado en @TiempoCargaSegundos.ToString("F2") segundos</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 80px;">Imagen</th>
+                                        <th>Producto</th>
+                                        <th class="text-end" style="width: 150px;">Precio Mínimo</th>
+                                        <th class="text-center" style="width: 100px;"># Tiendas</th>
+                                        <th style="width: 150px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var producto in ProductosEncontrados)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                                                {
+                                                    <img src="@producto.ImagenUrl" 
+                                                         alt="@producto.Nombre" 
+                                                         style="width: 60px; height: 60px; object-fit: cover;" 
+                                                         class="rounded">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="fas fa-image text-white"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@producto.Nombre</strong>
+                                                @if (!string.IsNullOrEmpty(producto.Descripcion))
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">@producto.Descripcion</small>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <h5 class="text-success fw-bold mb-0">
+                                                    $@producto.PrecioMinimo.ToString("N0")
+                                                </h5>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary rounded-pill fs-6">
+                                                    @producto.CantidadOfertas
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary w-100"
+                                                        @onclick="() => ExpandirProducto(producto.Id)">
+                                                    @if (ProductoExpandido == producto.Id)
+                                                    {
+                                                        <i class="fas fa-chevron-up me-1"></i>
+                                                        <span>Ocultar</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-chevron-down me-1"></i>
+                                                        <span>Ver detalles</span>
+                                                    }
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                        @* ROW EXPANDIBLE CON OFERTAS POR TIENDA *@
+                                        @if (ProductoExpandido == producto.Id)
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="bg-light p-4">
+                                                    <h6 class="mb-3">
+                                                        <i class="fas fa-store me-2"></i>
+                                                        Ofertas disponibles en tiendas:
+                                                    </h6>
+                                                    <table class="table table-sm table-bordered bg-white shadow-sm">
+                                                        <thead class="table-secondary">
+                                                            <tr>
+                                                                <th style="width: 80px;">Logo</th>
+                                                                <th>Tienda</th>
+                                                                <th class="text-end" style="width: 150px;">Precio</th>
+                                                                <th class="text-center" style="width: 120px;">Stock</th>
+                                                                <th style="width: 180px;">Enlace</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var oferta in producto.Ofertas.OrderBy(o => o.Precio))
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(oferta.TiendaLogoUrl))
+                                                                        {
+                                                                            <img src="@oferta.TiendaLogoUrl" 
+                                                                                 alt="@oferta.TiendaNombre"
+                                                                                 style="max-width: 40px; max-height: 40px;">
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <strong>@oferta.TiendaNombre</strong>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <strong class="text-success fs-5">
+                                                                            $@oferta.Precio.ToString("N0")
+                                                                        </strong>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        @if (oferta.EsDisponible)
+                                                                        {
+                                                                            <span class="badge bg-success">
+                                                                                ✅ Disponible
+                                                                            </span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="badge bg-danger">
+                                                                                ❌ Sin stock
+                                                                            </span>
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="@oferta.UrlProductoEnTienda" 
+                                                                           target="_blank" 
+                                                                           class="btn btn-sm btn-success w-100"
+                                                                           @onclick:stopPropagation="true">
+                                                                            <i class="fas fa-external-link-alt me-1"></i>
+                                                                            Ir a tienda
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!IsLoading && ProductosEncontrados.Count == 0)
+    {
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>⚠️ No se encontraron productos en las tiendas</h5>
+            <p class="mb-0">Intenta buscar otro término manualmente en el formulario de abajo.</p>
+        </div>
+    }
+
+    @* BÚSQUEDA MANUAL ADICIONAL *@
+    @if (!IsLoading)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-search me-2"></i>
+                            🔍 Búsqueda Personalizada
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            ¿No encontraste lo que buscabas? Prueba con tu propio término de búsqueda
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label for="terminoBusqueda" class="form-label fw-bold">
+                                    <i class="fas fa-keyboard me-2"></i>Buscar producto específico
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <input type="text" 
+                                           @bind="terminoBusqueda" 
+                                           @bind:event="oninput"
+                                           @onkeypress="HandleKeyPress"
+                                           class="form-control" 
+                                           id="terminoBusqueda" 
+                                           placeholder="Ej: Aceite Castrol 10W-40, Pastillas de freno..."
+                                           disabled="@estaBuscandoManual">
+                                    <button type="button" 
+                                            @onclick="OnBuscarTerminoManual" 
+                                            class="btn btn-success"
+                                            disabled="@(string.IsNullOrWhiteSpace(terminoBusqueda) || estaBuscandoManual)">
+                                        <i class="fas fa-search me-2"></i>Buscar Ahora
+                                    </button>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    Presiona Enter para buscar rápidamente
+                                </small>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                @if (!string.IsNullOrWhiteSpace(terminoBusqueda))
+                                {
+                                    <button type="button" @onclick="LimpiarBusquedaManual" class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-eraser me-2"></i>Limpiar
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* RESULTADOS DE BÚSQUEDA MANUAL *@
+    @if (estaBuscandoManual)
     {
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card border-primary">
                     <div class="card-body text-center py-5">
                         <div class="spinner-border text-primary mb-4" role="status" style="width: 4rem; height: 4rem;"></div>
-                        <h4 class="mb-4"> Buscando consumibles en tiempo real...</h4>
+                        <h4 class="mb-4">🔍 Buscando "@terminoBusqueda"...</h4>
+                        <p class="text-muted">Consultando en tiempo real a las tiendas</p>
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="card bg-light">
                                     <div class="card-body">
                                         <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
-                                        <h6> MercadoLibre</h6>
+                                        <h6>🛒 MercadoLibre</h6>
                                     </div>
                                 </div>
                             </div>
@@ -89,7 +310,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body">
                                         <div class="spinner-border spinner-border-sm text-info mb-2"></div>
-                                        <h6> Autoplanet</h6>
+                                        <h6>🏪 Autoplanet</h6>
                                     </div>
                                 </div>
                             </div>
@@ -97,7 +318,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body">
                                         <div class="spinner-border spinner-border-sm text-success mb-2"></div>
-                                        <h6> MundoRepuestos</h6>
+                                        <h6>🔧 MundoRepuestos</h6>
                                     </div>
                                 </div>
                             </div>
@@ -108,81 +329,108 @@
         </div>
     }
 
-    @if (!estaBuscando && busquedaRealizada)
+    @if (!estaBuscandoManual && busquedaManualRealizada && resultadosBusquedaManual != null)
     {
-        @if (tiempoBusquedaSegundos > 0)
+        @if (tiempoBusquedaManualSegundos > 0)
         {
             <div class="alert alert-info">
-                <strong> Búsqueda completada en @tiempoBusquedaSegundos.ToString("F2") segundos</strong>
+                <strong>✅ Búsqueda completada en @tiempoBusquedaManualSegundos.ToString("F2") segundos</strong>
             </div>
         }
 
-        @if (resultados != null && resultados.Any())
+        @if (resultadosBusquedaManual.Any())
         {
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>@resultados.Count Productos Encontrados</h5>
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        @resultadosBusquedaManual.Count Resultados para "@ultimoTerminoBuscado"
+                    </h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
-                            <thead>
+                            <thead class="table-secondary">
                                 <tr>
-                                    <th>Imagen</th>
+                                    <th style="width: 80px;">Imagen</th>
                                     <th>Producto</th>
-                                    <th class="text-end">Mejor Precio</th>
-                                    <th class="text-center">Ofertas</th>
-                                    <th></th>
+                                    <th class="text-end" style="width: 150px;">Mejor Precio</th>
+                                    <th class="text-center" style="width: 100px;">Ofertas</th>
+                                    <th style="width: 150px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var producto in resultados)
+                                @foreach (var producto in resultadosBusquedaManual)
                                 {
-                                    var precioMin = producto.Ofertas.Any() ? producto.Ofertas.Min(o => o.Precio) : 0;
-                                    <tr style="cursor:pointer" @onclick="() => ExpandirOferta(producto.Id)">
+                                    <tr>
                                         <td>
                                             @if (!string.IsNullOrEmpty(producto.ImagenUrl))
                                             {
                                                 <img src="@producto.ImagenUrl" alt="@producto.Nombre" style="width:60px;height:60px;object-fit:cover" class="rounded" />
                                             }
+                                            else
+                                            {
+                                                <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-image text-white"></i>
+                                                </div>
+                                            }
                                         </td>
                                         <td><strong>@producto.Nombre</strong></td>
-                                        <td class="text-end"><h5 class="text-success mb-0">$@precioMin.ToString("N0")</h5></td>
-                                        <td class="text-center"><span class="badge bg-info">@producto.Ofertas.Count</span></td>
-                                        <td><i class="fas @(productoExpandido == producto.Id ? "fa-chevron-up" : "fa-chevron-down")"></i></td>
+                                        <td class="text-end"><h5 class="text-success mb-0">$@producto.PrecioMinimo.ToString("N0")</h5></td>
+                                        <td class="text-center"><span class="badge bg-info rounded-pill">@producto.CantidadOfertas</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary w-100"
+                                                    @onclick="() => ExpandirProductoManual(producto.Id)">
+                                                @if (productoManualExpandido == producto.Id)
+                                                {
+                                                    <i class="fas fa-chevron-up me-1"></i>
+                                                    <span>Ocultar</span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-chevron-down me-1"></i>
+                                                    <span>Ver detalles</span>
+                                                }
+                                            </button>
+                                        </td>
                                     </tr>
-                                    @if (productoExpandido == producto.Id)
+                                    @if (productoManualExpandido == producto.Id)
                                     {
                                         <tr>
-                                            <td colspan="5" class="bg-light">
-                                                <div class="p-3">
-                                                    <table class="table table-sm table-bordered bg-white">
-                                                        <thead>
+                                            <td colspan="5" class="bg-light p-4">
+                                                <h6 class="mb-3">
+                                                    <i class="fas fa-store me-2"></i>
+                                                    Ofertas disponibles:
+                                                </h6>
+                                                <table class="table table-sm table-bordered bg-white shadow-sm">
+                                                    <thead class="table-secondary">
+                                                        <tr>
+                                                            <th>Tienda</th>
+                                                            <th class="text-end">Precio</th>
+                                                            <th>Acción</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var oferta in producto.Ofertas.OrderBy(o => o.Precio))
+                                                        {
                                                             <tr>
-                                                                <th>Tienda</th>
-                                                                <th class="text-end">Precio</th>
-                                                                <th>Acción</th>
+                                                                <td><strong>@oferta.TiendaNombre</strong></td>
+                                                                <td class="text-end"><strong>$@oferta.Precio.ToString("N0")</strong></td>
+                                                                <td>
+                                                                    @if (!string.IsNullOrEmpty(oferta.UrlProductoEnTienda))
+                                                                    {
+                                                                        <a href="@oferta.UrlProductoEnTienda" 
+                                                                           target="_blank" 
+                                                                           class="btn btn-sm btn-success"
+                                                                           @onclick:stopPropagation="true">
+                                                                            <i class="fas fa-external-link-alt me-1"></i> Ver en tienda
+                                                                        </a>
+                                                                    }
+                                                                </td>
                                                             </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach (var oferta in producto.Ofertas.OrderBy(o => o.Precio))
-                                                            {
-                                                                <tr>
-                                                                    <td><strong>@oferta.TiendaNombre</strong></td>
-                                                                    <td class="text-end"><strong>$@oferta.Precio.ToString("N0")</strong></td>
-                                                                    <td>
-                                                                        @if (!string.IsNullOrEmpty(oferta.UrlProductoEnTienda))
-                                                                        {
-                                                                            <button class="btn btn-sm btn-success" @onclick="() => AbrirEnTienda(oferta.UrlProductoEnTienda)" @onclick:stopPropagation="true">
-                                                                                <i class="fas fa-external-link-alt"></i> Ver
-                                                                            </button>
-                                                                        }
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                        }
+                                                    </tbody>
+                                                </table>
                                             </td>
                                         </tr>
                                     }
@@ -196,75 +444,194 @@
         else
         {
             <div class="alert alert-warning text-center">
-                <h4> No se encontraron consumibles</h4>
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>No se encontraron resultados para "@ultimoTerminoBuscado"</h5>
+                <p class="mb-0">Intenta con otro término de búsqueda</p>
             </div>
         }
     }
 </div>
 
 @code {
-    private List<ProductoConOfertasDto>? resultados;
+    // ============================================================================
+    // PROPIEDADES PARA CARGA INICIAL (PRODUCTOS POPULARES)
+    // ============================================================================
+    private List<ProductoConOfertasDto> ProductosEncontrados { get; set; } = new();
+    private bool IsLoading { get; set; } = true;
+    private string EstadoCarga { get; set; } = "Cargando productos populares...";
+    private double TiempoCargaSegundos { get; set; } = 0;
+    private int? ProductoExpandido { get; set; }
+
+    // ============================================================================
+    // PROPIEDADES PARA BÚSQUEDA MANUAL
+    // ============================================================================
+    private List<ProductoConOfertasDto>? resultadosBusquedaManual;
     private string terminoBusqueda = string.Empty;
-    private bool estaBuscando = false;
-    private bool busquedaRealizada = false;
-    private int? productoExpandido = null;
-    private double tiempoBusquedaSegundos = 0;
+    private string ultimoTerminoBuscado = string.Empty;
+    private bool estaBuscandoManual = false;
+    private bool busquedaManualRealizada = false;
+    private int? productoManualExpandido = null;
+    private double tiempoBusquedaManualSegundos = 0;
 
-    private async Task OnBuscarTermino()
+    // ============================================================================
+    // TÉRMINOS POPULARES A PRE-CARGAR
+    // ============================================================================
+    private readonly string[] TerminosPopulares = new[]
     {
-        if (string.IsNullOrWhiteSpace(terminoBusqueda)) return;
-        await EjecutarBusqueda(terminoBusqueda.Trim(), null);
-    }
+        "Aceite 10W-40",
+        "Filtro de aire",
+        "Plumillas",
+        "Bujías",
+        "Neumático 205/55R16",
+        "Radio Bluetooth"
+    };
 
-    private async Task EjecutarBusqueda(string termino, string? categoria)
+    // ============================================================================
+    // INICIALIZACIÓN: CARGA AUTOMÁTICA DE PRODUCTOS POPULARES
+    // ============================================================================
+    protected override async Task OnInitializedAsync()
     {
-        estaBuscando = true;
-        busquedaRealizada = false;
+        IsLoading = true;
+        EstadoCarga = "Cargando productos populares...";
         StateHasChanged();
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
         try
         {
-            Logger.LogInformation(" Búsqueda: {Termino}", termino);
-            var resultadosList = await ComparadorService.BuscarConsumiblesAsync(termino, categoria);
-            resultados = resultadosList.ToList();
+            _logger.LogInformation("🚀 Iniciando carga de productos populares");
+            
+            // Ejecutar búsquedas en paralelo para todos los términos
+            var tareas = TerminosPopulares
+                .Select(termino => BuscarTermino(termino))
+                .ToList();
+
+            // Esperar a que todas las búsquedas terminen
+            var resultadosPorTermino = await Task.WhenAll(tareas);
+
+            // Combinar todos los resultados en una sola lista
+            ProductosEncontrados = resultadosPorTermino
+                .SelectMany(x => x)
+                .Where(p => p != null && p.Ofertas.Any())
+                .OrderByDescending(p => p.CantidadOfertas)
+                .ThenBy(p => p.PrecioMinimo)
+                .ToList();
+
             stopwatch.Stop();
-            tiempoBusquedaSegundos = stopwatch.Elapsed.TotalSeconds;
-            Logger.LogInformation(" {Count} productos encontrados", resultados.Count);
+            TiempoCargaSegundos = stopwatch.Elapsed.TotalSeconds;
+
+            _logger.LogInformation(
+                "✅ Carga completada: {Count} productos encontrados en {Time}s", 
+                ProductosEncontrados.Count, 
+                TiempoCargaSegundos.ToString("F2")
+            );
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, " Error");
-            resultados = new List<ProductoConOfertasDto>();
+            _logger.LogError(ex, "❌ Error durante la carga inicial");
+            ProductosEncontrados = new List<ProductoConOfertasDto>();
         }
         finally
         {
-            estaBuscando = false;
-            busquedaRealizada = true;
+            IsLoading = false;
             StateHasChanged();
         }
     }
 
-    private void LimpiarFiltros()
+    // ============================================================================
+    // MÉTODO AUXILIAR: BUSCAR UN TÉRMINO ESPECÍFICO
+    // ============================================================================
+    private async Task<List<ProductoConOfertasDto>> BuscarTermino(string termino)
+    {
+        try
+        {
+            _logger.LogInformation("🔍 Cargando: {Termino}...", termino);
+            
+            var resultados = await ComparadorService.BuscarConsumiblesAsync(termino);
+            var lista = resultados.ToList();
+            
+            _logger.LogInformation("✅ {Termino}: {Count} productos encontrados", termino, lista.Count);
+            
+            return lista;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "❌ Error buscando {Termino}", termino);
+            return new List<ProductoConOfertasDto>();
+        }
+    }
+
+    // ============================================================================
+    // MÉTODO: EXPANDIR/CONTRAER PRODUCTO (PRODUCTOS POPULARES)
+    // ============================================================================
+    private void ExpandirProducto(int productoId)
+    {
+        ProductoExpandido = ProductoExpandido == productoId ? null : productoId;
+        StateHasChanged();
+    }
+
+    // ============================================================================
+    // MÉTODOS PARA BÚSQUEDA MANUAL
+    // ============================================================================
+    private async Task OnBuscarTerminoManual()
+    {
+        if (string.IsNullOrWhiteSpace(terminoBusqueda)) return;
+        
+        estaBuscandoManual = true;
+        busquedaManualRealizada = false;
+        ultimoTerminoBuscado = terminoBusqueda.Trim();
+        StateHasChanged();
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        try
+        {
+            _logger.LogInformation("🔍 Búsqueda manual: {Termino}", ultimoTerminoBuscado);
+            
+            var resultadosList = await ComparadorService.BuscarConsumiblesAsync(ultimoTerminoBuscado);
+            resultadosBusquedaManual = resultadosList.ToList();
+            
+            stopwatch.Stop();
+            tiempoBusquedaManualSegundos = stopwatch.Elapsed.TotalSeconds;
+            
+            _logger.LogInformation(
+                "✅ Búsqueda manual completada: {Count} productos encontrados", 
+                resultadosBusquedaManual.Count
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "❌ Error en búsqueda manual");
+            resultadosBusquedaManual = new List<ProductoConOfertasDto>();
+        }
+        finally
+        {
+            estaBuscandoManual = false;
+            busquedaManualRealizada = true;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(terminoBusqueda) && !estaBuscandoManual)
+        {
+            _ = OnBuscarTerminoManual();
+        }
+    }
+
+    private void LimpiarBusquedaManual()
     {
         terminoBusqueda = string.Empty;
-        resultados = null;
-        busquedaRealizada = false;
-        productoExpandido = null;
+        resultadosBusquedaManual = null;
+        busquedaManualRealizada = false;
+        productoManualExpandido = null;
+        ultimoTerminoBuscado = string.Empty;
         StateHasChanged();
     }
 
-    private void ExpandirOferta(int productoId)
+    private void ExpandirProductoManual(int productoId)
     {
-        productoExpandido = productoExpandido == productoId ? null : productoId;
+        productoManualExpandido = productoManualExpandido == productoId ? null : productoId;
         StateHasChanged();
-    }
-
-    private void AbrirEnTienda(string url)
-    {
-        if (!string.IsNullOrEmpty(url))
-        {
-            Navigation.NavigateTo(url, true);
-        }
     }
 }
