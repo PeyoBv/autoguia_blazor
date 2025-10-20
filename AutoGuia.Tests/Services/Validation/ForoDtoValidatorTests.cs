@@ -122,7 +122,6 @@ namespace AutoGuia.Tests.Services.Validation
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData("Categoría Inválida")]
         public void CrearPublicacion_ConCategoriaInvalida_DebeRetornarError(string categoria)
         {

@@ -50,16 +50,22 @@ namespace AutoGuia.Tests.Services.Caching
         {
             // Arrange
             const string clave = "test_object";
-            var objeto = new { Id = 1, Nombre = "Test" };
+            var objeto = new TestObject { Id = 1, Nombre = "Test" };
 
             // Act
             await _cacheService.SetAsync(clave, objeto);
-            var result = await _cacheService.GetAsync<dynamic>(clave);
+            var result = await _cacheService.GetAsync<TestObject>(clave);
 
             // Assert
             result.Should().NotBeNull();
-            ((int)result!.Id).Should().Be(1);
-            ((string)result.Nombre).Should().Be("Test");
+            result!.Id.Should().Be(1);
+            result.Nombre.Should().Be("Test");
+        }
+
+        private class TestObject
+        {
+            public int Id { get; set; }
+            public string Nombre { get; set; } = string.Empty;
         }
 
         [Fact]
