@@ -15,10 +15,14 @@ using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
 using AutoGuia.Infrastructure.ExternalServices;
 using AutoGuia.Infrastructure.Configuration;
+using AutoGuia.Infrastructure.Validation;
+using AutoGuia.Infrastructure.Caching;
+using AutoGuia.Infrastructure.RateLimiting;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
 using AutoGuia.Web.Services;
+using FluentValidation;
 using Serilog;
 
 // ✨ Configurar Serilog ANTES de crear el builder
@@ -85,6 +89,26 @@ builder.Services.AddResilientHttpClients(builder.Configuration);
 
 // ✨ Agregar Memory Cache para optimización
 builder.Services.AddMemoryCache();
+
+// ✨ Configurar Distributed Cache (Redis) - Comentado para desarrollo
+// builder.Services.AddStackExchangeRedisCache(options =>
+// {
+//     options.Configuration = builder.Configuration.GetConnectionString("Redis");
+//     options.InstanceName = "AutoGuia:";
+// });
+
+// ✨ Registrar Servicio de Caché Unificado
+builder.Services.AddScoped<ICacheService, MemoryCacheService>();
+// Para producción con Redis:
+// builder.Services.AddScoped<ICacheService, DistributedCacheService>();
+
+// ✨ Configurar FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CrearTallerDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CrearPublicacionDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CrearProductoDtoValidator>();
+
+// ✨ Configurar Rate Limiting
+builder.Services.AddCustomRateLimiting();
 
 // ✨ Registrar servicios de APIs externas (MercadoLibre, eBay)
 builder.Services.AddScoped<IExternalMarketplaceService, MercadoLibreService>();
@@ -157,6 +181,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// ✨ Usar Rate Limiting
+app.UseCustomRateLimiting();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
