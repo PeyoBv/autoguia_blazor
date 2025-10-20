@@ -248,29 +248,20 @@ namespace AutoGuia.Infrastructure.Services
         }
 
         /// <summary>
-        /// Busca consumibles automotrices en tiempo real usando web scraping
+        /// Busca consumibles automotrices - NOTA: Para búsqueda en tiempo real con scrapers,
+        /// usa el ComparadorServiceWithScrapers en la capa Web
         /// </summary>
-        /// <param name="termino">Término de búsqueda (ej: "Aceite 10W-40 Castrol")</param>
-        /// <param name="categoria">Categoría del consumible (opcional)</param>
-        /// <returns>Lista de productos con ofertas encontradas en diferentes tiendas</returns>
         public async Task<IEnumerable<ProductoConOfertasDto>> BuscarConsumiblesAsync(string termino, string? categoria = null)
         {
-            _logger.LogInformation("🔍 Iniciando búsqueda de consumibles: '{Termino}' (Categoría: {Categoria})", 
-                termino, categoria ?? "Todas");
-
-            var resultados = new List<ProductoConOfertasDto>();
+            _logger.LogInformation("🔍 Buscando consumibles en base de datos: '{Termino}'", termino);
 
             try
             {
-                _logger.LogInformation("📦 Buscando en base de datos local");
-                
-                // Buscar en la base de datos local
                 var query = _context.Productos
                     .Include(p => p.Ofertas)
                     .ThenInclude(o => o.Tienda)
                     .AsQueryable();
 
-                // Filtrar por término de búsqueda
                 if (!string.IsNullOrWhiteSpace(termino))
                 {
                     var terminoLower = termino.ToLower();
@@ -280,11 +271,9 @@ namespace AutoGuia.Infrastructure.Services
                         p.NumeroDeParte.ToLower().Contains(terminoLower));
                 }
 
-                var productos = await query
-                    .Take(20) // Limitar a 20 resultados
-                    .ToListAsync();
+                var productos = await query.Take(20).ToListAsync();
 
-                resultados = productos.Select(p => new ProductoConOfertasDto
+                var resultados = productos.Select(p => new ProductoConOfertasDto
                 {
                     Id = p.Id,
                     Nombre = p.Nombre,
@@ -304,15 +293,14 @@ namespace AutoGuia.Infrastructure.Services
                     }).OrderBy(o => o.Precio).ToList()
                 }).ToList();
 
-                _logger.LogInformation("✅ Búsqueda completada: {Count} productos encontrados", resultados.Count);
+                _logger.LogInformation("✅ {Count} productos encontrados en BD", resultados.Count);
+                return resultados;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Error al buscar consumibles: {Message}", ex.Message);
-                // Retornar lista vacía en caso de error
+                _logger.LogError(ex, "❌ Error al buscar consumibles");
+                return new List<ProductoConOfertasDto>();
             }
-
-            return resultados;
         }
     }
 }

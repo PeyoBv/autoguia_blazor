@@ -63,16 +63,51 @@ public class NhtsaVinService : IVehiculoInfoService
 
             // 3. Llamar a la API
             var httpClient = _httpClientFactory.CreateClient("NHTSA_API");
-            var response = await httpClient.GetAsync(url);
+            
+            HttpResponseMessage response;
+            try
+            {
+                response = await httpClient.GetAsync(url);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "❌ [NHTSA] Error de conexión al consultar API");
+                return new VehiculoInfo 
+                { 
+                    Vin = vin,
+                    IsValid = false, 
+                    ErrorMessage = "⚠️ El servicio de decodificación de VIN (NHTSA) no está disponible temporalmente. Por favor, intenta más tarde.",
+                    Source = "NHTSA"
+                };
+            }
+            catch (TaskCanceledException)
+            {
+                _logger.LogError("❌ [NHTSA] Timeout al consultar API");
+                return new VehiculoInfo 
+                { 
+                    Vin = vin,
+                    IsValid = false, 
+                    ErrorMessage = "⚠️ La consulta tardó demasiado tiempo. Por favor, intenta nuevamente.",
+                    Source = "NHTSA"
+                };
+            }
 
             if (!response.IsSuccessStatusCode)
             {
+                var statusMessage = response.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.ServiceUnavailable => "⚠️ El servicio de decodificación de VIN (NHTSA) está temporalmente fuera de servicio. Por favor, intenta más tarde.",
+                    System.Net.HttpStatusCode.TooManyRequests => "⚠️ Se han realizado demasiadas consultas. Por favor, espera unos minutos e intenta nuevamente.",
+                    System.Net.HttpStatusCode.InternalServerError => "⚠️ Error en el servidor de NHTSA. Por favor, intenta más tarde.",
+                    _ => $"⚠️ Error al consultar la API de NHTSA ({(int)response.StatusCode}: {response.StatusCode})"
+                };
+                
                 _logger.LogError("❌ [NHTSA] Error HTTP {StatusCode}", response.StatusCode);
                 return new VehiculoInfo 
                 { 
                     Vin = vin,
                     IsValid = false, 
-                    ErrorMessage = $"Error al consultar la API: {response.StatusCode}",
+                    ErrorMessage = statusMessage,
                     Source = "NHTSA"
                 };
             }

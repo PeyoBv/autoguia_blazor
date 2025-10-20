@@ -121,6 +121,12 @@
                                 Ingresa el VIN de 17 caracteres alfanuméricos. Encuéntralo en la tarjeta de circulación 
                                 o en el parabrisas del vehículo.
                             </div>
+                            
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Servicio externo:</strong> La decodificación de VIN utiliza la API pública de NHTSA (Estados Unidos).
+                                Si el servicio no está disponible, por favor intenta más tarde.
+                            </div>
 
                             <EditForm Model="@this" OnValidSubmit="BuscarPorVin" FormName="formVin">
                                 <div class="row g-3">
@@ -359,12 +365,12 @@
     private void ProbarPatente(string patente)
     {
         patenteInput = patente;
-        BuscarPorPatente();
+        _ = BuscarPorPatente();
     }
 
     private void ProbarVin(string vin)
     {
         vinInput = vin;
-        BuscarPorVin();
+        _ = BuscarPorVin();
     }
 }

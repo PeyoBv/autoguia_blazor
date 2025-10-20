@@ -16,6 +16,7 @@ using AutoGuia.Infrastructure.Services;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
+using AutoGuia.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +74,10 @@ builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
+
+// Registrar ComparadorService base y luego el wrapper con scrapers
+builder.Services.AddScoped<ComparadorService>();
+builder.Services.AddScoped<IComparadorService, AutoGuia.Web.Services.ComparadorServiceWithScrapers>();
 
 // 🛒 Servicios de Scraping de Consumibles Automotrices
 builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre
