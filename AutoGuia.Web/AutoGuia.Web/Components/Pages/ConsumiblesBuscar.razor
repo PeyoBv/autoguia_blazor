@@ -1,0 +1,575 @@
+@page "/consumibles"
+@rendermode InteractiveServer
+@inject ICategoriaService CategoriaService
+@inject NavigationManager Navigation
+@inject ILogger<ConsumiblesBuscar> Logger
+@using AutoGuia.Core.DTOs
+@using AutoGuia.Infrastructure.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Consumibles - AutoGuía</PageTitle>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-3">
+                <i class="fas fa-tire me-2 text-primary"></i>
+                Comparador de Consumibles Automotrices
+            </h1>
+            <p class="lead text-muted">
+                Encuentra los mejores precios en repuestos y consumibles para tu vehículo
+            </p>
+        </div>
+    </div>
+
+    <!-- Formulario de Búsqueda -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+                    </h5>
+
+                    <div class="row g-3">
+                        <!-- Selección de Categoría -->
+                        <div class="col-md-3">
+                            <label for="categoria" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2"></i>Categoría
+                            </label>
+                            <select @bind="categoriaSeleccionada" 
+                                    @bind:after="OnCategoriaChanged"
+                                    class="form-select" 
+                                    id="categoria">
+                                <option value="">-- Seleccionar --</option>
+                                @if (categorias != null)
+                                {
+                                    @foreach (var categoria in categorias)
+                                    {
+                                        <option value="@categoria.Id">@categoria.Nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Filtro 1 -->
+                        @if (subcategoriasDisponibles != null && subcategoriasDisponibles.Count > 0)
+                        {
+                            <div class="col-md-3">
+                                <label for="filtro1" class="form-label fw-bold">
+                                    @subcategoriasDisponibles[0].Nombre
+                                </label>
+                                <select @bind="filtro1Seleccionado" class="form-select" id="filtro1">
+                                    <option value="">-- Todos --</option>
+                                    @foreach (var valor in subcategoriasDisponibles[0].Valores)
+                                    {
+                                        <option value="@valor.Id">@valor.Valor</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                        <!-- Filtro 2 -->
+                        @if (subcategoriasDisponibles != null && subcategoriasDisponibles.Count > 1)
+                        {
+                            <div class="col-md-3">
+                                <label for="filtro2" class="form-label fw-bold">
+                                    @subcategoriasDisponibles[1].Nombre
+                                </label>
+                                <select @bind="filtro2Seleccionado" class="form-select" id="filtro2">
+                                    <option value="">-- Todos --</option>
+                                    @foreach (var valor in subcategoriasDisponibles[1].Valores)
+                                    {
+                                        <option value="@valor.Id">@valor.Valor</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                        <!-- Filtro 3 -->
+                        @if (subcategoriasDisponibles != null && subcategoriasDisponibles.Count > 2)
+                        {
+                            <div class="col-md-3">
+                                <label for="filtro3" class="form-label fw-bold">
+                                    @subcategoriasDisponibles[2].Nombre
+                                </label>
+                                <select @bind="filtro3Seleccionado" class="form-select" id="filtro3">
+                                    <option value="">-- Todos --</option>
+                                    @foreach (var valor in subcategoriasDisponibles[2].Valores)
+                                    {
+                                        <option value="@valor.Id">@valor.Valor</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Botón de Búsqueda -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <button type="button" 
+                                    @onclick="BuscarProductos" 
+                                    class="btn btn-primary btn-lg"
+                                    disabled="@(string.IsNullOrEmpty(categoriaSeleccionada) || estaBuscando)">
+                                @if (estaBuscando)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Buscando...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-search me-2"></i>
+                                    <span>Buscar Consumibles</span>
+                                }
+                            </button>
+                            
+                            @if (!string.IsNullOrEmpty(categoriaSeleccionada))
+                            {
+                                <button type="button" @onclick="LimpiarFiltros" class="btn btn-outline-secondary btn-lg ms-2">
+                                    <i class="fas fa-eraser me-2"></i>Limpiar
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado de búsqueda -->
+    @if (estaBuscando)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-primary text-center">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Buscando...</span>
+                    </div>
+                    <h5>Buscando consumibles...</h5>
+                    <p class="mb-0">Estamos buscando los mejores precios para ti</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Resultados -->
+    @if (!estaBuscando && busquedaRealizada)
+    {
+        @if (resultados != null && resultados.Any())
+        {
+            <!-- Resumen de Resultados -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Se encontraron <strong>@resultados.Count productos</strong> que coinciden con tu búsqueda
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Resultados -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shopping-cart me-2"></i>Resultados de Búsqueda
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 80px;"></th>
+                                            <th>Producto</th>
+                                            @* Filtros removidos temporalmente
+                                            <th>Filtro 1</th>
+                                            <th>Filtro 2</th>
+                                            <th>Filtro 3</th>
+                                            *@
+                                            <th class="text-end">Precio Mínimo</th>
+                                            <th style="width: 50px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var producto in resultados)
+                                        {
+                                            <tr class="cursor-pointer" @onclick="() => ToggleDetalle(producto.Id)">
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                                                    {
+                                                        <img src="@producto.ImagenUrl" 
+                                                             alt="@producto.Nombre" 
+                                                             class="img-thumbnail"
+                                                             style="width: 60px; height: 60px; object-fit: cover;" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                             style="width: 60px; height: 60px;">
+                                                            <i class="fas fa-box fa-2x text-muted"></i>
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="align-middle">
+                                                    <strong>@producto.Nombre</strong>
+                                                    @if (!string.IsNullOrEmpty(producto.Descripcion))
+                                                    {
+                                                        <br />
+                                                        <small class="text-muted">@producto.Descripcion</small>
+                                                    }
+                                                </td>
+                                                @* Filtros removidos temporalmente
+                                                <td class="align-middle">
+                                                    @if (!string.IsNullOrEmpty(producto.FiltroValor1))
+                                                    {
+                                                        <span class="badge bg-secondary">@producto.FiltroValor1</span>
+                                                    }
+                                                </td>
+                                                *@
+                                                @* Filtros removidos temporalmente
+                                                <td class="align-middle">
+                                                    @if (!string.IsNullOrEmpty(producto.FiltroValor2))
+                                                    {
+                                                        <span class="badge bg-secondary">@producto.FiltroValor2</span>
+                                                    }
+                                                </td>
+                                                *@
+                                                @* Filtros removidos temporalmente
+                                                <td class="align-middle">
+                                                    @if (!string.IsNullOrEmpty(producto.FiltroValor3))
+                                                    {
+                                                        <span class="badge bg-secondary">@producto.FiltroValor3</span>
+                                                    }
+                                                </td>
+                                                *@
+                                                <td class="align-middle text-end">
+                                                    <span class="h5 text-success mb-0">
+                                                        $@(producto.PrecioMinimo.ToString("N0"))
+                                                    </span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <i class="fas @(productoExpandido == producto.Id ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Fila expandible con detalles de ofertas -->
+                                            @if (productoExpandido == producto.Id)
+                                            {
+                                                <tr>
+                                                    <td colspan="4" class="bg-light">
+                                                        <div class="p-3">
+                                                            <h6 class="mb-3">
+                                                                <i class="fas fa-store me-2"></i>Ofertas Disponibles
+                                                            </h6>
+                                                            
+                                                            @if (producto.Ofertas != null && producto.Ofertas.Any())
+                                                            {
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm table-bordered bg-white mb-0">
+                                                                        <thead class="table-secondary">
+                                                                            <tr>
+                                                                                <th>Tienda</th>
+                                                                                <th class="text-end">Precio</th>
+                                                                                <th>Descuento</th>
+                                                                                <th class="text-center">Acción</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var oferta in producto.Ofertas.OrderBy(o => o.Precio))
+                                                                            {
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            @if (!string.IsNullOrEmpty(oferta.TiendaLogoUrl))
+                                                                                            {
+                                                                                                <img src="@oferta.TiendaLogoUrl" 
+                                                                                                     alt="@oferta.TiendaNombre"
+                                                                                                     style="width: 30px; height: 30px; object-fit: contain;"
+                                                                                                     class="me-2" />
+                                                                                            }
+                                                                                            <strong>@oferta.TiendaNombre</strong>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td class="text-end">
+                                                                                        <strong class="text-success">$@oferta.Precio.ToString("N0")</strong>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @if (oferta.PorcentajeDescuento > 0)
+                                                                                        {
+                                                                                            <span class="badge bg-danger">-@oferta.PorcentajeDescuento%</span>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <span class="text-muted">-</span>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        @if (!string.IsNullOrEmpty(oferta.UrlProductoEnTienda))
+                                                                                        {
+                                                                                            <a href="@oferta.UrlProductoEnTienda" 
+                                                                                               target="_blank" 
+                                                                                               class="btn btn-sm btn-success">
+                                                                                                <i class="fas fa-external-link-alt me-1"></i>
+                                                                                                Ver en Tienda
+                                                                                            </a>
+                                                                                        }
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="alert alert-warning mb-0">
+                                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                    No hay ofertas disponibles para este producto en este momento
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Sin resultados -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-warning text-center py-5">
+                        <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                        <h4>No se encontraron consumibles</h4>
+                        <p class="mb-3">No encontramos productos que coincidan con los filtros seleccionados.</p>
+                        <p class="mb-0">
+                            <strong>Sugerencias:</strong><br />
+                            • Intenta seleccionar menos filtros<br />
+                            • Cambia de categoría<br />
+                            • Verifica que los filtros sean compatibles
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Tips de búsqueda (mostrar solo si no hay búsqueda activa) -->
+    @if (!busquedaRealizada && !estaBuscando)
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4 class="mb-4">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>
+                    ¿Qué puedes encontrar aquí?
+                </h4>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-oil-can fa-3x text-primary mb-3"></i>
+                        <h5>Aceites y Lubricantes</h5>
+                        <p class="text-muted">Aceites de motor, transmisión y diferencial de todas las viscosidades</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tire fa-3x text-primary mb-3"></i>
+                        <h5>Neumáticos</h5>
+                        <p class="text-muted">Neumáticos de verano e invierno para todo tipo de vehículos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-filter fa-3x text-primary mb-3"></i>
+                        <h5>Filtros y Accesorios</h5>
+                        <p class="text-muted">Filtros de aire, aceite, combustible y muchos accesorios más</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .cursor-pointer:hover {
+        background-color: rgba(0,123,255,.05);
+    }
+    
+    .table-hover tbody tr:hover td {
+        background-color: rgba(0,123,255,.05);
+    }
+</style>
+
+@code {
+    // Variables de estado
+    private List<CategoriaDto>? categorias;
+    private List<SubcategoriaDto>? subcategoriasDisponibles;
+    private List<ProductoConOfertasDto>? resultados;
+    
+    // Filtros seleccionados
+    private string categoriaSeleccionada = string.Empty;
+    private string filtro1Seleccionado = string.Empty;
+    private string filtro2Seleccionado = string.Empty;
+    private string filtro3Seleccionado = string.Empty;
+    
+    // Estado de UI
+    private bool estaBuscando = false;
+    private bool busquedaRealizada = false;
+    private int? productoExpandido = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCategoriasAsync();
+    }
+
+    /// <summary>
+    /// Carga las categorías disponibles desde el servicio
+    /// </summary>
+    private async Task CargarCategoriasAsync()
+    {
+        try
+        {
+            Logger.LogInformation("🔍 Cargando categorías...");
+            var resultado = await CategoriaService.ObtenerCategoriasAsync();
+            categorias = resultado.ToList();
+            Logger.LogInformation("✅ Categorías cargadas: {Count}", categorias.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "❌ Error al cargar categorías");
+        }
+    }
+
+    /// <summary>
+    /// Maneja el cambio de categoría seleccionada
+    /// </summary>
+    private async Task OnCategoriaChanged()
+    {
+        Logger.LogInformation("📂 Categoría seleccionada: {CategoriaId}", categoriaSeleccionada);
+        
+        // Limpiar filtros anteriores
+        filtro1Seleccionado = string.Empty;
+        filtro2Seleccionado = string.Empty;
+        filtro3Seleccionado = string.Empty;
+        subcategoriasDisponibles = null;
+        resultados = null;
+        busquedaRealizada = false;
+        productoExpandido = null;
+
+        if (!string.IsNullOrEmpty(categoriaSeleccionada) && int.TryParse(categoriaSeleccionada, out int catId))
+        {
+            try
+            {
+                // Cargar subcategorías de la categoría seleccionada
+                var subcategorias = await CategoriaService.ObtenerSubcategoriasAsync(catId);
+                subcategoriasDisponibles = subcategorias.Take(3).ToList(); // Máximo 3 filtros
+                
+                Logger.LogInformation("✅ Subcategorías cargadas: {Count}", subcategoriasDisponibles.Count);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "❌ Error al cargar subcategorías");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ejecuta la búsqueda de productos según los filtros seleccionados
+    /// </summary>
+    private async Task BuscarProductos()
+    {
+        if (string.IsNullOrEmpty(categoriaSeleccionada))
+        {
+            Logger.LogWarning("⚠️ No se ha seleccionado ninguna categoría");
+            return;
+        }
+
+        estaBuscando = true;
+        busquedaRealizada = false;
+        productoExpandido = null;
+        StateHasChanged();
+
+        try
+        {
+            Logger.LogInformation("🔍 Iniciando búsqueda de productos...");
+            Logger.LogInformation("   Categoría: {Cat}, Filtro1: {F1}, Filtro2: {F2}, Filtro3: {F3}", 
+                categoriaSeleccionada, filtro1Seleccionado, filtro2Seleccionado, filtro3Seleccionado);
+
+            // TODO: Implementar búsqueda real cuando IProductoService esté disponible
+            // Por ahora, simulamos resultados
+            await Task.Delay(1500); // Simulación de búsqueda
+            
+            resultados = new List<ProductoConOfertasDto>(); // Resultados vacíos por ahora
+            
+            Logger.LogInformation("✅ Búsqueda completada: {Count} resultados", resultados.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "❌ Error al buscar productos");
+            resultados = new List<ProductoConOfertasDto>();
+        }
+        finally
+        {
+            estaBuscando = false;
+            busquedaRealizada = true;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Limpia todos los filtros y resultados
+    /// </summary>
+    private void LimpiarFiltros()
+    {
+        Logger.LogInformation("🧹 Limpiando filtros...");
+        
+        categoriaSeleccionada = string.Empty;
+        filtro1Seleccionado = string.Empty;
+        filtro2Seleccionado = string.Empty;
+        filtro3Seleccionado = string.Empty;
+        subcategoriasDisponibles = null;
+        resultados = null;
+        busquedaRealizada = false;
+        productoExpandido = null;
+        
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Alterna la visibilidad de los detalles de un producto (ofertas)
+    /// </summary>
+    private void ToggleDetalle(int productoId)
+    {
+        if (productoExpandido == productoId)
+        {
+            productoExpandido = null;
+            Logger.LogInformation("📦 Cerrando detalle del producto {ProductoId}", productoId);
+        }
+        else
+        {
+            productoExpandido = productoId;
+            Logger.LogInformation("📦 Mostrando detalle del producto {ProductoId}", productoId);
+        }
+        
+        StateHasChanged();
+    }
+}

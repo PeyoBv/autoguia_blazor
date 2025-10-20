@@ -15,6 +15,7 @@ using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
+using AutoGuia.Scraper.Scrapers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +71,20 @@ builder.Services.AddHttpClient("NHTSA_API", client =>
 builder.Services.AddScoped<ITallerService, TallerService>();
 builder.Services.AddScoped<IForoService, ForoService>();
 builder.Services.AddScoped<IMapService, GoogleMapService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+
+// 🛒 Servicios de Scraping de Consumibles Automotrices
+builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre
+builder.Services.AddScoped<AutoplanetConsumiblesScraperService>();    // Autoplanet
+builder.Services.AddScoped<MundoRepuestosConsumiblesScraperService>(); // MundoRepuestos
+
+// 🌐 HttpClient para scrapers de consumibles
+builder.Services.AddHttpClient("ConsumiblesScraperClient", client =>
+{
+    client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia-Scraper/2.0");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 // Servicio de vehículos (solo Marca y Modelo)
 // builder.Services.AddScoped<IVehiculoService, VehiculoService>();

@@ -17,6 +17,15 @@ namespace AutoGuia.Infrastructure.Data
         // Entidades de vehículos (solo Marca y Modelo)
         public DbSet<Marca> Marcas { get; set; }
         public DbSet<Modelo> Modelos { get; set; }
+        
+        // Entidades de consumibles y comparador
+        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Subcategoria> Subcategorias { get; set; }
+        public DbSet<ValorFiltro> ValoresFiltro { get; set; }
+        public DbSet<Producto> Productos { get; set; }
+        public DbSet<Oferta> Ofertas { get; set; }
+        public DbSet<Tienda> Tiendas { get; set; }
+        public DbSet<ProductoVehiculoCompatible> ProductoVehiculoCompatibles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +36,41 @@ namespace AutoGuia.Infrastructure.Data
                 .HasOne(m => m.Marca)
                 .WithMany(ma => ma.Modelos)
                 .HasForeignKey(m => m.MarcaId);
+
+            // Configuración de relaciones para consumibles
+            modelBuilder.Entity<Subcategoria>()
+                .HasOne(s => s.Categoria)
+                .WithMany(c => c.Subcategorias)
+                .HasForeignKey(s => s.CategoriaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ValorFiltro>()
+                .HasOne(v => v.Subcategoria)
+                .WithMany(s => s.Valores)
+                .HasForeignKey(v => v.SubcategoriaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(p => p.Categoria)
+                .WithMany()
+                .HasForeignKey(p => p.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configuración de clave compuesta para ProductoVehiculoCompatible
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasKey(pv => new { pv.ProductoId, pv.ModeloId, pv.Ano });
+
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasOne(pv => pv.Producto)
+                .WithMany(p => p.VehiculosCompatibles)
+                .HasForeignKey(pv => pv.ProductoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductoVehiculoCompatible>()
+                .HasOne(pv => pv.Modelo)
+                .WithMany()
+                .HasForeignKey(pv => pv.ModeloId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configuración de entidades existentes (talleres y foro)
             modelBuilder.Entity<RespuestaForo>()
@@ -61,6 +105,92 @@ namespace AutoGuia.Infrastructure.Data
                 new Modelo { Id = 7, Nombre = "Sentra", MarcaId = 3, AnioInicioProduccion = 2007, AnioFinProduccion = 2024 },
                 new Modelo { Id = 8, Nombre = "Versa", MarcaId = 3, AnioInicioProduccion = 2012, AnioFinProduccion = 2024 },
                 new Modelo { Id = 9, Nombre = "X-Trail", MarcaId = 3, AnioInicioProduccion = 2014, AnioFinProduccion = 2024 }
+            );
+
+            // Categorías de consumibles
+            modelBuilder.Entity<Categoria>().HasData(
+                new Categoria { Id = 1, Nombre = "Aceites", Descripcion = "Aceites para motor, transmisión y diferencial", IconUrl = "/icons/aceites.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true },
+                new Categoria { Id = 2, Nombre = "Neumáticos", Descripcion = "Neumáticos para todo tipo de vehículos", IconUrl = "/icons/neumaticos.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true },
+                new Categoria { Id = 3, Nombre = "Plumillas", Descripcion = "Plumillas limpiaparabrisas", IconUrl = "/icons/plumillas.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true },
+                new Categoria { Id = 4, Nombre = "Filtros", Descripcion = "Filtros de aire, aceite, combustible y cabina", IconUrl = "/icons/filtros.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true },
+                new Categoria { Id = 5, Nombre = "Radios", Descripcion = "Radios multimedia para automóviles", IconUrl = "/icons/radios.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true },
+                new Categoria { Id = 6, Nombre = "Gadgets", Descripcion = "Accesorios y gadgets automotrices", IconUrl = "/icons/gadgets.svg", FechaCreacion = DateTime.UtcNow, EsActivo = true }
+            );
+
+            // Subcategorías para Aceites
+            modelBuilder.Entity<Subcategoria>().HasData(
+                // ACEITES
+                new Subcategoria { Id = 1, CategoriaId = 1, Nombre = "Tipo" },
+                new Subcategoria { Id = 2, CategoriaId = 1, Nombre = "Viscosidad" },
+                new Subcategoria { Id = 3, CategoriaId = 1, Nombre = "Marca" },
+                // NEUMÁTICOS
+                new Subcategoria { Id = 4, CategoriaId = 2, Nombre = "Tipo" },
+                new Subcategoria { Id = 5, CategoriaId = 2, Nombre = "Tamaño" },
+                new Subcategoria { Id = 6, CategoriaId = 2, Nombre = "Marca" },
+                // PLUMILLAS
+                new Subcategoria { Id = 7, CategoriaId = 3, Nombre = "Tamaño" },
+                new Subcategoria { Id = 8, CategoriaId = 3, Nombre = "Tipo" },
+                new Subcategoria { Id = 9, CategoriaId = 3, Nombre = "Marca" },
+                // FILTROS
+                new Subcategoria { Id = 10, CategoriaId = 4, Nombre = "Tipo" },
+                new Subcategoria { Id = 11, CategoriaId = 4, Nombre = "Marca" },
+                // RADIOS
+                new Subcategoria { Id = 12, CategoriaId = 5, Nombre = "Características" },
+                new Subcategoria { Id = 13, CategoriaId = 5, Nombre = "Marca" },
+                // GADGETS
+                new Subcategoria { Id = 14, CategoriaId = 6, Nombre = "Tipo" },
+                new Subcategoria { Id = 15, CategoriaId = 6, Nombre = "Categoría" }
+            );
+
+            // Valores de filtro
+            modelBuilder.Entity<ValorFiltro>().HasData(
+                // ACEITES - Tipo (SubcategoriaId = 1)
+                new ValorFiltro { Id = 1, SubcategoriaId = 1, Valor = "Motor" },
+                new ValorFiltro { Id = 2, SubcategoriaId = 1, Valor = "Transmisión" },
+                // ACEITES - Viscosidad (SubcategoriaId = 2)
+                new ValorFiltro { Id = 3, SubcategoriaId = 2, Valor = "5W-30" },
+                new ValorFiltro { Id = 4, SubcategoriaId = 2, Valor = "10W-40" },
+                new ValorFiltro { Id = 5, SubcategoriaId = 2, Valor = "15W-40" },
+                // ACEITES - Marca (SubcategoriaId = 3)
+                new ValorFiltro { Id = 6, SubcategoriaId = 3, Valor = "Castrol" },
+                new ValorFiltro { Id = 7, SubcategoriaId = 3, Valor = "Mobil" },
+                // NEUMÁTICOS - Tipo (SubcategoriaId = 4)
+                new ValorFiltro { Id = 8, SubcategoriaId = 4, Valor = "Verano" },
+                new ValorFiltro { Id = 9, SubcategoriaId = 4, Valor = "Invierno" },
+                // NEUMÁTICOS - Tamaño (SubcategoriaId = 5)
+                new ValorFiltro { Id = 10, SubcategoriaId = 5, Valor = "165/70R13" },
+                new ValorFiltro { Id = 11, SubcategoriaId = 5, Valor = "205/55R16" },
+                // NEUMÁTICOS - Marca (SubcategoriaId = 6)
+                new ValorFiltro { Id = 12, SubcategoriaId = 6, Valor = "Michelin" },
+                new ValorFiltro { Id = 13, SubcategoriaId = 6, Valor = "Continental" },
+                // PLUMILLAS - Tamaño (SubcategoriaId = 7)
+                new ValorFiltro { Id = 14, SubcategoriaId = 7, Valor = "400mm" },
+                new ValorFiltro { Id = 15, SubcategoriaId = 7, Valor = "450mm" },
+                new ValorFiltro { Id = 16, SubcategoriaId = 7, Valor = "500mm" },
+                // PLUMILLAS - Tipo (SubcategoriaId = 8)
+                new ValorFiltro { Id = 17, SubcategoriaId = 8, Valor = "Convencional" },
+                new ValorFiltro { Id = 18, SubcategoriaId = 8, Valor = "Aerodinámico" },
+                // PLUMILLAS - Marca (SubcategoriaId = 9)
+                new ValorFiltro { Id = 19, SubcategoriaId = 9, Valor = "Bosch" },
+                new ValorFiltro { Id = 20, SubcategoriaId = 9, Valor = "TRICO" },
+                // FILTROS - Tipo (SubcategoriaId = 10)
+                new ValorFiltro { Id = 21, SubcategoriaId = 10, Valor = "Motor" },
+                new ValorFiltro { Id = 22, SubcategoriaId = 10, Valor = "Aire" },
+                // FILTROS - Marca (SubcategoriaId = 11)
+                new ValorFiltro { Id = 23, SubcategoriaId = 11, Valor = "Fram" },
+                new ValorFiltro { Id = 24, SubcategoriaId = 11, Valor = "Bosch" },
+                // RADIOS - Características (SubcategoriaId = 12)
+                new ValorFiltro { Id = 25, SubcategoriaId = 12, Valor = "Bluetooth" },
+                new ValorFiltro { Id = 26, SubcategoriaId = 12, Valor = "Android Auto" },
+                // RADIOS - Marca (SubcategoriaId = 13)
+                new ValorFiltro { Id = 27, SubcategoriaId = 13, Valor = "Pioneer" },
+                new ValorFiltro { Id = 28, SubcategoriaId = 13, Valor = "Sony" },
+                // GADGETS - Tipo (SubcategoriaId = 14)
+                new ValorFiltro { Id = 29, SubcategoriaId = 14, Valor = "Limpieza" },
+                new ValorFiltro { Id = 30, SubcategoriaId = 14, Valor = "Protección" },
+                // GADGETS - Categoría (SubcategoriaId = 15)
+                new ValorFiltro { Id = 31, SubcategoriaId = 15, Valor = "Ceras" },
+                new ValorFiltro { Id = 32, SubcategoriaId = 15, Valor = "Cubre volante" }
             );
 
             // Seed data de productos/tiendas eliminado - ya no usamos web scraping

@@ -3,6 +3,7 @@ using System;
 using AutoGuia.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoGuia.Infrastructure.Migrations
 {
     [DbContext(typeof(AutoGuiaDbContext))]
-    partial class AutoGuiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251020032455_AddCategoriasYConsumibles")]
+    partial class AddCategoriasYConsumibles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,7 +62,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 1,
                             Descripcion = "Aceites para motor, transmisión y diferencial",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4656),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2293),
                             IconUrl = "/icons/aceites.svg",
                             Nombre = "Aceites"
                         },
@@ -68,7 +71,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 2,
                             Descripcion = "Neumáticos para todo tipo de vehículos",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4658),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2297),
                             IconUrl = "/icons/neumaticos.svg",
                             Nombre = "Neumáticos"
                         },
@@ -77,7 +80,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 3,
                             Descripcion = "Plumillas limpiaparabrisas",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4660),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2299),
                             IconUrl = "/icons/plumillas.svg",
                             Nombre = "Plumillas"
                         },
@@ -86,27 +89,27 @@ namespace AutoGuia.Infrastructure.Migrations
                             Id = 4,
                             Descripcion = "Filtros de aire, aceite, combustible y cabina",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4661),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2301),
                             IconUrl = "/icons/filtros.svg",
                             Nombre = "Filtros"
                         },
                         new
                         {
                             Id = 5,
-                            Descripcion = "Radios multimedia para automóviles",
+                            Descripcion = "Baterías para automóviles",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4663),
-                            IconUrl = "/icons/radios.svg",
-                            Nombre = "Radios"
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2302),
+                            IconUrl = "/icons/baterias.svg",
+                            Nombre = "Baterías"
                         },
                         new
                         {
                             Id = 6,
-                            Descripcion = "Accesorios y gadgets automotrices",
+                            Descripcion = "Pastillas, discos y líquido de frenos",
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4664),
-                            IconUrl = "/icons/gadgets.svg",
-                            Nombre = "Gadgets"
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2304),
+                            IconUrl = "/icons/frenos.svg",
+                            Nombre = "Frenos"
                         });
                 });
 
@@ -146,7 +149,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 1,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4451),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2100),
                             LogoUrl = "/images/marcas/toyota.png",
                             Nombre = "Toyota"
                         },
@@ -154,7 +157,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 2,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4454),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2104),
                             LogoUrl = "/images/marcas/honda.png",
                             Nombre = "Honda"
                         },
@@ -162,7 +165,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 3,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4456),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2105),
                             LogoUrl = "/images/marcas/nissan.png",
                             Nombre = "Nissan"
                         },
@@ -170,7 +173,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 4,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4457),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2106),
                             LogoUrl = "/images/marcas/chevrolet.png",
                             Nombre = "Chevrolet"
                         },
@@ -178,7 +181,7 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 5,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4458),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2108),
                             LogoUrl = "/images/marcas/ford.png",
                             Nombre = "Ford"
                         });
@@ -233,7 +236,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2000,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4613),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2246),
                             MarcaId = 1,
                             Nombre = "Corolla"
                         },
@@ -243,7 +246,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2005,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4616),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2249),
                             MarcaId = 1,
                             Nombre = "Yaris"
                         },
@@ -253,7 +256,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2010,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4618),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2251),
                             MarcaId = 1,
                             Nombre = "RAV4"
                         },
@@ -263,7 +266,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2000,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4619),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2253),
                             MarcaId = 2,
                             Nombre = "Civic"
                         },
@@ -273,7 +276,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2008,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4620),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2254),
                             MarcaId = 2,
                             Nombre = "Accord"
                         },
@@ -283,7 +286,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2012,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4621),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2256),
                             MarcaId = 2,
                             Nombre = "CR-V"
                         },
@@ -293,7 +296,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2007,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4623),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2257),
                             MarcaId = 3,
                             Nombre = "Sentra"
                         },
@@ -303,7 +306,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2012,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4624),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2259),
                             MarcaId = 3,
                             Nombre = "Versa"
                         },
@@ -313,7 +316,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             AnioFinProduccion = 2024,
                             AnioInicioProduccion = 2014,
                             EsActivo = true,
-                            FechaCreacion = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4625),
+                            FechaCreacion = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2260),
                             MarcaId = 3,
                             Nombre = "X-Trail"
                         });
@@ -673,13 +676,13 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 1,
                             CategoriaId = 1,
-                            Nombre = "Tipo"
+                            Nombre = "Viscosidad"
                         },
                         new
                         {
                             Id = 2,
                             CategoriaId = 1,
-                            Nombre = "Viscosidad"
+                            Nombre = "Tipo"
                         },
                         new
                         {
@@ -690,14 +693,14 @@ namespace AutoGuia.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CategoriaId = 2,
-                            Nombre = "Tipo"
+                            CategoriaId = 1,
+                            Nombre = "Volumen"
                         },
                         new
                         {
                             Id = 5,
                             CategoriaId = 2,
-                            Nombre = "Tamaño"
+                            Nombre = "Medida"
                         },
                         new
                         {
@@ -708,56 +711,20 @@ namespace AutoGuia.Infrastructure.Migrations
                         new
                         {
                             Id = 7,
-                            CategoriaId = 3,
-                            Nombre = "Tamaño"
+                            CategoriaId = 2,
+                            Nombre = "Tipo"
                         },
                         new
                         {
                             Id = 8,
-                            CategoriaId = 3,
-                            Nombre = "Tipo"
+                            CategoriaId = 4,
+                            Nombre = "Tipo de Filtro"
                         },
                         new
                         {
                             Id = 9,
-                            CategoriaId = 3,
-                            Nombre = "Marca"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CategoriaId = 4,
-                            Nombre = "Tipo"
-                        },
-                        new
-                        {
-                            Id = 11,
                             CategoriaId = 4,
                             Nombre = "Marca"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            CategoriaId = 5,
-                            Nombre = "Características"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            CategoriaId = 5,
-                            Nombre = "Marca"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            CategoriaId = 6,
-                            Nombre = "Tipo"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            CategoriaId = 6,
-                            Nombre = "Categoría"
                         });
                 });
 
@@ -860,7 +827,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsVerificado = false,
                             Especialidades = "Mecánica general, Frenos, Suspensión",
-                            FechaRegistro = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4835),
+                            FechaRegistro = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2467),
                             HorarioAtencion = "Lunes a Viernes: 8:00 - 18:00, Sábados: 8:00 - 14:00",
                             Nombre = "Taller Mecánico San Miguel",
                             Region = "",
@@ -877,7 +844,7 @@ namespace AutoGuia.Infrastructure.Migrations
                             EsActivo = true,
                             EsVerificado = false,
                             Especialidades = "Mantención preventiva, Cambio de aceite, Afinación",
-                            FechaRegistro = new DateTime(2025, 10, 20, 3, 34, 3, 712, DateTimeKind.Utc).AddTicks(4845),
+                            FechaRegistro = new DateTime(2025, 10, 20, 3, 24, 54, 411, DateTimeKind.Utc).AddTicks(2476),
                             HorarioAtencion = "Lunes a Viernes: 7:30 - 19:00, Sábados: 8:00 - 15:00",
                             Nombre = "AutoServicio Express",
                             Region = "",
@@ -962,193 +929,181 @@ namespace AutoGuia.Infrastructure.Migrations
                         {
                             Id = 1,
                             SubcategoriaId = 1,
-                            Valor = "Motor"
+                            Valor = "5W-30"
                         },
                         new
                         {
                             Id = 2,
                             SubcategoriaId = 1,
-                            Valor = "Transmisión"
+                            Valor = "10W-30"
                         },
                         new
                         {
                             Id = 3,
-                            SubcategoriaId = 2,
-                            Valor = "5W-30"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            SubcategoriaId = 2,
+                            SubcategoriaId = 1,
                             Valor = "10W-40"
                         },
                         new
                         {
-                            Id = 5,
-                            SubcategoriaId = 2,
+                            Id = 4,
+                            SubcategoriaId = 1,
                             Valor = "15W-40"
                         },
                         new
                         {
+                            Id = 5,
+                            SubcategoriaId = 1,
+                            Valor = "20W-50"
+                        },
+                        new
+                        {
                             Id = 6,
+                            SubcategoriaId = 2,
+                            Valor = "Sintético"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            SubcategoriaId = 2,
+                            Valor = "Semi-sintético"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            SubcategoriaId = 2,
+                            Valor = "Mineral"
+                        },
+                        new
+                        {
+                            Id = 9,
                             SubcategoriaId = 3,
                             Valor = "Castrol"
                         },
                         new
                         {
-                            Id = 7,
+                            Id = 10,
                             SubcategoriaId = 3,
                             Valor = "Mobil"
                         },
                         new
                         {
-                            Id = 8,
-                            SubcategoriaId = 4,
-                            Valor = "Verano"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            SubcategoriaId = 4,
-                            Valor = "Invierno"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            SubcategoriaId = 5,
-                            Valor = "165/70R13"
-                        },
-                        new
-                        {
                             Id = 11,
-                            SubcategoriaId = 5,
-                            Valor = "205/55R16"
+                            SubcategoriaId = 3,
+                            Valor = "Shell"
                         },
                         new
                         {
                             Id = 12,
+                            SubcategoriaId = 3,
+                            Valor = "Valvoline"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            SubcategoriaId = 3,
+                            Valor = "Petronas"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            SubcategoriaId = 4,
+                            Valor = "1L"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            SubcategoriaId = 4,
+                            Valor = "4L"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            SubcategoriaId = 4,
+                            Valor = "5L"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            SubcategoriaId = 4,
+                            Valor = "208L"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            SubcategoriaId = 5,
+                            Valor = "175/70 R13"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            SubcategoriaId = 5,
+                            Valor = "185/65 R14"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            SubcategoriaId = 5,
+                            Valor = "195/65 R15"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            SubcategoriaId = 5,
+                            Valor = "205/55 R16"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            SubcategoriaId = 5,
+                            Valor = "215/55 R17"
+                        },
+                        new
+                        {
+                            Id = 23,
                             SubcategoriaId = 6,
                             Valor = "Michelin"
                         },
                         new
                         {
-                            Id = 13,
+                            Id = 24,
+                            SubcategoriaId = 6,
+                            Valor = "Bridgestone"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            SubcategoriaId = 6,
+                            Valor = "Goodyear"
+                        },
+                        new
+                        {
+                            Id = 26,
                             SubcategoriaId = 6,
                             Valor = "Continental"
                         },
                         new
                         {
-                            Id = 14,
-                            SubcategoriaId = 7,
-                            Valor = "400mm"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            SubcategoriaId = 7,
-                            Valor = "450mm"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            SubcategoriaId = 7,
-                            Valor = "500mm"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            SubcategoriaId = 8,
-                            Valor = "Convencional"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            SubcategoriaId = 8,
-                            Valor = "Aerodinámico"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            SubcategoriaId = 9,
-                            Valor = "Bosch"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            SubcategoriaId = 9,
-                            Valor = "TRICO"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            SubcategoriaId = 10,
-                            Valor = "Motor"
-                        },
-                        new
-                        {
-                            Id = 22,
-                            SubcategoriaId = 10,
-                            Valor = "Aire"
-                        },
-                        new
-                        {
-                            Id = 23,
-                            SubcategoriaId = 11,
-                            Valor = "Fram"
-                        },
-                        new
-                        {
-                            Id = 24,
-                            SubcategoriaId = 11,
-                            Valor = "Bosch"
-                        },
-                        new
-                        {
-                            Id = 25,
-                            SubcategoriaId = 12,
-                            Valor = "Bluetooth"
-                        },
-                        new
-                        {
-                            Id = 26,
-                            SubcategoriaId = 12,
-                            Valor = "Android Auto"
-                        },
-                        new
-                        {
                             Id = 27,
-                            SubcategoriaId = 13,
-                            Valor = "Pioneer"
+                            SubcategoriaId = 8,
+                            Valor = "Filtro de Aceite"
                         },
                         new
                         {
                             Id = 28,
-                            SubcategoriaId = 13,
-                            Valor = "Sony"
+                            SubcategoriaId = 8,
+                            Valor = "Filtro de Aire"
                         },
                         new
                         {
                             Id = 29,
-                            SubcategoriaId = 14,
-                            Valor = "Limpieza"
+                            SubcategoriaId = 8,
+                            Valor = "Filtro de Combustible"
                         },
                         new
                         {
                             Id = 30,
-                            SubcategoriaId = 14,
-                            Valor = "Protección"
-                        },
-                        new
-                        {
-                            Id = 31,
-                            SubcategoriaId = 15,
-                            Valor = "Ceras"
-                        },
-                        new
-                        {
-                            Id = 32,
-                            SubcategoriaId = 15,
-                            Valor = "Cubre volante"
+                            SubcategoriaId = 8,
+                            Valor = "Filtro de Cabina"
                         });
                 });
 

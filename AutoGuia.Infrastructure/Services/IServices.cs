@@ -94,4 +94,110 @@ namespace AutoGuia.Infrastructure.Services
     }
 
     // IVinDecoderService eliminada - reemplazada por IVehiculoInfoService en archivo separado
+
+    /// <summary>
+    /// Servicio para el sistema de comparación de precios de productos automotrices
+    /// </summary>
+    public interface IComparadorService
+    {
+        Task<ResultadoBusquedaDto> BuscarProductosAsync(BusquedaProductoDto busqueda);
+        Task<ProductoDetalleDto?> ObtenerProductoDetalleAsync(int productoId);
+        Task<IEnumerable<OfertaDestacadaDto>> ObtenerOfertasDestacadasAsync(int cantidad = 10);
+        Task<IEnumerable<ProductoDto>> ObtenerProductosPorCategoriaAsync(string categoria);
+        Task<IEnumerable<string>> ObtenerCategoriasAsync();
+        Task<IEnumerable<ProductoDto>> ObtenerProductosCompatiblesAsync(int marcaId, int modeloId);
+        Task<bool> ActualizarPrecioOfertaAsync(int ofertaId, decimal nuevoPrecio);
+        
+        /// <summary>
+        /// Busca consumibles automotrices en tiempo real usando web scraping
+        /// </summary>
+        /// <param name="termino">Término de búsqueda (ej: "Aceite 10W-40 Castrol")</param>
+        /// <param name="categoria">Categoría del consumible (opcional)</param>
+        /// <returns>Lista de productos con ofertas encontradas en diferentes tiendas</returns>
+        Task<IEnumerable<ProductoConOfertasDto>> BuscarConsumiblesAsync(string termino, string? categoria = null);
+    }
+
+    /// <summary>
+    /// Servicio para la gestión de productos automotrices
+    /// </summary>
+    public interface IProductoService
+    {
+        /// <summary>
+        /// Obtiene todos los productos
+        /// </summary>
+        Task<IEnumerable<ProductoDto>> ObtenerProductosAsync();
+
+        /// <summary>
+        /// Obtiene un producto por su ID
+        /// </summary>
+        Task<ProductoDto?> ObtenerProductoPorIdAsync(int id);
+
+        /// <summary>
+        /// Crea un nuevo producto
+        /// </summary>
+        Task<int> CrearProductoAsync(CrearProductoDto productoDto);
+
+        /// <summary>
+        /// Actualiza un producto existente
+        /// </summary>
+        Task<bool> ActualizarProductoAsync(int id, ActualizarProductoDto productoDto);
+
+        /// <summary>
+        /// Elimina un producto
+        /// </summary>
+        Task<bool> EliminarProductoAsync(int id);
+
+        /// <summary>
+        /// Obtiene las marcas de productos disponibles
+        /// </summary>
+        Task<IEnumerable<string>> ObtenerMarcasProductosAsync();
+
+        /// <summary>
+        /// Busca productos aplicando filtros dinámicos basados en categoría y valores de filtro
+        /// </summary>
+        /// <param name="categoria">Nombre de la categoría (ej: "Aceites", "Neumáticos")</param>
+        /// <param name="filtros">Diccionario de filtros donde la clave es el nombre del filtro y el valor es el valor a buscar (ej: {"Viscosidad": "10W-40", "Marca": "Castrol"})</param>
+        /// <returns>Colección de productos que coinciden con los filtros aplicados, ordenados por precio ascendente</returns>
+        Task<IEnumerable<ProductoDto>> BuscarPorFiltrosAsync(string categoria, Dictionary<string, string> filtros);
+    }
+
+    /// <summary>
+    /// Servicio para la gestión de categorías, subcategorías y valores de filtro de consumibles automotrices
+    /// </summary>
+    public interface ICategoriaService
+    {
+        /// <summary>
+        /// Obtiene todas las categorías activas con sus subcategorías y valores de filtro
+        /// </summary>
+        /// <returns>Colección de categorías activas con su jerarquía completa</returns>
+        Task<IEnumerable<CategoriaDto>> ObtenerCategoriasAsync();
+
+        /// <summary>
+        /// Obtiene las subcategorías asociadas a una categoría específica
+        /// </summary>
+        /// <param name="categoriaId">Identificador único de la categoría</param>
+        /// <returns>Colección de subcategorías con sus valores de filtro</returns>
+        Task<IEnumerable<SubcategoriaDto>> ObtenerSubcategoriasAsync(int categoriaId);
+
+        /// <summary>
+        /// Obtiene los valores de filtro disponibles para una subcategoría específica
+        /// </summary>
+        /// <param name="subcategoriaId">Identificador único de la subcategoría</param>
+        /// <returns>Colección de valores de filtro disponibles</returns>
+        Task<IEnumerable<ValorFiltroDto>> ObtenerValoresFiltroAsync(int subcategoriaId);
+
+        /// <summary>
+        /// Obtiene una categoría específica por su identificador, incluyendo subcategorías y valores
+        /// </summary>
+        /// <param name="id">Identificador único de la categoría</param>
+        /// <returns>Categoría con su jerarquía completa, o null si no existe</returns>
+        Task<CategoriaDto?> ObtenerCategoriaPorIdAsync(int id);
+
+        /// <summary>
+        /// Crea una nueva categoría de consumibles automotrices
+        /// </summary>
+        /// <param name="categoria">Datos de la categoría a crear</param>
+        /// <returns>Identificador de la categoría creada</returns>
+        Task<int> CrearCategoriaAsync(CrearCategoriaDto categoria);
+    }
 }
