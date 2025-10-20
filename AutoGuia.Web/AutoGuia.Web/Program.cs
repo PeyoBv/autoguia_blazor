@@ -13,12 +13,24 @@ using AutoGuia.Web.Data;
 using AutoGuia.Web.Configuration;
 using AutoGuia.Infrastructure.Data;
 using AutoGuia.Infrastructure.Services;
+using AutoGuia.Infrastructure.ExternalServices;
+using AutoGuia.Infrastructure.Configuration;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
 using AutoGuia.Web.Services;
+using Serilog;
+
+// ✨ Configurar Serilog ANTES de crear el builder
+SerilogConfiguration.ConfigureSerilog(new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+    .Build());
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ✨ Usar Serilog como proveedor de logging
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -67,6 +79,17 @@ builder.Services.AddHttpClient("NHTSA_API", client =>
     client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia-VinDecoder/1.0");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+
+// ✨ Configurar HttpClients con políticas de resiliencia (Polly)
+builder.Services.AddResilientHttpClients(builder.Configuration);
+
+// ✨ Agregar Memory Cache para optimización
+builder.Services.AddMemoryCache();
+
+// ✨ Registrar servicios de APIs externas (MercadoLibre, eBay)
+builder.Services.AddScoped<IExternalMarketplaceService, MercadoLibreService>();
+builder.Services.AddScoped<IExternalMarketplaceService, EbayService>();
+builder.Services.AddScoped<ComparadorAgregadoService>();
 
 // Registrar servicios de AutoGuía
 builder.Services.AddScoped<ITallerService, TallerService>();
@@ -173,4 +196,16 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.Run();
+try
+{
+    Log.Information("🚀 Iniciando AutoGuía aplicación web");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "❌ Aplicación terminó inesperadamente");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
