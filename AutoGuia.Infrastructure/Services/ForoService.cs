@@ -18,10 +18,12 @@ namespace AutoGuia.Infrastructure.Services
 
         public async Task<IEnumerable<PublicacionForoDto>> ObtenerPublicacionesAsync(int pagina = 1, int tamanoPagina = 10)
         {
+            // ✅ OPTIMIZACIÓN N+1: Eager loading de Usuario y Respuestas con ThenInclude
             return await _context.PublicacionesForo
                 .Where(p => p.EsActivo)
                 .Include(p => p.Usuario)
-                .Include(p => p.Respuestas)
+                .Include(p => p.Respuestas.Where(r => r.EsActivo))
+                    .ThenInclude(r => r.Usuario) // ⚡ Evita N+1 al cargar usuarios de respuestas
                 .OrderByDescending(p => p.FechaCreacion)
                 .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
@@ -45,10 +47,12 @@ namespace AutoGuia.Infrastructure.Services
 
         public async Task<PublicacionForoDto?> ObtenerPublicacionPorIdAsync(int id)
         {
+            // ✅ OPTIMIZACIÓN N+1: Eager loading de Usuario y Respuestas con ThenInclude
             var publicacion = await _context.PublicacionesForo
                 .Where(p => p.Id == id && p.EsActivo)
                 .Include(p => p.Usuario)
-                .Include(p => p.Respuestas)
+                .Include(p => p.Respuestas.Where(r => r.EsActivo))
+                    .ThenInclude(r => r.Usuario) // ⚡ Evita N+1 al cargar usuarios de respuestas
                 .FirstOrDefaultAsync();
 
             if (publicacion == null) return null;
