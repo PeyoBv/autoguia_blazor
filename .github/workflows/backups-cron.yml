@@ -1,247 +1,33 @@
-name: 🔄 Backups Automáticos Semanales
+name: Backups Cron
 
 on:
   schedule:
-    # Cada domingo a las 3:00 AM UTC (ideal para bajo tráfico)
-    - cron: '0 3 * * 0'
-  
-  # Permitir ejecución manual desde GitHub UI
-  workflow_dispatch:
-    inputs:
-      retention_days:
-        description: 'Días de retención (default: 30)'
-        required: false
-        default: '30'
-      skip_compression:
-        description: 'Omitir compresión (más rápido)'
-        type: boolean
-        required: false
-        default: false
+    - cron: '0 2 * * *' # Runs every day at 2 AM UTC
 
 jobs:
-  backup-databases:
-    name: 💾 Backup de Bases de Datos
-    runs-on: windows-latest
-    
-    permissions:
-      contents: read
-      actions: write
-    
-    steps:
-      - name: 📥 Checkout código
-        uses: actions/checkout@v4
-      
-      - name: 🐘 Setup PostgreSQL
-        run: |
-          Write-Host "Instalando PostgreSQL client tools..."
-          choco install postgresql16 --version=16.0 -y --no-progress
-          
-          # Agregar al PATH
-          $env:Path += ";C:\Program Files\PostgreSQL\16\bin"
-          
-          # Verificar instalación
-          pg_dump --version
-          psql --version
-        shell: pwsh
-      
-      - name: 🔧 Crear estructura de directorios
-        run: |
-          New-Item -ItemType Directory -Path "backups/database" -Force | Out-Null
-          New-Item -ItemType Directory -Path "backups/config" -Force | Out-Null
-          New-Item -ItemType Directory -Path "backups/logs" -Force | Out-Null
-          Write-Host "Directorios creados exitosamente"
-        shell: pwsh
-      
-      - name: 💾 Ejecutar backup completo
-        env:
-          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: |
-          $params = @()
-          
-          if ("${{ inputs.retention_days }}" -ne "") {
-            $params += "-RetentionDays", "${{ inputs.retention_days }}"
-          }
-          
-          if ("${{ inputs.skip_compression }}" -eq "true") {
-            $params += "-SkipCompression"
-          }
-          
-          Write-Host "Ejecutando backup con parámetros: $params"
-          .\backup-autoguia.ps1 @params
-        shell: pwsh
-      
-      - name: 📊 Generar reporte de backup
-        if: always()
-        run: |
-          $logFile = Get-ChildItem .\backups\logs\backup_*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          
-          Write-Host "`n========== REPORTE DE BACKUP ==========`n"
-          
-          if ($logFile) {
-            Write-Host "📄 Log generado: $($logFile.Name)`n"
-            Get-Content $logFile.FullName | Select-Object -Last 20
-          }
-          
-          Write-Host "`n📦 Archivos generados:`n"
-          Get-ChildItem .\backups\database -File | ForEach-Object {
-            $sizeMB = [math]::Round($_.Length / 1MB, 2)
-            Write-Host "  - $($_.Name) ($sizeMB MB)"
-          }
-          
-          Get-ChildItem .\backups\config -File | ForEach-Object {
-            $sizeKB = [math]::Round($_.Length / 1KB, 2)
-            Write-Host "  - $($_.Name) ($sizeKB KB)"
-          }
-        shell: pwsh
-      
-      - name: 📤 Subir backups como artifacts
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: autoguia-backups-${{ github.run_number }}-${{ github.run_attempt }}
-          path: |
-            backups/database/*.sql.gz
-            backups/database/*.sql
-            backups/config/*.zip
-          retention-days: 30
-          compression-level: 0  # Ya están comprimidos
-      
-      - name: 📤 Subir logs (siempre)
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: backup-logs-${{ github.run_number }}
-          path: backups/logs/*.log
-          retention-days: 7
-      
-      - name: ✅ Validar integridad de backups
-        if: success()
-        run: |
-          Write-Host "`n🔍 Validando integridad de archivos comprimidos...`n"
-          
-          $gzFiles = Get-ChildItem .\backups\database\*.gz -ErrorAction SilentlyContinue
-          
-          if ($gzFiles.Count -eq 0) {
-            Write-Host "⚠️ No se encontraron archivos .gz (posiblemente -SkipCompression activado)"
-            exit 0
-          }
-          
-          $allValid = $true
-          
-          foreach ($file in $gzFiles) {
-            if (Get-Command "7z" -ErrorAction SilentlyContinue) {
-              $testResult = & 7z t $file.FullName 2>&1
-              
-              if ($LASTEXITCODE -eq 0) {
-                Write-Host "✅ $($file.Name) - OK"
-              } else {
-                Write-Host "❌ $($file.Name) - CORRUPTO"
-                $allValid = $false
-              }
-            } else {
-              Write-Host "⚠️ 7-Zip no disponible, omitiendo validación"
-              break
-            }
-          }
-          
-          if (-not $allValid) {
-            Write-Host "`n❌ Algunos backups fallaron la validación de integridad"
-            exit 1
-          }
-          
-          Write-Host "`n✅ Todos los backups pasaron validación de integridad"
-        shell: pwsh
-      
-      - name: 📊 Estadísticas de espacio
-        if: always()
-        run: |
-          Write-Host "`n📊 Estadísticas de Espacio:`n"
-          
-          $dbBackups = Get-ChildItem .\backups\database -File
-          $configBackups = Get-ChildItem .\backups\config -File
-          
-          $totalDbSize = ($dbBackups | Measure-Object -Property Length -Sum).Sum
-          $totalConfigSize = ($configBackups | Measure-Object -Property Length -Sum).Sum
-          $totalSize = $totalDbSize + $totalConfigSize
-          
-          Write-Host "  Base de datos: $([math]::Round($totalDbSize / 1MB, 2)) MB"
-          Write-Host "  Configuración: $([math]::Round($totalConfigSize / 1KB, 2)) KB"
-          Write-Host "  TOTAL: $([math]::Round($totalSize / 1MB, 2)) MB"
-          Write-Host ""
-        shell: pwsh
-
-  notify-failure:
-    name: 🚨 Notificación de Fallo
+  backup:
     runs-on: ubuntu-latest
-    needs: backup-databases
-    if: failure()
-    
-    permissions:
-      contents: read
-      issues: write
-    
-    steps:
-      - name: 📧 Crear Issue de fallo
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            try {
-              const title = `❌ Backup Automático Falló - ${new Date().toISOString().split('T')[0]}`;
-              const body = `
-            ## 🚨 Fallo en Backup Automático
-            
-            **Ejecución:** ${{ github.run_number }}
-            **Fecha:** ${new Date().toLocaleString('es-CL')}
-            **Workflow:** ${{ github.workflow }}
-            **Trigger:** ${{ github.event_name }}
-            
-            ### ⚠️ Acción Requerida
-            
-            1. Revisar logs de la ejecución fallida: [Ver Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            2. Descargar logs de backup desde artifacts
-            3. Ejecutar backup manual si es necesario:
-               \`\`\`powershell
-               .\\backup-autoguia.ps1
-               \`\`\`
-            4. Investigar causa raíz del fallo
-            5. Cerrar este issue cuando se resuelva
-            
-            ### 📋 Checklist de Resolución
-            
-            - [ ] Logs revisados
-            - [ ] Causa raíz identificada
-            - [ ] Backup manual ejecutado (si necesario)
-            - [ ] Fix aplicado para prevenir recurrencia
-            - [ ] Backup automático validado
-            
-            ---
-            *Este issue fue creado automáticamente por GitHub Actions*
-            `;
-            
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: title,
-                body: body,
-                labels: ['bug', 'backup', 'automated']
-              });
-              
-              console.log('✅ Issue creado exitosamente');
-            } catch (error) {
-              console.error('⚠️ No se pudo crear issue (posible falta de permisos):', error.message);
-              console.log('ℹ️ Verificar que el workflow tenga permissions: issues: write');
-            }
 
-  backup-summary:
-    name: 📈 Resumen de Backup
-    runs-on: ubuntu-latest
-    needs: backup-databases
-    if: success()
-    
     steps:
-      - name: 📝 Comentar éxito
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install PostgreSQL client tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create backup directories
         run: |
-          echo "✅ Backup completado exitosamente"
-          echo "📦 Artifacts disponibles por 30 días"
-          echo "🔄 Próxima ejecución: Domingo siguiente a las 3:00 AM UTC"
+          mkdir -p ~/backups
+          mkdir -p ~/backups/logs
+
+      - name: Execute database backup
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          BACKUP_FILE=~/backups/db_backup_$TIMESTAMP.sql
+          PGPASSWORD=${{ secrets.PG_PASSWORD }} pg_dump -h ${{ secrets.PG_HOST }} -U ${{ secrets.PG_USER }} -F c -b -v -f $BACKUP_FILE ${DATABASE_NAME}
+
+      - name: Compress backup
+        run: gzip ~/backups/db_backup_$TIMESTAMP.sql
+
+      - name: Move backup to logs
+        run: mv ~/backups/db_backup_$TIMESTAMP.sql.gz ~/backups/logs/
