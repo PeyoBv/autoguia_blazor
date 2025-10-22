@@ -176,13 +176,19 @@ jobs:
     needs: backup-databases
     if: failure()
     
+    permissions:
+      contents: read
+      issues: write
+    
     steps:
       - name: 📧 Crear Issue de fallo
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
-            const title = `❌ Backup Automático Falló - ${new Date().toISOString().split('T')[0]}`;
-            const body = `
+            try {
+              const title = `❌ Backup Automático Falló - ${new Date().toISOString().split('T')[0]}`;
+              const body = `
             ## 🚨 Fallo en Backup Automático
             
             **Ejecución:** ${{ github.run_number }}
@@ -213,13 +219,19 @@ jobs:
             *Este issue fue creado automáticamente por GitHub Actions*
             `;
             
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['bug', 'backup', 'automated']
-            });
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['bug', 'backup', 'automated']
+              });
+              
+              console.log('✅ Issue creado exitosamente');
+            } catch (error) {
+              console.error('⚠️ No se pudo crear issue (posible falta de permisos):', error.message);
+              console.log('ℹ️ Verificar que el workflow tenga permissions: issues: write');
+            }
 
   backup-summary:
     name: 📈 Resumen de Backup
