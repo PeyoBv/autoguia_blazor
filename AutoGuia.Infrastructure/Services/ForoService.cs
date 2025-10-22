@@ -8,10 +8,12 @@ namespace AutoGuia.Infrastructure.Services
     public class ForoService : IForoService
     {
         private readonly AutoGuiaDbContext _context;
+        private readonly IHtmlSanitizationService _sanitizationService;
 
-        public ForoService(AutoGuiaDbContext context)
+        public ForoService(AutoGuiaDbContext context, IHtmlSanitizationService sanitizationService)
         {
             _context = context;
+            _sanitizationService = sanitizationService;
         }
 
         public async Task<IEnumerable<PublicacionForoDto>> ObtenerPublicacionesAsync(int pagina = 1, int tamanoPagina = 10)
@@ -27,7 +29,7 @@ namespace AutoGuia.Infrastructure.Services
                 {
                     Id = p.Id,
                     Titulo = p.Titulo,
-                    Contenido = p.Contenido,
+                    Contenido = _sanitizationService.Sanitize(p.Contenido), // Sanitizar contenido
                     Categoria = p.Categoria,
                     Etiquetas = p.Etiquetas,
                     FechaCreacion = p.FechaCreacion,
@@ -59,7 +61,7 @@ namespace AutoGuia.Infrastructure.Services
             {
                 Id = publicacion.Id,
                 Titulo = publicacion.Titulo,
-                Contenido = publicacion.Contenido,
+                Contenido = _sanitizationService.Sanitize(publicacion.Contenido), // Sanitizar contenido
                 Categoria = publicacion.Categoria,
                 Etiquetas = publicacion.Etiquetas,
                 FechaCreacion = publicacion.FechaCreacion,
@@ -81,7 +83,7 @@ namespace AutoGuia.Infrastructure.Services
                 .Select(r => new RespuestaForoDto
                 {
                     Id = r.Id,
-                    Contenido = r.Contenido,
+                    Contenido = _sanitizationService.Sanitize(r.Contenido), // Sanitizar contenido
                     FechaCreacion = r.FechaCreacion,
                     NombreUsuario = $"{r.Usuario.Nombre} {r.Usuario.Apellido}",
                     Likes = r.Likes,
@@ -92,10 +94,13 @@ namespace AutoGuia.Infrastructure.Services
 
         public async Task<int> CrearPublicacionAsync(CrearPublicacionDto publicacion, int usuarioId)
         {
+            // Sanitizar contenido antes de guardarlo en la base de datos
+            var contenidoSanitizado = _sanitizationService.Sanitize(publicacion.Contenido);
+            
             var nuevaPublicacion = new PublicacionForo
             {
                 Titulo = publicacion.Titulo,
-                Contenido = publicacion.Contenido,
+                Contenido = contenidoSanitizado,
                 Categoria = publicacion.Categoria,
                 Etiquetas = publicacion.Etiquetas,
                 UsuarioId = usuarioId,
@@ -110,9 +115,12 @@ namespace AutoGuia.Infrastructure.Services
 
         public async Task<int> CrearRespuestaAsync(CrearRespuestaDto respuesta, int usuarioId)
         {
+            // Sanitizar contenido antes de guardarlo en la base de datos
+            var contenidoSanitizado = _sanitizationService.Sanitize(respuesta.Contenido);
+            
             var nuevaRespuesta = new RespuestaForo
             {
-                Contenido = respuesta.Contenido,
+                Contenido = contenidoSanitizado,
                 PublicacionId = respuesta.PublicacionId,
                 RespuestaPadreId = respuesta.RespuestaPadreId,
                 UsuarioId = usuarioId,

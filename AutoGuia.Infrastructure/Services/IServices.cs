@@ -3,6 +3,21 @@ using AutoGuia.Core.Entities;
 
 namespace AutoGuia.Infrastructure.Services
 {
+    /// <summary>
+    /// Servicio para sanitizar contenido HTML y proteger contra ataques XSS
+    /// </summary>
+    public interface IHtmlSanitizationService
+    {
+        /// <summary>
+        /// Sanitiza una cadena HTML, removiendo scripts y contenido potencialmente peligroso
+        /// </summary>
+        string Sanitize(string? unsafeHtml);
+        
+        /// <summary>
+        /// Sanitiza contenido HTML preservando formato básico (negrita, cursiva, enlaces, listas)
+        /// </summary>
+        string SanitizeWithBasicFormatting(string? unsafeHtml);
+    }
     public interface ITallerService
     {
         Task<IEnumerable<TallerDto>> ObtenerTalleresAsync();

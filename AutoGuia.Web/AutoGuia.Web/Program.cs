@@ -17,6 +17,7 @@ using AutoGuia.Infrastructure.Configuration;
 using AutoGuia.Infrastructure.Validation;
 using AutoGuia.Infrastructure.Caching;
 using AutoGuia.Infrastructure.RateLimiting;
+using AutoGuia.Infrastructure.Middleware;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
@@ -129,6 +130,9 @@ builder.Services.AddScoped<IMapService, GoogleMapService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 
+// ✨ Servicio de sanitización HTML para protección XSS
+builder.Services.AddScoped<IHtmlSanitizationService, HtmlSanitizationService>();
+
 // Registrar ComparadorService base y luego el wrapper con scrapers
 builder.Services.AddScoped<ComparadorService>();
 builder.Services.AddScoped<IComparadorService, AutoGuia.Web.Services.ComparadorServiceWithScrapers>();
@@ -188,6 +192,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// ✨ Aplicar headers de seguridad (XSS, Clickjacking, MIME sniffing, etc.)
+app.UseSecurityHeaders();
 
 // ✨ Usar Rate Limiting
 app.UseCustomRateLimiting();
