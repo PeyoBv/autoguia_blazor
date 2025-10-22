@@ -635,6 +635,33 @@ $env:PGPASSWORD = "tu_password"
 Get-ChildItem .\backups\database -Recurse | Where-Object LastWriteTime -lt (Get-Date).AddDays(-30) | Remove-Item -Force
 ```
 
+**Error: "Cannot convert System.String to System.Boolean" (GitHub Actions)**
+```yaml
+# ❌ INCORRECTO - pasar string
+if ("${{ inputs.skip_compression }}" -eq "true") {
+  $params += "-SkipCompression", "true"  # ERROR
+}
+
+# ✅ CORRECTO - pasar switch
+if ("${{ inputs.skip_compression }}" -eq "true") {
+  $params += "-SkipCompression"  # OK
+}
+```
+
+**Error: "Resource not accessible by integration" (GitHub Actions)**
+```yaml
+# Agregar permissions al job que crea issues
+permissions:
+  contents: read
+  issues: write
+```
+
+**Error: "Carpeta logs no existe"**
+```powershell
+# El script crea la carpeta automáticamente, pero por si acaso:
+New-Item -ItemType Directory -Path ".\backups\logs" -Force
+```
+
 ---
 
 ## Versionado de Documento
@@ -642,6 +669,7 @@ Get-ChildItem .\backups\database -Recurse | Where-Object LastWriteTime -lt (Get-
 | Versión | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
 | 1.0 | 2025-10-22 | AutoGuía Team | Versión inicial |
+| 1.1 | 2025-10-22 | AutoGuía Team | Fix: SkipCompression switch, PGPASSWORD env var, GitHub Actions permissions |
 
 ---
 

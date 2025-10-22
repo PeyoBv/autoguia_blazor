@@ -12,25 +12,25 @@
 .PARAMETER BackupPath
     Ruta donde se guardarán los backups. Por defecto: .\backups
 
-.PARAMETER Compress
-    Comprime los backups SQL con gzip. Por defecto: $true
+.PARAMETER SkipCompression
+    Omite la compresión de backups SQL con gzip. Por defecto: comprime
 
 .PARAMETER RetentionDays
     Días de retención de backups antiguos. Por defecto: 30
 
 .EXAMPLE
     .\backup-autoguia.ps1
-    Crea un backup completo en .\backups
+    Crea un backup completo comprimido en .\backups
 
 .EXAMPLE
-    .\backup-autoguia.ps1 -BackupPath "D:\Backups" -RetentionDays 60
-    Crea backup en ruta personalizada con retención de 60 días
+    .\backup-autoguia.ps1 -BackupPath "D:\Backups" -RetentionDays 60 -SkipCompression
+    Crea backup en ruta personalizada con retención de 60 días sin compresión
 #>
 
 [CmdletBinding()]
 param(
     [string]$BackupPath = ".\backups",
-    [bool]$Compress = $true,
+    [switch]$SkipCompression,
     [int]$RetentionDays = 30
 )
 
@@ -94,14 +94,15 @@ try {
     exit 1
 }
 
-# Configuración de conexión PostgreSQL (MODIFICAR SEGÚN TU ENTORNO)
+# Configuración de conexión PostgreSQL
 $pgHost = "localhost"
 $pgUser = "postgres"
-$pgPassword = ""  # Dejar vacío para usar autenticación sin password (peer/trust)
-$pgPort = 5433  # Puerto de autoguia_dev
 
-# IMPORTANTE: Configurar variable de entorno para password si es necesario
-# $env:PGPASSWORD = "tu_password_aqui"
+# IMPORTANTE: El password se lee de la variable de entorno PGPASSWORD
+# Configurar antes de ejecutar este script:
+# PowerShell: $env:PGPASSWORD = "tu_password"
+# CMD: set PGPASSWORD=tu_password
+# GitHub Actions: usar secrets.POSTGRES_PASSWORD
 
 Write-Host ""
 Write-Host "1. BACKUP DE BASES DE DATOS" -ForegroundColor Yellow
@@ -140,8 +141,8 @@ function Backup-Database {
             $fileSize = (Get-Item $backupFile).Length / 1MB
             Write-Log "Backup completado: $backupFile (${fileSize:N2} MB)" "SUCCESS"
             
-            # Comprimir si está habilitado
-            if ($Compress) {
+            # Comprimir si no se omitió
+            if (-not $SkipCompression) {
                 Write-Log "Comprimiendo backup..."
                 $gzipFile = "$backupFile.gz"
                 
