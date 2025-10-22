@@ -2,7 +2,7 @@ name: Backups Cron
 
 on:
   schedule:
-    - cron: '0 2 * * *' # Runs every day at 2 AM UTC
+    - cron: '0 2 * * *' # Adjust the cron timing as necessary
 
 jobs:
   backup:
@@ -12,22 +12,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install PostgreSQL client tools
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Install PostgreSQL client
+        run: sudo apt-get install -y postgresql-client
 
       - name: Create backup directories
         run: |
-          mkdir -p ~/backups
-          mkdir -p ~/backups/logs
+          mkdir -p $HOME/backups
+          mkdir -p $HOME/backups/logs
 
-      - name: Execute database backup
+      - name: Database backup
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }} # Use GitHub Secrets for sensitive data
         run: |
-          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          BACKUP_FILE=~/backups/db_backup_$TIMESTAMP.sql
-          PGPASSWORD=${{ secrets.PG_PASSWORD }} pg_dump -h ${{ secrets.PG_HOST }} -U ${{ secrets.PG_USER }} -F c -b -v -f $BACKUP_FILE ${DATABASE_NAME}
+          pg_dump -h ${{ secrets.DB_HOST }} -U ${{ secrets.DB_USER }} -F c -b -v -f "$HOME/backups/db_backup_$(date +'%Y%m%d_%H%M%S').dump" ${{ secrets.DB_NAME }}
 
       - name: Compress backup
-        run: gzip ~/backups/db_backup_$TIMESTAMP.sql
+        run: |
+          gzip "$HOME/backups/db_backup_*.dump"
 
-      - name: Move backup to logs
-        run: mv ~/backups/db_backup_$TIMESTAMP.sql.gz ~/backups/logs/
+      - name: Validate backup
+        run: |
+          if [ ! -f "$HOME/backups/db_backup_*.dump.gz" ]; then
+            echo "Backup file not found!"
+            exit 1
+          fi
+
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: database-backup
+          path: $HOME/backups/*.dump.gz
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Notify failure
+        uses: peter-evans/create-issue@v2
+        with:
+          title: Backup Job Failure
+          body: The backup job has failed. Please check the logs for more details.
+          labels: backup, failure
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ensure the token has permissions to write issues
