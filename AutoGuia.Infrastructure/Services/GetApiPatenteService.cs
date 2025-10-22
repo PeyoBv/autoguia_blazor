@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using AutoGuia.Core.DTOs;
+using AutoGuia.Infrastructure.Configuration;
 
 namespace AutoGuia.Infrastructure.Services;
 
@@ -14,16 +15,16 @@ public class GetApiPatenteService : IVehiculoInfoService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<GetApiPatenteService> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly VinDecoderSettings _settings;
 
     public GetApiPatenteService(
         IHttpClientFactory httpClientFactory,
         ILogger<GetApiPatenteService> logger,
-        IConfiguration configuration)
+        IOptionsSnapshot<VinDecoderSettings> settings)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
-        _configuration = configuration;
+        _settings = settings.Value;
     }
 
     /// <summary>
@@ -77,8 +78,11 @@ public class GetApiPatenteService : IVehiculoInfoService
             }
 
             // 2. Leer configuración
-            var apiKey = _configuration["VinDecoder:GetApi:ApiKey"];
-            var baseUrl = _configuration["VinDecoder:GetApi:BaseUrl"] ?? "https://chile.getapi.cl/v1/vehicles";
+            var providerSettings = _settings.GetApi ?? new VinDecoderSettings.GetApiSettings();
+            var apiKey = providerSettings.ApiKey;
+            var baseUrl = string.IsNullOrWhiteSpace(providerSettings.BaseUrl)
+                ? "https://chile.getapi.cl/v1/vehicles"
+                : providerSettings.BaseUrl;
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
@@ -87,7 +91,7 @@ public class GetApiPatenteService : IVehiculoInfoService
                 {
                     Patente = patente,
                     IsValid = false,
-                    ErrorMessage = "API Key de GetAPI.cl no configurada. Configure 'VinDecoder:GetApi:ApiKey' en appsettings.json",
+                    ErrorMessage = "API Key de GetAPI.cl no configurada. Establécela mediante secretos de usuario o variables de entorno (VinDecoder:GetApi:ApiKey)",
                     Source = "GetAPI"
                 };
             }

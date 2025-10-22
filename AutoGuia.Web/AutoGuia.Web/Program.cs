@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
@@ -32,6 +31,13 @@ SerilogConfiguration.ConfigureSerilog(new ConfigurationBuilder()
     .Build());
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>(optional: true);
+}
+
+builder.Configuration.AddEnvironmentVariables();
 
 // ✨ Usar Serilog como proveedor de logging
 builder.Host.UseSerilog();
@@ -75,6 +81,7 @@ builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
 
 // Configurar Google Maps
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));
+builder.Services.Configure<VinDecoderSettings>(builder.Configuration.GetSection(VinDecoderSettings.SectionName));
 
 // ✨ Registrar HttpClient para NHTSA VIN Decoder API
 builder.Services.AddHttpClient("NHTSA_API", client =>
