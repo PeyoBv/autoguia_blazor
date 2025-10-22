@@ -70,13 +70,23 @@ Console.WriteLine("✅ Configurando bases de datos separadas:");
 Console.WriteLine($"   Identity DB: Puerto 5434 - identity_dev");
 Console.WriteLine($"   AutoGuía DB: Puerto 5433 - autoguia_dev");
 
-// Identity en base de datos dedicada
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(identityConnectionString));
+// Identity en base de datos dedicada con pooling
+builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(identityConnectionString);
+}, poolSize: 128); // Pool size optimizado para Identity (autenticación concurrente)
 
-// AutoGuía en base de datos separada
-builder.Services.AddDbContext<AutoGuiaDbContext>(options =>
-    options.UseNpgsql(autoGuiaConnectionString));
+// AutoGuía en base de datos separada con pooling optimizado
+builder.Services.AddDbContextPool<AutoGuiaDbContext>(options =>
+{
+    options.UseNpgsql(autoGuiaConnectionString);
+    // Configuraciones adicionales para producción
+    if (!builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging(false);
+        options.EnableDetailedErrors(false);
+    }
+}, poolSize: 256); // Pool size mayor para operaciones de negocio
 
 
 

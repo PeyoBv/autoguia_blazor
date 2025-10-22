@@ -114,13 +114,13 @@ public class Program
         }
         */
 
-        // 1️⃣ Registrar DbContext con base de datos InMemory
-        Console.WriteLine("🗄️  Configurando base de datos InMemory para scraper");
-        services.AddDbContext<AutoGuiaDbContext>(options =>
+        // 1️⃣ Registrar DbContext con base de datos InMemory usando pooling
+        Console.WriteLine("🗄️  Configurando base de datos InMemory para scraper con pooling");
+        services.AddDbContextPool<AutoGuiaDbContext>(options =>
         {
             options.UseInMemoryDatabase("AutoGuiaScraperDb");
             options.EnableSensitiveDataLogging(); // Solo para desarrollo
-        });
+        }, poolSize: 64); // Pool size optimizado para workers de scraping
 
         // 2️⃣ Registrar HttpClientFactory para realizar requests HTTP
         services.AddHttpClient();
