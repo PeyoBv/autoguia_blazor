@@ -1,0 +1,284 @@
+@inject IDiagnosticoService DiagnosticoService
+@inject NavigationManager Navigation
+
+<div class="chat-asistente-container">
+    @if (!chatAbierto)
+    {
+        <!-- Botón flotante -->
+        <button class="chat-button" @onclick="AbrirChat" title="Asistente de diagnóstico">
+            <i class="fas fa-comments"></i>
+            @if (mensajesNoLeidos > 0)
+            {
+                <span class="badge-notificacion">@mensajesNoLeidos</span>
+            }
+        </button>
+    }
+    else
+    {
+        <!-- Ventana de chat -->
+        <div class="chat-window">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-robot me-2"></i>
+                    <div>
+                        <strong>Asistente AutoGuía</strong>
+                        <small class="d-block text-white-50">Diagnóstico vehicular</small>
+                    </div>
+                </div>
+                <button class="btn-close-chat" @onclick="CerrarChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Mensajes -->
+            <div class="chat-mensajes" @ref="mensajesContainer">
+                @if (!mensajes.Any())
+                {
+                    <div class="mensaje-bienvenida">
+                        <i class="fas fa-hand-wave mb-3"></i>
+                        <h5>¡Hola! Soy tu asistente de diagnóstico</h5>
+                        <p>Describe el problema que tiene tu vehículo y te ayudaré a identificar posibles causas.</p>
+                        <div class="sugerencias-rapidas">
+                            <small class="d-block mb-2"><strong>Ejemplos:</strong></small>
+                            <button class="btn-sugerencia" @onclick="@(() => UsarSugerencia("Mi auto hace un ruido extraño al frenar"))">
+                                Ruido al frenar
+                            </button>
+                            <button class="btn-sugerencia" @onclick="@(() => UsarSugerencia("El motor no arranca"))">
+                                Motor no arranca
+                            </button>
+                            <button class="btn-sugerencia" @onclick="@(() => UsarSugerencia("El auto vibra al acelerar"))">
+                                Vibración al acelerar
+                            </button>
+                        </div>
+                    </div>
+                }
+                
+                @foreach (var mensaje in mensajes)
+                {
+                    <div class="mensaje @(mensaje.EsUsuario ? "mensaje-usuario" : "mensaje-asistente")">
+                        <div class="mensaje-avatar">
+                            <i class="fas @(mensaje.EsUsuario ? "fa-user" : "fa-robot")"></i>
+                        </div>
+                        <div class="mensaje-contenido">
+                            <div class="mensaje-texto">
+                                @((MarkupString)mensaje.Texto)
+                            </div>
+                            <small class="mensaje-hora">@mensaje.Hora.ToString("HH:mm")</small>
+                        </div>
+                    </div>
+                }
+
+                @if (esperandoRespuesta)
+                {
+                    <div class="mensaje mensaje-asistente">
+                        <div class="mensaje-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="mensaje-contenido">
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Input -->
+            <div class="chat-input">
+                <textarea 
+                    class="form-control" 
+                    placeholder="Describe el problema de tu vehículo..." 
+                    @bind="mensajeActual"
+                    @onkeydown="HandleKeyDown"
+                    rows="2"
+                    disabled="@esperandoRespuesta"></textarea>
+                <button 
+                    class="btn-enviar" 
+                    @onclick="EnviarMensaje" 
+                    disabled="@(string.IsNullOrWhiteSpace(mensajeActual) || esperandoRespuesta)">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool chatAbierto = false;
+    private bool esperandoRespuesta = false;
+    private string mensajeActual = string.Empty;
+    private List<MensajeChat> mensajes = new();
+    private int mensajesNoLeidos = 0;
+    private ElementReference mensajesContainer;
+
+    private class MensajeChat
+    {
+        public string Texto { get; set; } = string.Empty;
+        public bool EsUsuario { get; set; }
+        public DateTime Hora { get; set; } = DateTime.Now;
+    }
+
+    private void AbrirChat()
+    {
+        chatAbierto = true;
+        mensajesNoLeidos = 0;
+    }
+
+    private void CerrarChat()
+    {
+        chatAbierto = false;
+    }
+
+    private async Task UsarSugerencia(string sugerencia)
+    {
+        mensajeActual = sugerencia;
+        await EnviarMensaje();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await EnviarMensaje();
+        }
+    }
+
+    private async Task EnviarMensaje()
+    {
+        if (string.IsNullOrWhiteSpace(mensajeActual) || esperandoRespuesta)
+            return;
+
+        var mensajeUsuario = mensajeActual.Trim();
+        mensajeActual = string.Empty;
+
+        // Agregar mensaje del usuario
+        mensajes.Add(new MensajeChat
+        {
+            Texto = mensajeUsuario,
+            EsUsuario = true
+        });
+
+        esperandoRespuesta = true;
+        StateHasChanged();
+
+        try
+        {
+            // Llamar al servicio de diagnóstico
+            var resultado = await DiagnosticoService.DiagnosticarSintomaAsync(mensajeUsuario, 1); // TODO: Obtener ID de usuario real
+
+            if (resultado != null)
+            {
+                // Formatear respuesta del asistente
+                var respuesta = FormatearRespuestaDiagnostico(resultado);
+                
+                mensajes.Add(new MensajeChat
+                {
+                    Texto = respuesta,
+                    EsUsuario = false
+                });
+            }
+            else
+            {
+                mensajes.Add(new MensajeChat
+                {
+                    Texto = "No pude identificar un síntoma específico. ¿Podrías describir el problema con más detalle?",
+                    EsUsuario = false
+                });
+            }
+        }
+        catch (Exception)
+        {
+            mensajes.Add(new MensajeChat
+            {
+                Texto = "Lo siento, ocurrió un error al procesar tu consulta. Por favor, intenta nuevamente.",
+                EsUsuario = false
+            });
+        }
+        finally
+        {
+            esperandoRespuesta = false;
+            
+            if (!chatAbierto)
+            {
+                mensajesNoLeidos++;
+            }
+            
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    private string FormatearRespuestaDiagnostico(ResultadoDiagnosticoDto resultado)
+    {
+        var sb = new System.Text.StringBuilder();
+
+        // Síntoma identificado
+        sb.Append($"<strong>🔍 Síntoma identificado:</strong> {resultado.SintomaIdentificado}<br><br>");
+
+        // Nivel de urgencia
+        var urgenciaIcono = resultado.NivelUrgencia switch
+        {
+            1 => "🟢",
+            2 => "🟡",
+            3 => "🟠",
+            4 => "🔴",
+            _ => "⚪"
+        };
+        
+        var urgenciaTexto = resultado.NivelUrgencia switch
+        {
+            1 => "Leve",
+            2 => "Moderado",
+            3 => "Alto",
+            4 => "Crítico",
+            _ => "Sin clasificar"
+        };
+
+        sb.Append($"<strong>{urgenciaIcono} Urgencia:</strong> {urgenciaTexto}<br><br>");
+
+        // Causas posibles
+        if (resultado.CausasPosibles?.Any() == true)
+        {
+            sb.Append("<strong>💡 Causas posibles:</strong><br>");
+            var causasTop = resultado.CausasPosibles.Take(3);
+            
+            foreach (var causa in causasTop)
+            {
+                var probabilidadIcono = new string('⭐', causa.NivelProbabilidad);
+                sb.Append($"• {causa.Descripcion} {probabilidadIcono}<br>");
+                
+                if (causa.RequiereServicioProfesional)
+                {
+                    sb.Append("  <small>⚠️ Requiere servicio profesional</small><br>");
+                }
+            }
+            
+            sb.Append("<br>");
+        }
+
+        // Recomendación
+        if (!string.IsNullOrEmpty(resultado.Recomendacion))
+        {
+            sb.Append($"<strong>📋 Recomendación:</strong><br>{resultado.Recomendacion}<br><br>");
+        }
+
+        // Sugerir servicio profesional
+        if (resultado.SugerirServicioProfesional)
+        {
+            sb.Append("<div style='background-color: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px;'>");
+            sb.Append("⚠️ <strong>Recomendación importante:</strong> Te sugerimos acudir con un profesional para una evaluación completa.");
+            sb.Append("</div>");
+        }
+
+        return sb.ToString();
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await Task.Delay(100); // Pequeño delay para asegurar que el DOM se actualice
+        // TODO: Implementar scroll automático con JavaScript interop si es necesario
+    }
+}

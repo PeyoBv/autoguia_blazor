@@ -26,6 +26,14 @@ namespace AutoGuia.Infrastructure.Data
         public DbSet<Oferta> Ofertas { get; set; }
         public DbSet<Tienda> Tiendas { get; set; }
         public DbSet<ProductoVehiculoCompatible> ProductoVehiculoCompatibles { get; set; }
+        
+        // Entidades del módulo de diagnóstico
+        public DbSet<SistemaAutomotriz> SistemasAutomotrices { get; set; }
+        public DbSet<Sintoma> Sintomas { get; set; }
+        public DbSet<CausaPosible> CausasPosibles { get; set; }
+        public DbSet<PasoVerificacion> PasosVerificacion { get; set; }
+        public DbSet<RecomendacionPreventiva> RecomendacionesPreventivas { get; set; }
+        public DbSet<ConsultaDiagnostico> ConsultasDiagnostico { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -79,6 +87,50 @@ namespace AutoGuia.Infrastructure.Data
                 .HasForeignKey(r => r.PublicacionId);
 
             // ResenasTaller eliminado - no necesario en arquitectura de comparación de precios
+
+            // Configuración de relaciones del módulo de diagnóstico
+            
+            // Relación SistemaAutomotriz - Sintoma
+            modelBuilder.Entity<Sintoma>()
+                .HasOne(s => s.SistemaAutomotriz)
+                .WithMany(sa => sa.Sintomas)
+                .HasForeignKey(s => s.SistemaAutomotrizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación Sintoma - CausaPosible
+            modelBuilder.Entity<CausaPosible>()
+                .HasOne(cp => cp.Sintoma)
+                .WithMany(s => s.CausasPosibles)
+                .HasForeignKey(cp => cp.SintomaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación CausaPosible - PasoVerificacion
+            modelBuilder.Entity<PasoVerificacion>()
+                .HasOne(pv => pv.CausaPosible)
+                .WithMany(cp => cp.PasosVerificacion)
+                .HasForeignKey(pv => pv.CausaPosibleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación CausaPosible - RecomendacionPreventiva
+            modelBuilder.Entity<RecomendacionPreventiva>()
+                .HasOne(rp => rp.CausaPosible)
+                .WithMany(cp => cp.Recomendaciones)
+                .HasForeignKey(rp => rp.CausaPosibleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación Usuario - ConsultaDiagnostico
+            modelBuilder.Entity<ConsultaDiagnostico>()
+                .HasOne(cd => cd.Usuario)
+                .WithMany()
+                .HasForeignKey(cd => cd.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación Sintoma - ConsultaDiagnostico (opcional)
+            modelBuilder.Entity<ConsultaDiagnostico>()
+                .HasOne(cd => cd.SintomaRelacionado)
+                .WithMany()
+                .HasForeignKey(cd => cd.SintomaRelacionadoId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Datos semilla (seed data)
             

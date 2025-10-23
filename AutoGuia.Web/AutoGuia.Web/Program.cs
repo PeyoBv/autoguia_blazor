@@ -18,6 +18,10 @@ using AutoGuia.Infrastructure.Validation;
 using AutoGuia.Infrastructure.Caching;
 using AutoGuia.Infrastructure.RateLimiting;
 using AutoGuia.Infrastructure.Middleware;
+using AutoGuia.Infrastructure.Repositories;
+using AutoGuia.Infrastructure.Data.Seeders;
+using AutoGuia.Infrastructure.Services;
+using AutoGuia.Core.Interfaces;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
@@ -143,6 +147,17 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 // ✨ Servicio de sanitización HTML para protección XSS
 builder.Services.AddScoped<IHtmlSanitizationService, HtmlSanitizationService>();
 
+// 🔧 Registrar repositorios del módulo de diagnóstico
+builder.Services.AddScoped<ISintomaRepository, SintomaRepository>();
+builder.Services.AddScoped<ICausaPosibleRepository, CausaPosibleRepository>();
+builder.Services.AddScoped<IConsultaDiagnosticoRepository, ConsultaDiagnosticoRepository>();
+builder.Services.AddScoped<ISistemaAutomotrizRepository, SistemaAutomotrizRepository>();
+
+// 🩺 Registrar servicios del módulo de diagnóstico
+builder.Services.AddScoped<IDiagnosticoService, DiagnosticoService>();
+builder.Services.AddScoped<ISistemaAutomotrizService, SistemaAutomotrizService>();
+builder.Services.AddScoped<SintomaSearchService>();
+
 // Registrar ComparadorService base y luego el wrapper con scrapers
 builder.Services.AddScoped<ComparadorService>();
 builder.Services.AddScoped<IComparadorService, AutoGuia.Web.Services.ComparadorServiceWithScrapers>();
@@ -237,6 +252,9 @@ using (var scope = app.Services.CreateScope())
         
         // Paso 3: Ejecutar seeding de datos (Identity + Aplicación)
         await DataSeeder.SeedData(app.Services);
+        
+        // Paso 4: Ejecutar seeding del módulo de diagnóstico
+        DiagnosticoSeeder.SeedDiagnosticoData(autoGuiaContext);
         
         Console.WriteLine("✅ Base de datos inicializada correctamente con datos de prueba");
     }
