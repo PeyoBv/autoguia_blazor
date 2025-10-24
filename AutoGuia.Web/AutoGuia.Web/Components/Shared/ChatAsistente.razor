@@ -1,5 +1,6 @@
 @inject IDiagnosticoService DiagnosticoService
 @inject NavigationManager Navigation
+@inject IHtmlSanitizationService _sanitizationService
 
 <div class="chat-asistente-container">
     @if (!chatAbierto)
@@ -154,10 +155,10 @@
         var mensajeUsuario = mensajeActual.Trim();
         mensajeActual = string.Empty;
 
-        // Agregar mensaje del usuario
+        // Agregar mensaje del usuario (sanitizar para prevenir XSS)
         mensajes.Add(new MensajeChat
         {
-            Texto = mensajeUsuario,
+            Texto = _sanitizationService.Sanitize(mensajeUsuario),
             EsUsuario = true
         });
 
@@ -215,8 +216,11 @@
     {
         var sb = new System.Text.StringBuilder();
 
+        // Sanitizar síntoma identificado para prevenir XSS
+        var sintomaSeguro = _sanitizationService.SanitizeWithBasicFormatting(resultado.SintomaIdentificado);
+        
         // Síntoma identificado
-        sb.Append($"<strong>🔍 Síntoma identificado:</strong> {resultado.SintomaIdentificado}<br><br>");
+        sb.Append($"<strong>🔍 Síntoma identificado:</strong> {sintomaSeguro}<br><br>");
 
         // Nivel de urgencia
         var urgenciaIcono = resultado.NivelUrgencia switch
@@ -247,8 +251,10 @@
             
             foreach (var causa in causasTop)
             {
+                // Sanitizar descripción de causa para prevenir XSS
+                var causaSegura = _sanitizationService.SanitizeWithBasicFormatting(causa.Descripcion);
                 var probabilidadIcono = new string('⭐', causa.NivelProbabilidad);
-                sb.Append($"• {causa.Descripcion} {probabilidadIcono}<br>");
+                sb.Append($"• {causaSegura} {probabilidadIcono}<br>");
                 
                 if (causa.RequiereServicioProfesional)
                 {
@@ -259,10 +265,11 @@
             sb.Append("<br>");
         }
 
-        // Recomendación
+        // Recomendación (sanitizar para prevenir XSS)
         if (!string.IsNullOrEmpty(resultado.Recomendacion))
         {
-            sb.Append($"<strong>📋 Recomendación:</strong><br>{resultado.Recomendacion}<br><br>");
+            var recomendacionSegura = _sanitizationService.SanitizeWithBasicFormatting(resultado.Recomendacion);
+            sb.Append($"<strong>📋 Recomendación:</strong><br>{recomendacionSegura}<br><br>");
         }
 
         // Sugerir servicio profesional
