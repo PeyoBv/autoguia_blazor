@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Interfaces;
 
@@ -10,6 +11,7 @@ namespace AutoGuia.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class SistemasController : ControllerBase
 {
     private readonly ISistemaAutomotrizService _sistemaService;

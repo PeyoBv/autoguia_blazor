@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Interfaces;
 using System.Security.Claims;
@@ -11,6 +12,7 @@ namespace AutoGuia.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class DiagnosticoController : ControllerBase
 {
     private readonly IDiagnosticoService _diagnosticoService;
@@ -27,14 +29,14 @@ public class DiagnosticoController : ControllerBase
     /// <param name="request">Solicitud con descripción del síntoma</param>
     /// <returns>Resultado completo del diagnóstico con causas, pasos y recomendaciones</returns>
     [HttpPost("diagnosticar")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DiagnosticarSintoma([FromBody] DiagnosticoRequestDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        if (usuarioId == 0)
-            return Unauthorized(new { mensaje = "Usuario no autenticado" });
+        // [Authorize] garantiza que User está autenticado
+        var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         var resultado = await _diagnosticoService.DiagnosticarSintomaAsync(request.DescripcionSintoma, usuarioId);
         return Ok(resultado);
@@ -46,6 +48,7 @@ public class DiagnosticoController : ControllerBase
     /// <param name="sistemaId">Identificador del sistema automotriz</param>
     /// <returns>Lista de síntomas del sistema</returns>
     [HttpGet("sintomas/{sistemaId}")]
+    [AllowAnonymous]
     public async Task<IActionResult> ObtenerSintomasPorSistema(int sistemaId)
     {
         var sintomas = await _diagnosticoService.ObtenerSintomasPorSistemaAsync(sistemaId);
@@ -58,6 +61,7 @@ public class DiagnosticoController : ControllerBase
     /// <param name="causaId">Identificador de la causa posible</param>
     /// <returns>Causa con pasos de verificación y recomendaciones</returns>
     [HttpGet("causa/{causaId}")]
+    [AllowAnonymous]
     public async Task<IActionResult> ObtenerCausaDetalles(int causaId)
     {
         var causa = await _diagnosticoService.ObtenerCausaConDetallesAsync(causaId);
@@ -75,9 +79,8 @@ public class DiagnosticoController : ControllerBase
     [HttpGet("historial")]
     public async Task<IActionResult> ObtenerHistorial()
     {
-        var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        if (usuarioId == 0)
-            return Unauthorized(new { mensaje = "Usuario no autenticado" });
+        // [Authorize] garantiza que User está autenticado
+        var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         var historial = await _diagnosticoService.ObtenerHistorialAsync(usuarioId);
         return Ok(historial);
@@ -90,6 +93,7 @@ public class DiagnosticoController : ControllerBase
     /// <param name="request">Feedback del usuario (útil o no útil)</param>
     /// <returns>Confirmación del registro</returns>
     [HttpPost("feedback/{consultaId}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegistrarFeedback(int consultaId, [FromBody] FeedbackRequestDto request)
     {
         if (!ModelState.IsValid)
