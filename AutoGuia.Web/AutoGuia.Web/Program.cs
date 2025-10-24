@@ -18,6 +18,7 @@ using AutoGuia.Infrastructure.Validation;
 using AutoGuia.Infrastructure.Caching;
 using AutoGuia.Infrastructure.RateLimiting;
 using AutoGuia.Infrastructure.Middleware;
+using AspNetCoreRateLimit;
 using AutoGuia.Infrastructure.Repositories;
 using AutoGuia.Infrastructure.Data.Seeders;
 using AutoGuia.Infrastructure.Services;
@@ -63,6 +64,19 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
+
+// ✅ Configurar protección CSRF
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.Cookie.Name = "X-CSRF-TOKEN-COOKIE";
+    options.Cookie.HttpOnly = true;
+    // En desarrollo, permitir HTTP para testing
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
 
 var identityConnectionString = builder.Configuration.GetConnectionString("IdentityConnection") ?? 
     builder.Configuration.GetConnectionString("DefaultConnection") ?? 
@@ -111,6 +125,11 @@ builder.Services.AddResilientHttpClients(builder.Configuration);
 
 // ✨ Agregar Memory Cache para optimización
 builder.Services.AddMemoryCache();
+
+// ✨ Configurar AspNetCoreRateLimit
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 // ✨ Configurar Distributed Cache (Redis) - Comentado para desarrollo
 // builder.Services.AddStackExchangeRedisCache(options =>
@@ -221,7 +240,13 @@ app.UseHttpsRedirection();
 // ✨ Aplicar headers de seguridad (XSS, Clickjacking, MIME sniffing, etc.)
 app.UseSecurityHeaders();
 
-// ✨ Usar Rate Limiting
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ✨ Usar AspNetCoreRateLimit (DEBE ir después de UseAuthentication)
+app.UseIpRateLimiting();
+
+// ✨ Usar Rate Limiting personalizado
 app.UseCustomRateLimiting();
 
 app.UseStaticFiles();
@@ -278,3 +303,6 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// ✅ Hacer Program accesible para tests de integración
+public partial class Program { }
