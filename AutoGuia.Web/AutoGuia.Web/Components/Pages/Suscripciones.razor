@@ -4,7 +4,6 @@
 @using AutoGuia.Web.DTOs
 @using AutoGuia.Web.Services
 @using Microsoft.AspNetCore.Components.Authorization
-@attribute [Authorize]
 @rendermode InteractiveServer
 @inject ISuscripcionService SuscripcionService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -90,8 +89,33 @@
 
                     <!-- Acción del plan -->
                     <div class="plan-action">
-                        @if (EsPlanActual(plan.Id))
+                        @if (!usuarioAutenticado)
                         {
+                            <!-- Usuario NO autenticado: Mostrar botón para registrarse/login -->
+                            @if (plan.Id == 1)
+                            {
+                                <button class="btn btn-plan btn-plan-cambiar" 
+                                        @onclick="IrARegistro">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Comenzar Gratis
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-plan btn-plan-cambiar" 
+                                        @onclick="IrALogin">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Iniciar Sesión
+                                </button>
+                            }
+                            <p class="text-muted small mt-2 mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Inicia sesión para seleccionar este plan
+                            </p>
+                        }
+                        else if (EsPlanActual(plan.Id))
+                        {
+                            <!-- Plan actual -->
                             <button class="btn btn-plan btn-plan-actual" disabled>
                                 <i class="fas fa-check-circle me-2"></i>
                                 Plan Actual
@@ -106,6 +130,7 @@
                         }
                         else
                         {
+                            <!-- Usuario autenticado: Cambiar plan -->
                             <button class="btn btn-plan btn-plan-cambiar" 
                                     @onclick="() => MostrarConfirmacionCambio(plan)"
                                     disabled="@procesandoCambio">
@@ -298,6 +323,9 @@
     private string mensajeConfirmacion = string.Empty;
     private PlanDto? planSeleccionado;
 
+    private bool usuarioAutenticado = false;
+    private string? usuarioId = null;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -309,12 +337,14 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
-            if (user.Identity?.IsAuthenticated == true)
+            usuarioAutenticado = user.Identity?.IsAuthenticated == true;
+
+            if (usuarioAutenticado)
             {
-                var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId))
+                usuarioId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(usuarioId))
                 {
-                    suscripcionActual = await SuscripcionService.ObtenerSuscripcionActualAsync(userId);
+                    suscripcionActual = await SuscripcionService.ObtenerSuscripcionActualAsync(usuarioId);
                 }
             }
         }
@@ -341,6 +371,12 @@
 
     private bool EsPlanActual(int planId)
     {
+        // Si el usuario no está autenticado, ningún plan es el actual
+        if (!usuarioAutenticado)
+        {
+            return false;
+        }
+        
         if (suscripcionActual == null)
         {
             return planId == 1; // Si no tiene suscripción, el plan Gratis es el actual
@@ -494,6 +530,16 @@
             "info" => "fa-info-circle",
             _ => "fa-info-circle"
         };
+    }
+
+    private void IrARegistro()
+    {
+        NavigationManager.NavigateTo("/Account/Register");
+    }
+
+    private void IrALogin()
+    {
+        NavigationManager.NavigateTo("/Account/Login?returnUrl=/suscripciones");
     }
 
     private class Caracteristica

@@ -101,16 +101,25 @@ Console.WriteLine("✅ Configurando bases de datos separadas:");
 Console.WriteLine($"   Identity DB: Puerto 5434 - identity_dev");
 Console.WriteLine($"   AutoGuía DB: Puerto 5433 - autoguia_dev");
 
+// ✅ Configurar Npgsql para soportar tipos JSONB dinámicos (arrays, objetos)
+var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(identityConnectionString);
+dataSourceBuilder.EnableDynamicJson();
+var identityDataSource = dataSourceBuilder.Build();
+
+var autoguiaDataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(autoGuiaConnectionString);
+autoguiaDataSourceBuilder.EnableDynamicJson();
+var autoguiaDataSource = autoguiaDataSourceBuilder.Build();
+
 // Identity en base de datos dedicada con pooling
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(identityConnectionString);
+    options.UseNpgsql(identityDataSource);
 }, poolSize: 128); // Pool size optimizado para Identity (autenticación concurrente)
 
 // AutoGuía en base de datos separada con pooling optimizado
 builder.Services.AddDbContextPool<AutoGuiaDbContext>(options =>
 {
-    options.UseNpgsql(autoGuiaConnectionString);
+    options.UseNpgsql(autoguiaDataSource);
     // Configuraciones adicionales para producción
     if (!builder.Environment.IsDevelopment())
     {
@@ -228,7 +237,12 @@ builder.Services.AddScoped<IVehiculoInfoService, CompositeVehiculoInfoService>()
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<ApplicationUser>(options => 
+{
+    // En desarrollo, permitir login sin confirmar email
+    options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment();
+    options.SignIn.RequireConfirmedEmail = !builder.Environment.IsDevelopment();
+})
     .AddRoles<IdentityRole>() // Habilitar roles
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
