@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Components.Server;
@@ -26,6 +27,7 @@ using AutoGuia.Core.Interfaces;
 using AutoGuia.Core.DTOs;
 using AutoGuia.Core.Entities;
 using AutoGuia.Scraper.Scrapers;
+using AutoGuia.Web.Services;
 using AutoGuia.Web.Services;
 using FluentValidation;
 using Serilog;
@@ -62,6 +64,17 @@ builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        googleOptions.CallbackPath = "/signin-google";
+        // Configurar scopes adicionales si se necesitan
+        googleOptions.Scope.Add("profile");
+        googleOptions.Scope.Add("email");
+        // Guardar tokens para uso posterior (opcional)
+        googleOptions.SaveTokens = true;
     })
     .AddIdentityCookies();
 
@@ -166,6 +179,9 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 // ✨ Servicio de sanitización HTML para protección XSS
 builder.Services.AddScoped<IHtmlSanitizationService, HtmlSanitizationService>();
 
+// 💳 Servicio de gestión de suscripciones
+builder.Services.AddScoped<ISuscripcionService, SuscripcionService>();
+
 // 🤖 Servicio de diagnóstico con IA de Gemini
 builder.Services.AddScoped<IGeminiService, GeminiService>();
 
@@ -221,7 +237,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 // Agregar RoleManager para gestión de roles
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+// ✅ Servicios de Email
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailSender<ApplicationUser>, IdentityEmailSender>();
 
 var app = builder.Build();
 
@@ -281,7 +299,10 @@ using (var scope = app.Services.CreateScope())
         // Paso 3: Ejecutar seeding de datos (Identity + Aplicación)
         await DataSeeder.SeedData(app.Services);
         
-        // Paso 4: Ejecutar seeding del módulo de diagnóstico
+        // Paso 4: Ejecutar seeding de planes de suscripción
+        await PlanesSeeder.SeedPlanesAsync(identityContext);
+        
+        // Paso 5: Ejecutar seeding del módulo de diagnóstico
         DiagnosticoSeeder.SeedDiagnosticoData(autoGuiaContext);
         
         Console.WriteLine("✅ Base de datos inicializada correctamente con datos de prueba");

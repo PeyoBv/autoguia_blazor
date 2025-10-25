@@ -1,0 +1,504 @@
+@page "/suscripciones"
+@using Microsoft.AspNetCore.Authorization
+@using AutoGuia.Core.DTOs
+@using AutoGuia.Web.DTOs
+@using AutoGuia.Web.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject ISuscripcionService SuscripcionService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Planes de Suscripción - AutoGuía</PageTitle>
+
+<div class="suscripciones-container">
+    <!-- Header -->
+    <div class="suscripciones-header">
+        <h1>📊 Elige tu Plan Perfecto</h1>
+        <p class="subtitle">Cambia de plan cuando quieras, sin penalización</p>
+    </div>
+
+    <!-- Billing Toggle (Mensual/Anual) -->
+    <div class="billing-toggle">
+        <button class="btn-toggle @(esMensual ? "active" : "")" 
+                @onclick="() => { esMensual = true; }">
+            Mensual
+        </button>
+        <button class="btn-toggle @(!esMensual ? "active" : "")" 
+                @onclick="() => { esMensual = false; }">
+            Anual <span class="ahorro">Ahorras 20%</span>
+        </button>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando planes...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando planes disponibles...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger alert-modern" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            @mensajeError
+        </div>
+    }
+    else
+    {
+        <!-- Planes Grid -->
+        <div class="planes-grid">
+            @foreach (var plan in planes)
+            {
+                <div class="plan-card @GetClasePlan(plan.Id) @(EsPlanActual(plan.Id) ? "plan-actual" : "")">
+                    <!-- Badge para plan recomendado -->
+                    @if (plan.Id == 2)
+                    {
+                        <div class="plan-badge">⭐ RECOMENDADO</div>
+                    }
+                    @if (plan.Id == 3)
+                    {
+                        <div class="plan-badge badge-premium">✨ PREMIUM</div>
+                    }
+
+                    <!-- Header del plan -->
+                    <div class="plan-header">
+                        <h3>@plan.Nombre</h3>
+                        <div class="plan-precio">
+                            <span class="monto">$@GetPrecioMostrar(plan.Precio)</span>
+                            <span class="periodo">/@(esMensual ? "mes" : "año")</span>
+                        </div>
+                        <p class="plan-descripcion">@plan.Descripcion</p>
+                    </div>
+
+                    <!-- Características del plan -->
+                    <div class="plan-features">
+                        <ul>
+                            @foreach (var feature in ObtenerCaracteristicas(plan))
+                            {
+                                <li class="@(feature.Incluido ? "feature-included" : "feature-excluded")">
+                                    <span class="checkmark">@(feature.Incluido ? "✓" : "✗")</span>
+                                    @feature.Texto
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <!-- Acción del plan -->
+                    <div class="plan-action">
+                        @if (EsPlanActual(plan.Id))
+                        {
+                            <button class="btn btn-plan btn-plan-actual" disabled>
+                                <i class="fas fa-check-circle me-2"></i>
+                                Plan Actual
+                            </button>
+                            @if (suscripcionActual != null)
+                            {
+                                <p class="text-muted small mt-2 mb-0">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    Vence: @suscripcionActual.FechaFin.ToString("dd/MM/yyyy")
+                                </p>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-plan btn-plan-cambiar" 
+                                    @onclick="() => MostrarConfirmacionCambio(plan)"
+                                    disabled="@procesandoCambio">
+                                @if (procesandoCambio)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-arrow-circle-up me-2"></i>
+                                }
+                                Cambiar a @plan.Nombre
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Comparador de características -->
+        <div class="planes-comparar">
+            <button class="btn-comparar" @onclick="() => mostrarComparador = !mostrarComparador">
+                <i class="fas fa-list-ul me-2"></i>
+                @(mostrarComparador ? "Ocultar comparación" : "Comparar características")
+            </button>
+
+            @if (mostrarComparador)
+            {
+                <div class="tabla-comparacion-container">
+                    <table class="tabla-comparacion">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th class="text-center">Gratis</th>
+                                <th class="text-center plan-pro-header">Pro</th>
+                                <th class="text-center plan-premium-header">Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Diagnósticos mensuales</strong></td>
+                                <td class="text-center">10</td>
+                                <td class="text-center">50</td>
+                                <td class="text-center">Ilimitados</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Confirmación por email</strong></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Soporte técnico</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span> Email</td>
+                                <td class="text-center"><span class="check-yes">✓</span> Prioritario</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Acceso a API</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span> Básico</td>
+                                <td class="text-center"><span class="check-yes">✓</span> Avanzado</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Histórico de diagnósticos</strong></td>
+                                <td class="text-center">30 días</td>
+                                <td class="text-center">6 meses</td>
+                                <td class="text-center">Ilimitado</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exportación de reportes</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span> PDF</td>
+                                <td class="text-center"><span class="check-yes">✓</span> PDF + Excel</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Notificaciones push</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integraciones</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center">2 integraciones</td>
+                                <td class="text-center">Ilimitadas</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Análisis avanzado</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cuenta de equipo</strong></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-no">✗</span></td>
+                                <td class="text-center"><span class="check-yes">✓</span> Hasta 5 usuarios</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal de confirmación -->
+@if (mostrarModalConfirmacion && planSeleccionado != null)
+{
+    <div class="modal-overlay" @onclick="CerrarModalConfirmacion">
+        <div class="modal-confirmacion" @onclick:stopPropagation>
+            <div class="modal-confirmacion-header">
+                <h3>
+                    <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                    Confirmar cambio de plan
+                </h3>
+                <button class="btn-close-modal" @onclick="CerrarModalConfirmacion">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-confirmacion-body">
+                <p>¿Estás seguro de que deseas cambiar tu plan actual a <strong>@planSeleccionado.Nombre</strong>?</p>
+                
+                <div class="plan-comparacion-modal">
+                    <div class="plan-info">
+                        <h4>Plan Actual</h4>
+                        <p class="plan-nombre">@(suscripcionActual?.Plan?.Nombre ?? "Gratis")</p>
+                        <p class="plan-precio-modal">$@(suscripcionActual?.Plan?.Precio ?? 0) / mes</p>
+                    </div>
+                    <div class="arrow-cambio">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="plan-info">
+                        <h4>Nuevo Plan</h4>
+                        <p class="plan-nombre">@planSeleccionado.Nombre</p>
+                        <p class="plan-precio-modal">$@planSeleccionado.Precio / mes</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(mensajeConfirmacion))
+                {
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @mensajeConfirmacion
+                    </div>
+                }
+            </div>
+            <div class="modal-confirmacion-footer">
+                <button class="btn btn-secondary" @onclick="CerrarModalConfirmacion" disabled="@procesandoCambio">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" @onclick="ConfirmarCambioPlan" disabled="@procesandoCambio">
+                    @if (procesandoCambio)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Procesando...</span>
+                    }
+                    else
+                    {
+                        <span><i class="fas fa-check me-2"></i>Confirmar cambio</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Toast de notificación -->
+@if (mostrarToast)
+{
+    <div class="toast-notificacion @(toastTipo) show">
+        <i class="fas @GetIconoToast() me-2"></i>
+        @mensajeToast
+    </div>
+}
+
+@code {
+    private List<PlanDto> planes = new();
+    private SuscripcionDto? suscripcionActual;
+    private bool cargando = true;
+    private bool esMensual = true;
+    private bool mostrarComparador = false;
+    private bool mostrarModalConfirmacion = false;
+    private bool procesandoCambio = false;
+    private bool mostrarToast = false;
+    private string mensajeError = string.Empty;
+    private string mensajeToast = string.Empty;
+    private string toastTipo = "success"; // success, error, warning, info
+    private string mensajeConfirmacion = string.Empty;
+    private PlanDto? planSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Obtener planes disponibles
+            planes = (await SuscripcionService.ObtenerPlanesAsync()).ToList();
+
+            // Obtener suscripción actual del usuario
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    suscripcionActual = await SuscripcionService.ObtenerSuscripcionActualAsync(userId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al cargar los planes: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private string GetClasePlan(int planId)
+    {
+        return planId switch
+        {
+            1 => "plan-gratis",
+            2 => "plan-pro",
+            3 => "plan-premium",
+            _ => ""
+        };
+    }
+
+    private bool EsPlanActual(int planId)
+    {
+        if (suscripcionActual == null)
+        {
+            return planId == 1; // Si no tiene suscripción, el plan Gratis es el actual
+        }
+        return suscripcionActual.PlanId == planId;
+    }
+
+    private decimal GetPrecioMostrar(decimal precioMensual)
+    {
+        if (esMensual)
+        {
+            return precioMensual;
+        }
+        else
+        {
+            // Precio anual con descuento del 20%
+            return Math.Round(precioMensual * 12 * 0.8m, 2);
+        }
+    }
+
+    private List<Caracteristica> ObtenerCaracteristicas(PlanDto plan)
+    {
+        var caracteristicas = new List<Caracteristica>();
+
+        switch (plan.Id)
+        {
+            case 1: // Gratis
+                caracteristicas.Add(new Caracteristica { Texto = "10 diagnósticos al mes", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Confirmación por email", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Soporte técnico", Incluido = false });
+                caracteristicas.Add(new Caracteristica { Texto = "Acceso a API", Incluido = false });
+                caracteristicas.Add(new Caracteristica { Texto = "Histórico 30 días", Incluido = true });
+                break;
+            case 2: // Pro
+                caracteristicas.Add(new Caracteristica { Texto = "50 diagnósticos al mes", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Confirmación por email", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Soporte por email", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Acceso a API básico", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Histórico 6 meses", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Exportación PDF", Incluido = true });
+                break;
+            case 3: // Premium
+                caracteristicas.Add(new Caracteristica { Texto = "Diagnósticos ilimitados", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Confirmación por email", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Soporte prioritario", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "API avanzada", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Histórico ilimitado", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Exportación PDF + Excel", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Análisis avanzado", Incluido = true });
+                caracteristicas.Add(new Caracteristica { Texto = "Cuenta de equipo (5 usuarios)", Incluido = true });
+                break;
+        }
+
+        return caracteristicas;
+    }
+
+    private void MostrarConfirmacionCambio(PlanDto plan)
+    {
+        planSeleccionado = plan;
+        mostrarModalConfirmacion = true;
+
+        // Mensaje personalizado según el cambio
+        if (suscripcionActual != null && plan.Id < suscripcionActual.PlanId)
+        {
+            mensajeConfirmacion = "Al cambiar a un plan inferior, perderás algunas funcionalidades. El cambio será efectivo al final del período actual.";
+        }
+        else if (suscripcionActual != null && plan.Id > suscripcionActual.PlanId)
+        {
+            mensajeConfirmacion = "El cambio será efectivo inmediatamente y tendrás acceso a todas las funcionalidades del nuevo plan.";
+        }
+        else
+        {
+            mensajeConfirmacion = "El cambio será efectivo inmediatamente.";
+        }
+    }
+
+    private void CerrarModalConfirmacion()
+    {
+        mostrarModalConfirmacion = false;
+        planSeleccionado = null;
+        mensajeConfirmacion = string.Empty;
+    }
+
+    private async Task ConfirmarCambioPlan()
+    {
+        if (planSeleccionado == null) return;
+
+        procesandoCambio = true;
+
+        try
+        {
+            // Obtener usuario actual
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                MostrarToast("Error: Usuario no autenticado", "error");
+                return;
+            }
+
+            var resultado = await SuscripcionService.CambiarPlanAsync(userId, planSeleccionado.Id);
+
+            if (resultado != null)
+            {
+                // Actualizar suscripción actual
+                suscripcionActual = await SuscripcionService.ObtenerSuscripcionActualAsync(userId);
+
+                // Cerrar modal
+                CerrarModalConfirmacion();
+
+                // Mostrar toast de éxito
+                MostrarToast($"¡Plan cambiado exitosamente a {planSeleccionado.Nombre}!", "success");
+            }
+            else
+            {
+                MostrarToast("Error al cambiar el plan. Por favor, intenta nuevamente.", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarToast($"Error: {ex.Message}", "error");
+        }
+        finally
+        {
+            procesandoCambio = false;
+        }
+    }
+
+    private async void MostrarToast(string mensaje, string tipo)
+    {
+        mensajeToast = mensaje;
+        toastTipo = tipo;
+        mostrarToast = true;
+        StateHasChanged();
+
+        // Ocultar después de 3 segundos
+        await Task.Delay(3000);
+        mostrarToast = false;
+        StateHasChanged();
+    }
+
+    private string GetIconoToast()
+    {
+        return toastTipo switch
+        {
+            "success" => "fa-check-circle",
+            "error" => "fa-times-circle",
+            "warning" => "fa-exclamation-triangle",
+            "info" => "fa-info-circle",
+            _ => "fa-info-circle"
+        };
+    }
+
+    private class Caracteristica
+    {
+        public string Texto { get; set; } = string.Empty;
+        public bool Incluido { get; set; }
+    }
+}

@@ -687,6 +687,42 @@ Para contribuir al proyecto:
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Crear Pull Request
 
+## 📚 Documentación Completa
+
+El proyecto incluye documentación técnica detallada en la carpeta `Documentation/`:
+
+- **[AUTENTICACION.md](./Documentation/AUTENTICACION.md)** - Sistema de autenticación completo con Google OAuth2 y ASP.NET Identity
+- **[SUSCRIPCIONES.md](./Documentation/SUSCRIPCIONES.md)** - Sistema de planes y suscripciones con DTOs y validaciones
+- **[INSTALACION_Y_CONFIGURACION.md](./Documentation/INSTALACION_Y_CONFIGURACION.md)** - Guía completa de instalación y configuración local
+- **[DEPLOYMENT_AZURE.md](./Documentation/DEPLOYMENT_AZURE.md)** - Guía de deployment a Azure con scripts automatizados
+
+## 🗺️ Roadmap
+
+### Fase 1: MVP - ✅ COMPLETADA
+- [x] Sistema de autenticación con Google OAuth2
+- [x] Sistema de suscripciones (Gratuito, Básico, Premium)
+- [x] Comparador de precios de repuestos
+- [x] Sistema de talleres con mapa interactivo
+- [x] Foro comunitario con categorías
+- [x] Sistema de scraping automático
+- [x] Containerización con Docker
+
+### Fase 2: Integración y Escalabilidad - 🚧 EN PROGRESO
+- [ ] Integración con APIs reales de tiendas
+- [ ] Sistema de alertas de precios
+- [ ] Panel de administración avanzado
+- [ ] Tests unitarios y de integración
+- [ ] CI/CD con GitHub Actions
+- [ ] Deployment a Azure App Service
+
+### Fase 3: Funcionalidades Avanzadas - 📋 PLANIFICADO
+- [ ] Aplicación móvil nativa
+- [ ] Sistema de pagos integrado
+- [ ] Análisis avanzado con IA
+- [ ] Notificaciones en tiempo real
+- [ ] Sistema de favoritos
+- [ ] Geolocalización avanzada
+
 ## Licencia
 
 Este proyecto está bajo la licencia MIT. Ver archivo `LICENSE` para más detalles.

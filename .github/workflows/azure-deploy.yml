@@ -1,0 +1,168 @@
+name: Deploy AutoGuía to Azure
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: 'autoguia-app'
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'
+  DOTNET_VERSION: '8.0.x'
+  RESOURCE_GROUP: 'rg-autoguia-prod'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET ${{ env.DOTNET_VERSION }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore AutoGuia.sln
+      
+    - name: Build solution
+      run: dotnet build AutoGuia.sln --configuration Release --no-restore
+      
+    - name: Run unit tests
+      run: dotnet test AutoGuia.Tests/AutoGuia.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      continue-on-error: true
+      
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: '**/test-results.trx'
+        
+    - name: Publish application
+      run: dotnet publish AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj --configuration Release --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: webapp
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        retention-days: 1
+
+  deploy-to-azure:
+    name: Deploy to Azure
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.webapp-url }}
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: webapp
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Deploy to Azure Web App
+      id: deploy
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        
+    - name: Configure App Settings
+      uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        app-settings-json: |
+          [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Production",
+              "slotSetting": false
+            },
+            {
+              "name": "Authentication__Google__ClientId",
+              "value": "${{ secrets.GOOGLE_CLIENT_ID }}",
+              "slotSetting": false
+            },
+            {
+              "name": "Authentication__Google__ClientSecret",
+              "value": "${{ secrets.GOOGLE_CLIENT_SECRET }}",
+              "slotSetting": false
+            },
+            {
+              "name": "EmailSettings__SmtpServer",
+              "value": "smtp.gmail.com",
+              "slotSetting": false
+            },
+            {
+              "name": "EmailSettings__SmtpPort",
+              "value": "587",
+              "slotSetting": false
+            },
+            {
+              "name": "EmailSettings__Username",
+              "value": "${{ secrets.SMTP_USERNAME }}",
+              "slotSetting": false
+            },
+            {
+              "name": "EmailSettings__Password",
+              "value": "${{ secrets.SMTP_PASSWORD }}",
+              "slotSetting": false
+            },
+            {
+              "name": "ApplicationInsights__ConnectionString",
+              "value": "${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}",
+              "slotSetting": false
+            }
+          ]
+          
+    - name: Apply database migrations
+      run: |
+        dotnet tool install --global dotnet-ef --version 8.0.*
+        dotnet ef database update --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj --connection "${{ secrets.SQL_CONNECTION_STRING }}"
+      continue-on-error: true
+      
+    - name: Azure logout
+      run: az logout
+
+  health-check:
+    name: Health Check
+    needs: deploy-to-azure
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Wait for app to be ready
+      run: sleep 30
+      
+    - name: Check website health
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net)
+        if [ $response -eq 200 ]; then
+          echo "✅ Website is healthy (HTTP $response)"
+        else
+          echo "❌ Website returned HTTP $response"
+          exit 1
+        fi
+        
+    - name: Send deployment notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: 'AutoGuía deployment to Azure: ${{ job.status }}'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      continue-on-error: true

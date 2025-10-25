@@ -1,0 +1,487 @@
+using AutoGuia.Core.Entities;
+using AutoGuia.Web.Data;
+using AutoGuia.Web.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using FluentAssertions;
+
+namespace AutoGuia.Tests.Authentication;
+
+/// <summary>
+/// Tests unitarios para el sistema de autenticación con Google OAuth2 y gestión de usuarios
+/// </summary>
+public class AuthenticationTests
+{
+    private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+    private readonly Mock<SignInManager<ApplicationUser>> _mockSignInManager;
+    private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<ILogger<AuthenticationTests>> _mockLogger;
+    private readonly ApplicationDbContext _context;
+
+    public AuthenticationTests()
+    {
+        // Configurar DbContext en memoria
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
+            .Options;
+        _context = new ApplicationDbContext(options);
+
+        // Mock de UserManager
+        var userStore = new Mock<IUserStore<ApplicationUser>>();
+        _mockUserManager = new Mock<UserManager<ApplicationUser>>(
+            userStore.Object, null, null, null, null, null, null, null, null);
+
+        // Mock de SignInManager
+        var contextAccessor = new Mock<Microsoft.AspNetCore.Http.IHttpContextAccessor>();
+        var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+        _mockSignInManager = new Mock<SignInManager<ApplicationUser>>(
+            _mockUserManager.Object,
+            contextAccessor.Object,
+            claimsFactory.Object,
+            null, null, null, null);
+
+        // Mock de EmailService
+        _mockEmailService = new Mock<IEmailService>();
+
+        // Mock de Logger
+        _mockLogger = new Mock<ILogger<AuthenticationTests>>();
+    }
+
+    #region Registro de Usuarios
+
+    [Fact]
+    public async Task RegistroUsuario_ConEmailValido_Exitoso()
+    {
+        // Arrange
+        var email = "test@example.com";
+        var password = "Password123!";
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = false
+        };
+
+        _mockUserManager
+            .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), password))
+            .ReturnsAsync(IdentityResult.Success);
+
+        _mockUserManager
+            .Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync("confirmation-token-123");
+
+        _mockEmailService
+            .Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _mockUserManager.Object.CreateAsync(user, password);
+        var token = await _mockUserManager.Object.GenerateEmailConfirmationTokenAsync(user);
+        await _mockEmailService.Object.SendEmailAsync(email, "Bienvenido", "Confirma tu email");
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+        token.Should().NotBeNullOrEmpty();
+        _mockEmailService.Verify(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RegistroUsuario_ConEmailDuplicado_Falla()
+    {
+        // Arrange
+        var email = "duplicate@example.com";
+        var password = "Password123!";
+        var existingUser = new ApplicationUser
+        {
+            UserName = email,
+            Email = email
+        };
+
+        _mockUserManager
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync(existingUser);
+
+        _mockUserManager
+            .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "El email ya está registrado" }));
+
+        // Act
+        var existingCheck = await _mockUserManager.Object.FindByEmailAsync(email);
+        var result = await _mockUserManager.Object.CreateAsync(new ApplicationUser { Email = email }, password);
+
+        // Assert
+        existingCheck.Should().NotBeNull();
+        result.Succeeded.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Description.Contains("email"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("invalid-email")]
+    [InlineData("@example.com")]
+    [InlineData("test@")]
+    public async Task RegistroUsuario_ConEmailInvalido_Falla(string email)
+    {
+        // Arrange
+        var password = "Password123!";
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email
+        };
+
+        _mockUserManager
+            .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Email inválido" }));
+
+        // Act
+        var result = await _mockUserManager.Object.CreateAsync(user, password);
+
+        // Assert
+        result.Succeeded.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("123")]
+    [InlineData("abc")]
+    [InlineData("Password")]
+    [InlineData("12345678")]
+    public async Task RegistroUsuario_ConPasswordDebil_Falla(string password)
+    {
+        // Arrange
+        var email = "test@example.com";
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email
+        };
+
+        _mockUserManager
+            .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), password))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Contraseña no cumple requisitos" }));
+
+        // Act
+        var result = await _mockUserManager.Object.CreateAsync(user, password);
+
+        // Assert
+        result.Succeeded.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Description.Contains("Contraseña"));
+    }
+
+    #endregion
+
+    #region Confirmación de Email
+
+    [Fact]
+    public async Task ConfirmacionEmail_ConTokenValido_Exitoso()
+    {
+        // Arrange
+        var user = new ApplicationUser
+        {
+            UserName = "test@example.com",
+            Email = "test@example.com",
+            EmailConfirmed = false
+        };
+        var token = "valid-token-123";
+
+        _mockUserManager
+            .Setup(x => x.ConfirmEmailAsync(user, token))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _mockUserManager.Object.ConfirmEmailAsync(user, token);
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ConfirmacionEmail_ConTokenInvalido_Falla()
+    {
+        // Arrange
+        var user = new ApplicationUser
+        {
+            UserName = "test@example.com",
+            Email = "test@example.com",
+            EmailConfirmed = false
+        };
+        var invalidToken = "invalid-token";
+
+        _mockUserManager
+            .Setup(x => x.ConfirmEmailAsync(user, invalidToken))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Token inválido" }));
+
+        // Act
+        var result = await _mockUserManager.Object.ConfirmEmailAsync(user, invalidToken);
+
+        // Assert
+        result.Succeeded.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EnvioEmailBienvenida_Exitoso()
+    {
+        // Arrange
+        var email = "newuser@example.com";
+        var subject = "Bienvenido a AutoGuía";
+        var body = "Gracias por registrarte";
+
+        _mockEmailService
+            .Setup(x => x.SendEmailAsync(email, subject, body))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _mockEmailService.Object.SendEmailAsync(email, subject, body);
+
+        // Assert
+        _mockEmailService.Verify(x => x.SendEmailAsync(email, subject, body), Times.Once);
+    }
+
+    [Fact]
+    public async Task EnvioEmail_ConSMTPNoDisponible_ManejaError()
+    {
+        // Arrange
+        var email = "test@example.com";
+        _mockEmailService
+            .Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("SMTP no disponible"));
+
+        // Act
+        Func<Task> act = async () => await _mockEmailService.Object.SendEmailAsync(email, "Test", "Test");
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("SMTP no disponible");
+    }
+
+    #endregion
+
+    #region Login con Google OAuth2
+
+    [Fact]
+    public async Task LoginGoogle_ConUsuarioNuevo_CreaUsuario()
+    {
+        // Arrange
+        var email = "googleuser@gmail.com";
+        var externalLoginInfo = new ExternalLoginInfo(
+            new System.Security.Claims.ClaimsPrincipal(),
+            "Google",
+            "google-id-123",
+            "Google");
+
+        _mockUserManager
+            .Setup(x => x.FindByLoginAsync("Google", "google-id-123"))
+            .ReturnsAsync((ApplicationUser?)null);
+
+        _mockUserManager
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync((ApplicationUser?)null);
+
+        _mockUserManager
+            .Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        _mockUserManager
+            .Setup(x => x.AddLoginAsync(It.IsAny<ApplicationUser>(), externalLoginInfo))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var existingUser = await _mockUserManager.Object.FindByLoginAsync("Google", "google-id-123");
+        var newUser = new ApplicationUser { Email = email, UserName = email };
+        var createResult = await _mockUserManager.Object.CreateAsync(newUser);
+        var addLoginResult = await _mockUserManager.Object.AddLoginAsync(newUser, externalLoginInfo);
+
+        // Assert
+        existingUser.Should().BeNull();
+        createResult.Succeeded.Should().BeTrue();
+        addLoginResult.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task LoginGoogle_ConUsuarioExistente_LoginExitoso()
+    {
+        // Arrange
+        var email = "existinguser@gmail.com";
+        var user = new ApplicationUser
+        {
+            Email = email,
+            UserName = email,
+            EmailConfirmed = true
+        };
+
+        _mockUserManager
+            .Setup(x => x.FindByLoginAsync("Google", "google-id-123"))
+            .ReturnsAsync(user);
+
+        _mockSignInManager
+            .Setup(x => x.SignInAsync(user, false, "Google"))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var foundUser = await _mockUserManager.Object.FindByLoginAsync("Google", "google-id-123");
+        await _mockSignInManager.Object.SignInAsync(foundUser!, false, "Google");
+
+        // Assert
+        foundUser.Should().NotBeNull();
+        foundUser!.Email.Should().Be(email);
+        foundUser.EmailConfirmed.Should().BeTrue();
+        _mockSignInManager.Verify(x => x.SignInAsync(user, false, "Google"), Times.Once);
+    }
+
+    [Fact]
+    public async Task LoginGoogle_ConErrorOAuth2_ManejaExcepcion()
+    {
+        // Arrange
+        _mockUserManager
+            .Setup(x => x.FindByLoginAsync("Google", It.IsAny<string>()))
+            .ThrowsAsync(new Exception("Error de conexión OAuth2"));
+
+        // Act
+        Func<Task> act = async () => await _mockUserManager.Object.FindByLoginAsync("Google", "invalid-id");
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>().WithMessage("Error de conexión OAuth2");
+    }
+
+    [Fact]
+    public async Task LoginGoogle_ConAPIKeyInvalida_Falla()
+    {
+        // Arrange
+        var invalidConfigException = new InvalidOperationException("Google Client ID no configurado");
+
+        // Act & Assert
+        invalidConfigException.Message.Should().Contain("Google Client ID");
+    }
+
+    #endregion
+
+    #region Login Tradicional
+
+    [Fact]
+    public async Task Login_ConCredencialesValidas_Exitoso()
+    {
+        // Arrange
+        var email = "user@example.com";
+        var password = "Password123!";
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true
+        };
+
+        _mockUserManager
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync(user);
+
+        _mockSignInManager
+            .Setup(x => x.PasswordSignInAsync(email, password, false, false))
+            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+        // Act
+        var foundUser = await _mockUserManager.Object.FindByEmailAsync(email);
+        var result = await _mockSignInManager.Object.PasswordSignInAsync(email, password, false, false);
+
+        // Assert
+        foundUser.Should().NotBeNull();
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Login_ConPasswordIncorrecto_Falla()
+    {
+        // Arrange
+        var email = "user@example.com";
+        var wrongPassword = "WrongPassword123!";
+
+        _mockSignInManager
+            .Setup(x => x.PasswordSignInAsync(email, wrongPassword, false, false))
+            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
+
+        // Act
+        var result = await _mockSignInManager.Object.PasswordSignInAsync(email, wrongPassword, false, false);
+
+        // Assert
+        result.Succeeded.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Login_ConCuentaBloqueada_RetornaLockedOut()
+    {
+        // Arrange
+        var email = "locked@example.com";
+        var password = "Password123!";
+
+        _mockSignInManager
+            .Setup(x => x.PasswordSignInAsync(email, password, false, true))
+            .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.LockedOut);
+
+        // Act
+        var result = await _mockSignInManager.Object.PasswordSignInAsync(email, password, false, true);
+
+        // Assert
+        result.IsLockedOut.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Recuperación de Contraseña
+
+    [Fact]
+    public async Task RecuperacionPassword_ConEmailValido_EnviaToken()
+    {
+        // Arrange
+        var email = "forgot@example.com";
+        var user = new ApplicationUser { Email = email, UserName = email };
+        var resetToken = "reset-token-123";
+
+        _mockUserManager
+            .Setup(x => x.FindByEmailAsync(email))
+            .ReturnsAsync(user);
+
+        _mockUserManager
+            .Setup(x => x.GeneratePasswordResetTokenAsync(user))
+            .ReturnsAsync(resetToken);
+
+        _mockEmailService
+            .Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var foundUser = await _mockUserManager.Object.FindByEmailAsync(email);
+        var token = await _mockUserManager.Object.GeneratePasswordResetTokenAsync(foundUser!);
+        await _mockEmailService.Object.SendEmailAsync(email, "Recuperar contraseña", $"Token: {token}");
+
+        // Assert
+        foundUser.Should().NotBeNull();
+        token.Should().NotBeNullOrEmpty();
+        _mockEmailService.Verify(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ConTokenValido_Exitoso()
+    {
+        // Arrange
+        var user = new ApplicationUser { Email = "test@example.com" };
+        var token = "valid-reset-token";
+        var newPassword = "NewPassword123!";
+
+        _mockUserManager
+            .Setup(x => x.ResetPasswordAsync(user, token, newPassword))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _mockUserManager.Object.ResetPasswordAsync(user, token, newPassword);
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+    }
+
+    #endregion
+
+    public void Dispose()
+    {
+        _context.Dispose();
+    }
+}

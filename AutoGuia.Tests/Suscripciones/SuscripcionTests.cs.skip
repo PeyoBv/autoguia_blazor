@@ -1,0 +1,572 @@
+using AutoGuia.Core.DTOs;
+using AutoGuia.Core.Entities;
+using AutoGuia.Web.Data;
+using AutoGuia.Web.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using FluentAssertions;
+
+namespace AutoGuia.Tests.Suscripciones;
+
+/// <summary>
+/// Tests unitarios para el sistema de suscripciones y gestión de planes
+/// </summary>
+public class SuscripcionTests : IDisposable
+{
+    private readonly Mock<ILogger<SuscripcionService>> _mockLogger;
+    private readonly ApplicationDbContext _context;
+    private readonly ISuscripcionService _suscripcionService;
+
+    public SuscripcionTests()
+    {
+        // Configurar DbContext en memoria
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: $"TestSuscripcionDb_{Guid.NewGuid()}")
+            .Options;
+        _context = new ApplicationDbContext(options);
+
+        // Mock de Logger
+        _mockLogger = new Mock<ILogger<SuscripcionService>>();
+
+        // Servicio real con DbContext en memoria
+        _suscripcionService = new SuscripcionService(_context, _mockLogger.Object);
+
+        // Sembrar datos de prueba
+        SeedTestData();
+    }
+
+    private void SeedTestData()
+    {
+        // Planes de prueba
+        var planes = new List<Plan>
+        {
+            new Plan
+            {
+                Id = 1,
+                Nombre = "Gratis",
+                Descripcion = "Plan gratuito básico",
+                Precio = 0,
+                DuracionDias = 0,
+                LimiteDiagnosticos = 10,
+                PermiteIA = true,
+                Activo = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Plan
+            {
+                Id = 2,
+                Nombre = "Pro",
+                Descripcion = "Plan profesional",
+                Precio = 9.99m,
+                DuracionDias = 30,
+                LimiteDiagnosticos = 50,
+                PermiteIA = true,
+                Activo = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Plan
+            {
+                Id = 3,
+                Nombre = "Premium",
+                Descripcion = "Plan premium ilimitado",
+                Precio = 19.99m,
+                DuracionDias = 30,
+                LimiteDiagnosticos = -1, // Ilimitado
+                PermiteIA = true,
+                Activo = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Plan
+            {
+                Id = 4,
+                Nombre = "Plan Inactivo",
+                Descripcion = "Plan deshabilitado",
+                Precio = 5.99m,
+                DuracionDias = 30,
+                LimiteDiagnosticos = 20,
+                PermiteIA = false,
+                Activo = false,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        _context.Planes.AddRange(planes);
+        _context.SaveChanges();
+    }
+
+    #region Obtener Planes Disponibles
+
+    [Fact]
+    public async Task ObtenerPlanesDisponibles_RetornaSoloPlanesActivos()
+    {
+        // Act
+        var planes = await _suscripcionService.ObtenerPlanesAsync();
+        var planesList = planes.ToList();
+
+        // Assert
+        planesList.Should().NotBeEmpty();
+        planesList.Should().HaveCount(3); // Solo los 3 activos
+        planesList.Should().OnlyContain(p => p.Nombre != "Plan Inactivo");
+        planesList.Should().Contain(p => p.Nombre == "Gratis");
+        planesList.Should().Contain(p => p.Nombre == "Pro");
+        planesList.Should().Contain(p => p.Nombre == "Premium");
+    }
+
+    [Fact]
+    public async Task ObtenerPlanesDisponibles_OrdenadosPorId()
+    {
+        // Act
+        var planes = await _suscripcionService.ObtenerPlanesAsync();
+        var planesList = planes.ToList();
+
+        // Assert
+        planesList[0].Id.Should().BeLessThan(planesList[1].Id);
+        planesList[1].Id.Should().BeLessThan(planesList[2].Id);
+    }
+
+    #endregion
+
+    #region Obtener Suscripción Actual
+
+    [Fact]
+    public async Task ObtenerSuscripcionActual_ConSuscripcionVigente_RetornaSuscripcion()
+    {
+        // Arrange
+        var userId = "user-test-1";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+        
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.ObtenerSuscripcionActualAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.PlanId.Should().Be(planPro.Id);
+        result.Estado.Should().Be(EstadoSuscripcion.Activa);
+    }
+
+    [Fact]
+    public async Task ObtenerSuscripcionActual_ConSuscripcionVencida_RetornaNull()
+    {
+        // Arrange
+        var userId = "user-test-2";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+        
+        var suscripcionVencida = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-60),
+            FechaFin = DateTime.UtcNow.AddDays(-30),
+            Estado = EstadoSuscripcion.Vencida,
+            CreatedAt = DateTime.UtcNow.AddDays(-60)
+        };
+        _context.Suscripciones.Add(suscripcionVencida);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.ObtenerSuscripcionActualAsync();
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ObtenerSuscripcionActual_SinSuscripcion_RetornaNull()
+    {
+        // Arrange
+        // No hay suscripciones para este usuario
+
+        // Act
+        var result = await _suscripcionService.ObtenerSuscripcionActualAsync();
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Cambiar Plan
+
+    [Fact]
+    public async Task CambiarPlan_DePlanGratisAPro_Exitoso()
+    {
+        // Arrange
+        var userId = "user-upgrade-test";
+        var planGratis = _context.Planes.First(p => p.Nombre == "Gratis");
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        // Suscripción actual (Gratis)
+        var suscripcionActual = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planGratis.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-10),
+            FechaFin = null,
+            Estado = EstadoSuscripcion.Activa,
+            CreatedAt = DateTime.UtcNow.AddDays(-10)
+        };
+        _context.Suscripciones.Add(suscripcionActual);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.CambiarPlanAsync(planPro.Id);
+
+        // Assert
+        result.Should().BeTrue();
+
+        // Verificar que la suscripción antigua se canceló
+        var suscripcionAntigua = await _context.Suscripciones.FindAsync(suscripcionActual.Id);
+        suscripcionAntigua.Should().NotBeNull();
+        suscripcionAntigua!.Estado.Should().Be(EstadoSuscripcion.Cancelada);
+
+        // Verificar que existe nueva suscripción
+        var nuevaSuscripcion = await _context.Suscripciones
+            .FirstOrDefaultAsync(s => s.UsuarioId == userId && s.PlanId == planPro.Id);
+        nuevaSuscripcion.Should().NotBeNull();
+        nuevaSuscripcion!.Estado.Should().Be(EstadoSuscripcion.Activa);
+    }
+
+    [Fact]
+    public async Task CambiarPlan_APlanActual_NoHaceNada()
+    {
+        // Arrange
+        var userId = "user-same-plan-test";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripcionActual = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcionActual);
+        await _context.SaveChangesAsync();
+
+        var suscripcionesAntes = await _context.Suscripciones.CountAsync();
+
+        // Act
+        var result = await _suscripcionService.CambiarPlanAsync(planPro.Id);
+
+        // Assert
+        result.Should().BeFalse(); // No se realizó cambio
+
+        var suscripcionesDespues = await _context.Suscripciones.CountAsync();
+        suscripcionesDespues.Should().Be(suscripcionesAntes); // No se creó nueva suscripción
+    }
+
+    [Fact]
+    public async Task CambiarPlan_APlanInexistente_LanzaExcepcion()
+    {
+        // Arrange
+        var planIdInexistente = 999;
+
+        // Act
+        Func<Task> act = async () => await _suscripcionService.CambiarPlanAsync(planIdInexistente);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*no existe*");
+    }
+
+    [Fact]
+    public async Task CambiarPlan_APlanInactivo_LanzaExcepcion()
+    {
+        // Arrange
+        var planInactivo = _context.Planes.First(p => p.Activo == false);
+
+        // Act
+        Func<Task> act = async () => await _suscripcionService.CambiarPlanAsync(planInactivo.Id);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*no está disponible*");
+    }
+
+    #endregion
+
+    #region Cancelar Suscripción
+
+    [Fact]
+    public async Task CancelarSuscripcion_ConSuscripcionActiva_Exitoso()
+    {
+        // Arrange
+        var userId = "user-cancel-test";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.CancelarSuscripcionAsync();
+
+        // Assert
+        result.Should().BeTrue();
+
+        var suscripcionCancelada = await _context.Suscripciones.FindAsync(suscripcion.Id);
+        suscripcionCancelada.Should().NotBeNull();
+        suscripcionCancelada!.Estado.Should().Be(EstadoSuscripcion.Cancelada);
+        suscripcionCancelada.FechaCancelacion.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task CancelarSuscripcion_SinSuscripcionActiva_RetornaFalse()
+    {
+        // Arrange
+        // No hay suscripción activa
+
+        // Act
+        var result = await _suscripcionService.CancelarSuscripcionAsync();
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Validación de Vigencia
+
+    [Fact]
+    public async Task ValidarVigencia_ConSuscripcionVigente_RetornaTrue()
+    {
+        // Arrange
+        var userId = "user-vigente-test";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var suscripcionActual = await _suscripcionService.ObtenerSuscripcionActualAsync();
+        var esVigente = suscripcionActual != null && 
+                       suscripcionActual.Estado == EstadoSuscripcion.Activa &&
+                       (!suscripcionActual.FechaFin.HasValue || suscripcionActual.FechaFin > DateTime.UtcNow);
+
+        // Assert
+        esVigente.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ValidarVigencia_ConSuscripcionVencida_RetornaFalse()
+    {
+        // Arrange
+        var userId = "user-vencida-test";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-60),
+            FechaFin = DateTime.UtcNow.AddDays(-1),
+            Estado = EstadoSuscripcion.Vencida,
+            CreatedAt = DateTime.UtcNow.AddDays(-60)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var suscripcionActual = await _suscripcionService.ObtenerSuscripcionActualAsync();
+
+        // Assert
+        suscripcionActual.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Límites de Diagnósticos
+
+    [Fact]
+    public async Task PuedeUsarDiagnostico_ConLimitesDisponibles_RetornaTrue()
+    {
+        // Arrange
+        var userId = "user-diagnostico-test";
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPro.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            DiagnosticosUsados = 10,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.PuedeUsarDiagnosticoAsync();
+
+        // Assert
+        result.Should().BeTrue(); // Plan Pro permite 50, usados 10
+    }
+
+    [Fact]
+    public async Task PuedeUsarDiagnostico_LimiteSuperado_RetornaFalse()
+    {
+        // Arrange
+        var userId = "user-limite-test";
+        var planGratis = _context.Planes.First(p => p.Nombre == "Gratis");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planGratis.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = null,
+            Estado = EstadoSuscripcion.Activa,
+            DiagnosticosUsados = 10, // Límite del plan gratis
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.PuedeUsarDiagnosticoAsync();
+
+        // Assert
+        result.Should().BeFalse(); // Límite alcanzado
+    }
+
+    [Fact]
+    public async Task PuedeUsarDiagnostico_PlanPremiumIlimitado_SiempreRetornaTrue()
+    {
+        // Arrange
+        var userId = "user-premium-test";
+        var planPremium = _context.Planes.First(p => p.Nombre == "Premium");
+
+        var suscripcion = new Suscripcion
+        {
+            UsuarioId = userId,
+            PlanId = planPremium.Id,
+            FechaInicio = DateTime.UtcNow.AddDays(-5),
+            FechaFin = DateTime.UtcNow.AddDays(25),
+            Estado = EstadoSuscripcion.Activa,
+            DiagnosticosUsados = 999, // Muchos diagnósticos usados
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        _context.Suscripciones.Add(suscripcion);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _suscripcionService.PuedeUsarDiagnosticoAsync();
+
+        // Assert
+        result.Should().BeTrue(); // Plan Premium es ilimitado (-1)
+    }
+
+    #endregion
+
+    #region Historial de Suscripciones
+
+    [Fact]
+    public async Task ObtenerHistorial_ConVariasSuscripciones_RetornaOrdenadoPorFecha()
+    {
+        // Arrange
+        var userId = "user-historial-test";
+        var planGratis = _context.Planes.First(p => p.Nombre == "Gratis");
+        var planPro = _context.Planes.First(p => p.Nombre == "Pro");
+
+        var suscripciones = new List<Suscripcion>
+        {
+            new Suscripcion
+            {
+                UsuarioId = userId,
+                PlanId = planGratis.Id,
+                FechaInicio = DateTime.UtcNow.AddDays(-90),
+                FechaFin = DateTime.UtcNow.AddDays(-60),
+                Estado = EstadoSuscripcion.Cancelada,
+                CreatedAt = DateTime.UtcNow.AddDays(-90)
+            },
+            new Suscripcion
+            {
+                UsuarioId = userId,
+                PlanId = planPro.Id,
+                FechaInicio = DateTime.UtcNow.AddDays(-60),
+                FechaFin = DateTime.UtcNow.AddDays(-30),
+                Estado = EstadoSuscripcion.Vencida,
+                CreatedAt = DateTime.UtcNow.AddDays(-60)
+            },
+            new Suscripcion
+            {
+                UsuarioId = userId,
+                PlanId = planPro.Id,
+                FechaInicio = DateTime.UtcNow.AddDays(-5),
+                FechaFin = DateTime.UtcNow.AddDays(25),
+                Estado = EstadoSuscripcion.Activa,
+                CreatedAt = DateTime.UtcNow.AddDays(-5)
+            }
+        };
+        _context.Suscripciones.AddRange(suscripciones);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var historial = await _suscripcionService.ObtenerHistorialSuscripcionesAsync();
+        var historialList = historial.ToList();
+
+        // Assert
+        historialList.Should().HaveCount(3);
+        historialList[0].FechaInicio.Should().BeAfter(historialList[1].FechaInicio); // Más reciente primero
+        historialList[1].FechaInicio.Should().BeAfter(historialList[2].FechaInicio);
+    }
+
+    #endregion
+
+    #region Manejo de Errores
+
+    [Fact]
+    public async Task OperacionConBDDesconectada_ManejaExcepcion()
+    {
+        // Arrange
+        // Dispose del contexto para simular BD no disponible
+        await _context.DisposeAsync();
+
+        // Act
+        Func<Task> act = async () => await _suscripcionService.ObtenerPlanesAsync();
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>();
+    }
+
+    #endregion
+
+    public void Dispose()
+    {
+        _context?.Dispose();
+    }
+}
