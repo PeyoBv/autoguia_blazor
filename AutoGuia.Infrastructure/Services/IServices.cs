@@ -4,6 +4,19 @@ using AutoGuia.Core.Entities;
 namespace AutoGuia.Infrastructure.Services
 {
     /// <summary>
+    /// Servicio de diagnóstico automotriz usando IA de Gemini
+    /// </summary>
+    public interface IGeminiService
+    {
+        /// <summary>
+        /// Obtiene un diagnóstico inteligente basado en la descripción de la falla del vehículo
+        /// </summary>
+        /// <param name="descripcionFalla">Descripción detallada del problema del vehículo</param>
+        /// <returns>Diagnóstico con posibles causas, pasos de revisión y nivel de urgencia</returns>
+        Task<string> ObtenerDiagnosticoAsync(string descripcionFalla);
+    }
+
+    /// <summary>
     /// Servicio para sanitizar contenido HTML y proteger contra ataques XSS
     /// </summary>
     public interface IHtmlSanitizationService

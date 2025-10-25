@@ -166,6 +166,9 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 // ✨ Servicio de sanitización HTML para protección XSS
 builder.Services.AddScoped<IHtmlSanitizationService, HtmlSanitizationService>();
 
+// 🤖 Servicio de diagnóstico con IA de Gemini
+builder.Services.AddScoped<IGeminiService, GeminiService>();
+
 // 🔧 Registrar repositorios del módulo de diagnóstico
 builder.Services.AddScoped<ISintomaRepository, SintomaRepository>();
 builder.Services.AddScoped<ICausaPosibleRepository, CausaPosibleRepository>();

@@ -1,0 +1,357 @@
+@page "/diagnostico-asistente"
+@using AutoGuia.Infrastructure.Services
+@using System.Text.RegularExpressions
+@inject IGeminiService GeminiService
+@inject ILogger<DiagnosticoAsistente> Logger
+@rendermode InteractiveServer
+
+<PageTitle>Diagnóstico Asistente - AutoGuía</PageTitle>
+
+<div class="diagnostico-container">
+    <div class="diagnostico-header">
+        <h1>🚗 Asistente de Diagnóstico Automotriz</h1>
+        <p class="subtitle">Describe la falla de tu vehículo y obtén un diagnóstico instantáneo</p>
+    </div>
+
+    <div class="diagnostico-body">
+        <div class="input-section">
+            <div class="form-group">
+                <label for="descripcionFalla" class="form-label">
+                    📝 Describe la falla o síntoma de tu vehículo:
+                </label>
+                <textarea 
+                    id="descripcionFalla"
+                    class="form-control textarea-falla"
+                    @bind="DescripcionFalla"
+                    placeholder="Ej: Mi auto tiembla al ralentí, hace ruido extraño en el motor..."
+                    rows="4"
+                    disabled="@EstaObteniendo">
+                </textarea>
+                <small class="form-text text-muted">
+                    Sé lo más detallado posible. Incluye: qué pasa, cuándo ocurre, ruidos, vibraciones, etc.
+                </small>
+            </div>
+
+            <div class="button-section">
+                <button 
+                    class="btn btn-primary btn-lg"
+                    @onclick="ObtenerDiagnostico"
+                    disabled="@(EstaObteniendo || string.IsNullOrWhiteSpace(DescripcionFalla))">
+                    @if (EstaObteniendo)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Analizando...</span>
+                    }
+                    else
+                    {
+                        <span>🔍 Obtener Diagnóstico</span>
+                    }
+                </button>
+
+                @if (!string.IsNullOrWhiteSpace(DescripcionFalla) && !EstaObteniendo)
+                {
+                    <button 
+                        class="btn btn-outline-secondary"
+                        @onclick="LimpiarFormulario">
+                        🗑️ Limpiar
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(ResultadoDiagnostico))
+        {
+            <div class="resultado-section">
+                <div class="resultado-header">
+                    <h2>📊 Resultado del Diagnóstico</h2>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="CopiarAlPortapapeles">
+                        📋 Copiar Respuesta
+                    </button>
+                </div>
+
+                <div class="resultado-content">
+                    @if (MostrarMarkdown)
+                    {
+                        <div class="markdown-content">
+                            @((MarkupString)ConvertirMarkdownAHtml(ResultadoDiagnostico))
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="texto-plano">
+                            @ResultadoDiagnostico
+                        </div>
+                    }
+                </div>
+
+                <div class="resultado-actions">
+                    <button class="btn btn-sm btn-info" @onclick="ToggleModoVisualizacion">
+                        @(MostrarMarkdown ? "📄 Ver como Texto" : "🎨 Ver Formateado")
+                    </button>
+                </div>
+            </div>
+
+            <div class="advertencia-legal">
+                <strong>⚠️ Advertencia Importante:</strong>
+                Este diagnóstico es una herramienta de referencia solamente. 
+                Para reparaciones críticas o diagnósticos de seguridad, consulta con un mecánico profesional certificado.
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(MensajeError))
+        {
+            <div class="alert alert-danger" role="alert">
+                <strong>❌ Error:</strong> @MensajeError
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string DescripcionFalla { get; set; } = string.Empty;
+    private string ResultadoDiagnostico { get; set; } = string.Empty;
+    private string MensajeError { get; set; } = string.Empty;
+    private bool EstaObteniendo { get; set; } = false;
+    private bool MostrarMarkdown { get; set; } = true;
+
+    private async Task ObtenerDiagnostico()
+    {
+        if (string.IsNullOrWhiteSpace(DescripcionFalla))
+        {
+            MensajeError = "Por favor, describe la falla de tu vehículo";
+            return;
+        }
+
+        EstaObteniendo = true;
+        MensajeError = string.Empty;
+        ResultadoDiagnostico = string.Empty;
+
+        try
+        {
+            Logger.LogInformation("Iniciando solicitud de diagnóstico");
+            ResultadoDiagnostico = await GeminiService.ObtenerDiagnosticoAsync(DescripcionFalla);
+            
+            if (ResultadoDiagnostico.StartsWith("❌"))
+            {
+                MensajeError = ResultadoDiagnostico;
+                ResultadoDiagnostico = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error en ObtenerDiagnostico: {ex.Message}");
+            MensajeError = "Ocurrió un error al procesar tu solicitud. Intenta nuevamente.";
+        }
+        finally
+        {
+            EstaObteniendo = false;
+        }
+    }
+
+    private void LimpiarFormulario()
+    {
+        DescripcionFalla = string.Empty;
+        ResultadoDiagnostico = string.Empty;
+        MensajeError = string.Empty;
+    }
+
+    private void ToggleModoVisualizacion()
+    {
+        MostrarMarkdown = !MostrarMarkdown;
+    }
+
+    private async Task CopiarAlPortapapeles()
+    {
+        // Esta funcionalidad requería JS Interop
+        // Por ahora, mostramos un mensaje
+        await Task.Delay(100);
+        Logger.LogInformation("Copiar al portapapeles (requiere JS Interop)");
+    }
+
+    private string ConvertirMarkdownAHtml(string markdown)
+    {
+        // Conversión básica de Markdown a HTML
+        string html = markdown;
+        
+        // Títulos
+        html = Regex.Replace(html, @"^### (.*?)$", "<h3>$1</h3>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"^## (.*?)$", "<h2>$1</h2>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"^# (.*?)$", "<h1>$1</h1>", RegexOptions.Multiline);
+
+        // Negritas
+        html = Regex.Replace(html, @"\*\*(.*?)\*\*", "<strong>$1</strong>");
+
+        // Itálicas
+        html = Regex.Replace(html, @"\*(.*?)\*", "<em>$1</em>");
+
+        // Listas
+        html = Regex.Replace(html, @"^- (.*?)$", "<li>$1</li>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"(<li>.*?</li>)", "<ul>$1</ul>", RegexOptions.Singleline);
+
+        // Saltos de línea
+        html = html.Replace("\n", "<br />");
+
+        return html;
+    }
+}
+
+<style>
+    .diagnostico-container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .diagnostico-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+    }
+
+    .diagnostico-header h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+    .diagnostico-body {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-section {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .textarea-falla {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 1rem;
+        resize: vertical;
+        transition: border-color 0.3s;
+    }
+
+    .textarea-falla:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
+    .button-section {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .resultado-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-left: 4px solid #28a745;
+        border-radius: 8px;
+    }
+
+    .resultado-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .resultado-header h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .markdown-content {
+        color: #333;
+        line-height: 1.8;
+    }
+
+    .markdown-content h2 {
+        color: #007bff;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    .markdown-content h3 {
+        color: #0056b3;
+        margin-top: 15px;
+        margin-bottom: 8px;
+    }
+
+    .markdown-content ul {
+        padding-left: 25px;
+        margin: 10px 0;
+    }
+
+    .markdown-content li {
+        margin: 5px 0;
+    }
+
+    .advertencia-legal {
+        margin-top: 20px;
+        padding: 15px;
+        background: #fff3cd;
+        border-left: 4px solid #ff9800;
+        border-radius: 5px;
+        color: #856404;
+        font-size: 0.95rem;
+    }
+
+    .alert {
+        margin-top: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .diagnostico-container {
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .diagnostico-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .button-section {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
