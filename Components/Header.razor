@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Components.Routing
+
+<header class="site-header" role="banner">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white" aria-label="Main navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <img src="/images/logo-placeholder.svg" alt="Logo" height="36" />
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/">Inicio</NavLink>
+          </li>
+
+          <li class="nav-item dropdown" id="productsMenu">
+            <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">Productos</a>
+            <div class="dropdown-menu mega-menu p-4" aria-labelledby="productsDropdown">
+              <div class="row">
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">Móviles</h6>
+                  <a class="dropdown-item" href="/productos/moviles">Últimos modelos</a>
+                  <a class="dropdown-item" href="/productos/moviles/gama-alta">Gama alta</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">Tablets</h6>
+                  <a class="dropdown-item" href="/productos/tablets">Tablets</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">Accesorios</h6>
+                  <a class="dropdown-item" href="/accesorios">Cargadores</a>
+                  <a class="dropdown-item" href="/accesorios/cases">Fundas</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">Ofertas</h6>
+                  <a class="dropdown-item" href="/ofertas">Promociones</a>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/soporte">Soporte</NavLink>
+          </li>
+        </ul>
+
+        <form class="d-flex me-3" onsubmit="event.preventDefault();" role="search" aria-label="Buscar en el sitio">
+          <input id="siteSearch" class="form-control" type="search" placeholder="Buscar" aria-label="Buscar" />
+        </form>
+
+        <div class="d-flex align-items-center">
+          <NavLink class="btn btn-link me-2" href="/login">Iniciar sesión</NavLink>
+          <NavLink class="btn btn-primary" href="/carrito" aria-label="Ver carrito">
+            <i class="bi bi-cart"></i> Carrito
+          </NavLink>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
