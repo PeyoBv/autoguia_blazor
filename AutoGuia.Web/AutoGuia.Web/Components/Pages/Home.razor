@@ -1,39 +1,10 @@
 ﻿@page "/"
 @rendermode InteractiveAuto
+@using AutoGuia.Web.Components.Shared
 
 <PageTitle>AutoGuía - Tu plataforma automotriz integral</PageTitle>
 
-<div class="hero-section bg-primary text-white py-5 mb-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">Bienvenido a AutoGuía</h1>
-                <p class="lead mb-4">
-                    Tu plataforma integral para el sector automotriz en Chile y Latinoamérica. 
-                    Encuentra talleres confiables, resuelve tus dudas en nuestra comunidad y 
-                    accede a información técnica especializada.
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="/productos" class="btn btn-warning btn-lg">
-                        <i class="fas fa-search-dollar me-2"></i>
-                        Comparar Precios
-                    </a>
-                    <a href="/talleres" class="btn btn-light btn-lg">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        Buscar Talleres
-                    </a>
-                    <a href="/foro" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-comments me-2"></i>
-                        Únete al Foro
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <i class="fas fa-car fa-10x opacity-75"></i>
-            </div>
-        </div>
-    </div>
-</div>
+<Hero />
 
 <div class="container">
     <div class="row g-4 mb-5">
