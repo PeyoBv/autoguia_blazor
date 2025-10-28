@@ -1,0 +1,80 @@
+@using Microsoft.AspNetCore.Components.Routing
+
+<header class="site-header" role="banner">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white" aria-label="Main navigation">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <img src="/images/logo-placeholder.svg" alt="Logo" height="36" />
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/">Inicio</NavLink>
+          </li>
+
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/repuestos">
+              <i class="bi bi-gear-fill me-1"></i> Repuestos
+            </NavLink>
+          </li>
+
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/talleres">
+              <i class="bi bi-tools me-1"></i> Talleres
+            </NavLink>
+          </li>
+
+          <li class="nav-item dropdown" id="servicesMenu">
+            <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">
+              <i class="bi bi-wrench me-1"></i> Servicios
+            </a>
+            <div class="dropdown-menu mega-menu p-4" aria-labelledby="servicesDropdown">
+              <div class="row">
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">🔍 Diagnóstico</h6>
+                  <a class="dropdown-item" href="/consulta-vehiculo">Consulta VIN</a>
+                  <a class="dropdown-item" href="/diagnostico-ia">Asistente IA</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">💬 Comunidad</h6>
+                  <a class="dropdown-item" href="/foro">Foro Automotriz</a>
+                  <a class="dropdown-item" href="/experiencias">Experiencias</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">💎 Premium</h6>
+                  <a class="dropdown-item" href="/suscripciones">Planes</a>
+                  <a class="dropdown-item" href="/beneficios">Beneficios</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">📚 Recursos</h6>
+                  <a class="dropdown-item" href="/about">Acerca de</a>
+                  <a class="dropdown-item" href="/soporte">Soporte</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+
+        <form class="d-flex me-3" onsubmit="event.preventDefault();" role="search" aria-label="Buscar en el sitio">
+          <input id="siteSearch" class="form-control" type="search" placeholder="Buscar" aria-label="Buscar" />
+        </form>
+
+        <div class="d-flex align-items-center">
+          <NavLink class="btn btn-link me-2" href="/Account/Login">
+            <i class="bi bi-person-circle me-1"></i> Iniciar sesión
+          </NavLink>
+          <NavLink class="btn btn-primary" href="/suscripciones" aria-label="Ver planes premium">
+            <i class="bi bi-star-fill me-1"></i> Premium
+          </NavLink>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
