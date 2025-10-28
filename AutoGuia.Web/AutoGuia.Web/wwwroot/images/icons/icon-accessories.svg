@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .icon-primary { fill: none; stroke: #0d6efd; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-fill { fill: #0d6efd; opacity: 0.1; }
+      .icon-accent { fill: #0d6efd; }
+    </style>
+  </defs>
+  
+  <!-- Shopping Bag -->
+  <rect class="icon-fill" x="18" y="22" width="28" height="30" rx="2"/>
+  <rect class="icon-primary" x="18" y="22" width="28" height="30" rx="2"/>
+  
+  <!-- Bag Handle -->
+  <path class="icon-primary" d="M 26 22 Q 26 16 32 16 Q 38 16 38 22"/>
+  
+  <!-- Star/Sparkle (premium accessories) -->
+  <path class="icon-accent" d="M 32 30 L 33 34 L 37 34 L 34 36 L 35 40 L 32 38 L 29 40 L 30 36 L 27 34 L 31 34 Z"/>
+  
+  <!-- Detail Lines -->
+  <line class="icon-primary" x1="24" y1="42" x2="40" y2="42" stroke-width="2" opacity="0.4"/>
+  <line class="icon-primary" x1="24" y1="46" x2="36" y2="46" stroke-width="2" opacity="0.4"/>
+  
+  <!-- Tag (discount/sale badge) -->
+  <circle class="icon-accent" cx="42" cy="28" r="3" opacity="0.8"/>
+</svg>
