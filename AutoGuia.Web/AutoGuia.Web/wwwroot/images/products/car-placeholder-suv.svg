@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="suvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadowSUV" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- SUV Body -->
+  <g filter="url(#shadowSUV)">
+    <!-- Main body (higher and larger) -->
+    <rect x="130" y="350" width="540" height="160" rx="20" fill="url(#suvGrad)"/>
+    
+    <!-- Hood/Front -->
+    <path d="M 220 350 Q 250 300 340 285 L 460 285 Q 550 300 580 350 Z" fill="url(#suvGrad)" opacity="0.9"/>
+    
+    <!-- Windshield (larger) -->
+    <path d="M 260 330 Q 300 295 400 288 Q 500 295 540 330 Z" fill="#34d399" opacity="0.5"/>
+    
+    <!-- Windows -->
+    <rect x="160" y="365" width="100" height="80" rx="8" fill="#6ee7b7" opacity="0.4"/>
+    <rect x="280" y="365" width="240" height="80" rx="8" fill="#6ee7b7" opacity="0.4"/>
+    <rect x="540" y="365" width="100" height="80" rx="8" fill="#6ee7b7" opacity="0.4"/>
+    
+    <!-- Front Grille -->
+    <rect x="150" y="470" width="30" height="25" rx="5" fill="#10b981"/>
+    <rect x="620" y="470" width="30" height="25" rx="5" fill="#10b981"/>
+    
+    <!-- Front Lights -->
+    <circle cx="155" cy="395" r="18" fill="#fbbf24"/>
+    <circle cx="645" cy="395" r="18" fill="#fbbf24"/>
+    
+    <!-- Wheels (larger for SUV) -->
+    <circle cx="230" cy="510" r="75" fill="#1f2937"/>
+    <circle cx="230" cy="510" r="45" fill="#374151"/>
+    <circle cx="230" cy="510" r="25" fill="#6b7280"/>
+    
+    <circle cx="570" cy="510" r="75" fill="#1f2937"/>
+    <circle cx="570" cy="510" r="45" fill="#374151"/>
+    <circle cx="570" cy="510" r="25" fill="#6b7280"/>
+    
+    <!-- Roof rack -->
+    <rect x="260" y="345" width="280" height="8" rx="4" fill="#065f46" opacity="0.8"/>
+    
+    <!-- Ground shadow (wider) -->
+    <ellipse cx="400" cy="620" rx="340" ry="35" fill="#000000" opacity="0.12"/>
+  </g>
+  
+  <!-- Label -->
+  <text x="400" y="700" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#475569" text-anchor="middle">
+    SUV / Camioneta
+  </text>
+  <text x="400" y="740" font-family="Arial, sans-serif" font-size="20" fill="#94a3b8" text-anchor="middle">
+    Imagen de referencia
+  </text>
+</svg>
