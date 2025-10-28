@@ -210,9 +210,9 @@ builder.Services.AddScoped<ComparadorService>();
 builder.Services.AddScoped<IComparadorService, AutoGuia.Web.Services.ComparadorServiceWithScrapers>();
 
 // 🛒 Servicios de Scraping de Consumibles Automotrices
-builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre
-builder.Services.AddScoped<AutoplanetConsumiblesScraperService>();    // Autoplanet
-builder.Services.AddScoped<MundoRepuestosConsumiblesScraperService>(); // MundoRepuestos
+builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre (único activo)
+// builder.Services.AddScoped<AutoplanetConsumiblesScraperService>();    // Autoplanet (deshabilitado)
+// builder.Services.AddScoped<MundoRepuestosConsumiblesScraperService>(); // MundoRepuestos (deshabilitado)
 
 // 🌐 HttpClient para scrapers de consumibles
 builder.Services.AddHttpClient("ConsumiblesScraperClient", client =>
