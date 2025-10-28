@@ -1,0 +1,405 @@
+@* ProductCard.razor - Componente de tarjeta de producto accesible *@
+
+<div class="product-card" role="article" aria-label="Producto: @Title">
+  <div class="product-card-image-wrapper">
+    @if (!imageError)
+    {
+      <img 
+        src="@ImageUrl" 
+        alt="@ImageAlt"
+        class="product-card-image"
+        loading="lazy"
+        @onerror="HandleImageError"
+        aria-hidden="@string.IsNullOrEmpty(ImageAlt)" />
+    }
+    else
+    {
+      <div class="product-card-image-fallback" aria-label="Imagen no disponible">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span class="sr-only">Imagen no disponible</span>
+      </div>
+    }
+  </div>
+
+  <div class="product-card-body">
+    <h3 class="product-card-title" id="product-title-@uniqueId">
+      @Title
+    </h3>
+
+    @if (!string.IsNullOrWhiteSpace(ShortDescription))
+    {
+      <p class="product-card-description" id="product-desc-@uniqueId">
+        @ShortDescription
+      </p>
+    }
+
+    <div class="product-card-footer">
+      <div class="product-card-price" aria-label="Precio: @FormatPrice(Price)">
+        <span class="product-card-currency" aria-hidden="true">$</span>
+        <span class="product-card-amount">@Price.ToString("N0")</span>
+      </div>
+
+      <button 
+        type="button"
+        class="btn btn-primary product-card-btn"
+        @onclick="HandleAddClick"
+        disabled="@IsAdding"
+        aria-label="@GetButtonAriaLabel()"
+        aria-describedby="product-title-@uniqueId @(string.IsNullOrWhiteSpace(ShortDescription) ? "" : $"product-desc-{uniqueId}")">
+        @if (IsAdding)
+        {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span class="sr-only">Agregando...</span>
+        }
+        else
+        {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span>@ButtonText</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+
+@code {
+  private bool imageError = false;
+  private bool IsAdding = false;
+  private string uniqueId = Guid.NewGuid().ToString("N")[..8];
+
+  /// <summary>
+  /// Título del producto (requerido)
+  /// </summary>
+  [Parameter, EditorRequired]
+  public string Title { get; set; } = string.Empty;
+
+  /// <summary>
+  /// URL de la imagen del producto
+  /// </summary>
+  [Parameter]
+  public string? ImageUrl { get; set; }
+
+  /// <summary>
+  /// Texto alternativo para la imagen (accesibilidad)
+  /// </summary>
+  [Parameter]
+  public string? ImageAlt { get; set; }
+
+  /// <summary>
+  /// Descripción corta del producto
+  /// </summary>
+  [Parameter]
+  public string? ShortDescription { get; set; }
+
+  /// <summary>
+  /// Precio del producto
+  /// </summary>
+  [Parameter]
+  public decimal Price { get; set; }
+
+  /// <summary>
+  /// Texto del botón de acción (default: "Agregar")
+  /// </summary>
+  [Parameter]
+  public string ButtonText { get; set; } = "Agregar";
+
+  /// <summary>
+  /// Callback que se ejecuta al hacer clic en el botón
+  /// </summary>
+  [Parameter]
+  public EventCallback OnAdd { get; set; }
+
+  /// <summary>
+  /// Indica si se debe mostrar un spinner durante la acción
+  /// </summary>
+  [Parameter]
+  public bool ShowLoadingState { get; set; } = true;
+
+  private void HandleImageError(ErrorEventArgs e)
+  {
+    imageError = true;
+  }
+
+  private async Task HandleAddClick()
+  {
+    if (OnAdd.HasDelegate)
+    {
+      if (ShowLoadingState)
+      {
+        IsAdding = true;
+        StateHasChanged();
+      }
+
+      try
+      {
+        await OnAdd.InvokeAsync();
+      }
+      finally
+      {
+        if (ShowLoadingState)
+        {
+          IsAdding = false;
+          StateHasChanged();
+        }
+      }
+    }
+  }
+
+  private string FormatPrice(decimal price)
+  {
+    return $"${price:N0}";
+  }
+
+  private string GetButtonAriaLabel()
+  {
+    if (IsAdding)
+    {
+      return $"Agregando {Title} al carrito";
+    }
+    return $"Agregar {Title} al carrito por {FormatPrice(Price)}";
+  }
+
+  protected override void OnParametersSet()
+  {
+    // Reset image error if URL changes
+    if (!string.IsNullOrEmpty(ImageUrl))
+    {
+      imageError = false;
+    }
+
+    // Use Title as ImageAlt fallback if not provided
+    if (string.IsNullOrEmpty(ImageAlt))
+    {
+      ImageAlt = Title;
+    }
+  }
+}
+
+<style>
+  /* ProductCard Styles */
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: var(--radius-lg, 0.5rem);
+    box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+    overflow: hidden;
+    transition: all var(--transition-base, 250ms ease);
+    height: 100%;
+  }
+
+  .product-card:hover {
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+    transform: translateY(-4px);
+  }
+
+  /* Image Section */
+  .product-card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background-color: var(--color-bg-secondary, #f8f9fa);
+    overflow: hidden;
+  }
+
+  .product-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--transition-base, 250ms ease);
+  }
+
+  .product-card:hover .product-card-image {
+    transform: scale(1.05);
+  }
+
+  /* Image Fallback */
+  .product-card-image-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--color-text-muted, #adb5bd);
+    background: linear-gradient(135deg, var(--color-bg-secondary, #f8f9fa) 0%, var(--color-bg-tertiary, #e9ecef) 100%);
+  }
+
+  .product-card-image-fallback svg {
+    margin-bottom: var(--spacing-sm, 0.5rem);
+  }
+
+  /* Body Section */
+  .product-card-body {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-lg, 1.5rem);
+    flex: 1;
+  }
+
+  .product-card-title {
+    font-size: var(--font-size-lg, 1.125rem);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-text, #212529);
+    margin-bottom: var(--spacing-sm, 0.5rem);
+    line-height: var(--line-height-tight, 1.25);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .product-card-description {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-secondary, #6c757d);
+    margin-bottom: var(--spacing-md, 1rem);
+    line-height: var(--line-height-base, 1.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex: 1;
+  }
+
+  /* Footer Section */
+  .product-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md, 1rem);
+    margin-top: auto;
+    padding-top: var(--spacing-md, 1rem);
+    border-top: 1px solid var(--color-border-light, #e9ecef);
+  }
+
+  .product-card-price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs, 0.25rem);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text, #212529);
+  }
+
+  .product-card-currency {
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text-secondary, #6c757d);
+  }
+
+  .product-card-amount {
+    font-size: var(--font-size-xl, 1.25rem);
+  }
+
+  /* Button */
+  .product-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs, 0.25rem);
+    padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: var(--font-weight-medium, 500);
+    white-space: nowrap;
+    min-height: 40px;
+  }
+
+  .product-card-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Spinner */
+  .spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+  }
+
+  .spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 2px;
+  }
+
+  @@keyframes spinner-border {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Screen Reader Only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Reduced Motion Support */
+  @@media (prefers-reduced-motion: reduce) {
+    .product-card,
+    .product-card-image,
+    .product-card-btn {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    .product-card:hover {
+      transform: none;
+    }
+
+    .product-card:hover .product-card-image {
+      transform: none;
+    }
+  }
+
+  /* Responsive Adjustments */
+  @@media (min-width: 768px) {
+    .product-card-body {
+      padding: var(--spacing-xl, 2rem);
+    }
+
+    .product-card-title {
+      font-size: var(--font-size-xl, 1.25rem);
+    }
+
+    .product-card-amount {
+      font-size: var(--font-size-2xl, 1.5rem);
+    }
+  }
+
+  /* Focus Visible Styles */
+  .product-card-btn:focus-visible {
+    outline: 3px solid var(--color-primary, #0d6efd);
+    outline-offset: 2px;
+  }
+
+  /* High Contrast Mode Support */
+  @@media (prefers-contrast: high) {
+    .product-card {
+      border-width: 2px;
+    }
+
+    .product-card-btn {
+      border-width: 2px;
+    }
+  }
+</style>
