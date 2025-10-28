@@ -1,0 +1,54 @@
+{
+  "assets": [
+    {
+      "filename": "hero-1.webp",
+      "source": "generated",
+      "generator": "Midjourney v6",
+      "prompt": "Modern automotive workshop interior, Chilean setting, professional mechanics working, bright natural lighting, wide angle, photorealistic",
+      "author": "PeyoBv",
+      "license": "Subject to Midjourney Terms of Service - Commercial use allowed with paid subscription",
+      "created_at": "2025-10-27"
+    },
+    {
+      "filename": "product-1.webp",
+      "source": "generated",
+      "generator": "DALL-E 3",
+      "prompt": "Car engine oil bottle product photography, clean white background, professional studio lighting, high quality commercial shot",
+      "author": "PeyoBv",
+      "license": "Subject to OpenAI Terms - Commercial use allowed",
+      "created_at": "2025-10-27"
+    },
+    {
+      "filename": "product-2.webp",
+      "source": "generated",
+      "generator": "DALL-E 3",
+      "prompt": "Automotive brake pads set product photography, clean white background, professional lighting, detailed texture",
+      "author": "PeyoBv",
+      "license": "Subject to OpenAI Terms - Commercial use allowed",
+      "created_at": "2025-10-27"
+    },
+    {
+      "filename": "author-avatar.png",
+      "source": "generated",
+      "generator": "Stable Diffusion XL",
+      "prompt": "Professional avatar icon, neutral background, modern design, suitable for author profile",
+      "author": "PeyoBv",
+      "license": "CreativeML Open RAIL++-M License - Commercial use allowed",
+      "created_at": "2025-10-27"
+    },
+    {
+      "filename": "logo-placeholder.svg",
+      "source": "generated",
+      "generator": "Custom SVG",
+      "prompt": "AutoGuía logo placeholder, simple geometric design, scalable vector format",
+      "author": "PeyoBv",
+      "license": "MIT License - Free for commercial use",
+      "created_at": "2025-10-27"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-10-27",
+    "notes": "All AI-generated assets must comply with respective generator's terms of service. Verify license terms before commercial deployment."
+  }
+}
