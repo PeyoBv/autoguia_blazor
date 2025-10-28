@@ -18,35 +18,47 @@
             <NavLink class="nav-link" href="/">Inicio</NavLink>
           </li>
 
-          <li class="nav-item dropdown" id="productsMenu">
-            <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown"
-               aria-expanded="false">Productos</a>
-            <div class="dropdown-menu mega-menu p-4" aria-labelledby="productsDropdown">
-              <div class="row">
-                <div class="col-6 col-md-3">
-                  <h6 class="menu-title">Móviles</h6>
-                  <a class="dropdown-item" href="/productos/moviles">Últimos modelos</a>
-                  <a class="dropdown-item" href="/productos/moviles/gama-alta">Gama alta</a>
-                </div>
-                <div class="col-6 col-md-3">
-                  <h6 class="menu-title">Tablets</h6>
-                  <a class="dropdown-item" href="/productos/tablets">Tablets</a>
-                </div>
-                <div class="col-6 col-md-3">
-                  <h6 class="menu-title">Accesorios</h6>
-                  <a class="dropdown-item" href="/accesorios">Cargadores</a>
-                  <a class="dropdown-item" href="/accesorios/cases">Fundas</a>
-                </div>
-                <div class="col-6 col-md-3">
-                  <h6 class="menu-title">Ofertas</h6>
-                  <a class="dropdown-item" href="/ofertas">Promociones</a>
-                </div>
-              </div>
-            </div>
+          <li class="nav-item">
+            <NavLink class="nav-link" href="/repuestos">
+              <i class="bi bi-gear-fill me-1"></i> Repuestos
+            </NavLink>
           </li>
 
           <li class="nav-item">
-            <NavLink class="nav-link" href="/soporte">Soporte</NavLink>
+            <NavLink class="nav-link" href="/talleres">
+              <i class="bi bi-tools me-1"></i> Talleres
+            </NavLink>
+          </li>
+
+          <li class="nav-item dropdown" id="servicesMenu">
+            <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">
+              <i class="bi bi-wrench me-1"></i> Servicios
+            </a>
+            <div class="dropdown-menu mega-menu p-4" aria-labelledby="servicesDropdown">
+              <div class="row">
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">🔍 Diagnóstico</h6>
+                  <a class="dropdown-item" href="/consulta-vehiculo">Consulta VIN</a>
+                  <a class="dropdown-item" href="/diagnostico-ia">Asistente IA</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">💬 Comunidad</h6>
+                  <a class="dropdown-item" href="/foro">Foro Automotriz</a>
+                  <a class="dropdown-item" href="/experiencias">Experiencias</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">💎 Premium</h6>
+                  <a class="dropdown-item" href="/suscripciones">Planes</a>
+                  <a class="dropdown-item" href="/beneficios">Beneficios</a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <h6 class="menu-title">📚 Recursos</h6>
+                  <a class="dropdown-item" href="/about">Acerca de</a>
+                  <a class="dropdown-item" href="/soporte">Soporte</a>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
 
@@ -55,9 +67,11 @@
         </form>
 
         <div class="d-flex align-items-center">
-          <NavLink class="btn btn-link me-2" href="/login">Iniciar sesión</NavLink>
-          <NavLink class="btn btn-primary" href="/carrito" aria-label="Ver carrito">
-            <i class="bi bi-cart"></i> Carrito
+          <NavLink class="btn btn-link me-2" href="/Account/Login">
+            <i class="bi bi-person-circle me-1"></i> Iniciar sesión
+          </NavLink>
+          <NavLink class="btn btn-primary" href="/suscripciones" aria-label="Ver planes premium">
+            <i class="bi bi-star-fill me-1"></i> Premium
           </NavLink>
         </div>
       </div>

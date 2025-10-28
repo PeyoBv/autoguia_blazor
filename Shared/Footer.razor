@@ -1,29 +1,55 @@
 <footer class="site-footer bg-dark text-white">
   <div class="container py-5">
     <div class="row">
-      <div class="col-md-4">
-        <h5>Autoguía</h5>
-        <p>Dirección · Teléfono · Soporte</p>
-        <p class="mb-0">Creado por: <a href="https://github.com/PeyoBv" target="_blank" rel="noopener noreferrer">PeyoBv</a></p>
+      <div class="col-md-3">
+        <h5>🚗 AutoGuía</h5>
+        <p class="small text-muted">Plataforma integral automotriz</p>
+        <p class="mb-2">
+          <i class="bi bi-envelope me-2"></i>
+          <a href="mailto:contacto@autoguia.cl" class="text-white-50">contacto@autoguia.cl</a>
+        </p>
+        <p class="mb-0">
+          <i class="bi bi-github me-2"></i>
+          <a href="https://github.com/PeyoBv/autoguia_blazor" target="_blank" rel="noopener noreferrer" class="text-white-50">GitHub</a>
+        </p>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-3">
+        <h6>Servicios</h6>
+        <ul class="list-unstyled">
+          <li><a href="/repuestos" class="text-white-50 small">Comparador de Repuestos</a></li>
+          <li><a href="/talleres" class="text-white-50 small">Talleres Certificados</a></li>
+          <li><a href="/consulta-vehiculo" class="text-white-50 small">Consulta VIN</a></li>
+          <li><a href="/foro" class="text-white-50 small">Foro Automotriz</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
         <h6>Misión</h6>
-        <p class="small">Facilitar la elección y compra de vehículos mediante información clara y servicios confiables.</p>
+        <p class="small text-muted">Democratizar el acceso a información automotriz confiable y servicios de calidad para todos los chilenos.</p>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-3">
         <h6>Visión</h6>
-        <p class="small">Ser la plataforma de referencia para movilidad en la región.</p>
+        <p class="small text-muted">Ser la plataforma de referencia automotriz en Latinoamérica, conectando usuarios con soluciones integrales.</p>
+        <div class="mt-3">
+          <a href="/suscripciones" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-star-fill me-1"></i> Ver Planes Premium
+          </a>
+        </div>
       </div>
     </div>
 
-    <hr class="bg-secondary" />
-    <div class="d-flex justify-content-between small">
-      <div>© @DateTime.UtcNow.Year Autoguía</div>
+    <hr class="bg-secondary my-4" />
+    <div class="d-flex justify-content-between align-items-center small">
+      <div class="text-muted">
+        © @DateTime.UtcNow.Year AutoGuía Chile · Desarrollado con ❤️ por 
+        <a href="https://github.com/PeyoBv" target="_blank" rel="noopener noreferrer" class="text-white">PeyoBv</a>
+      </div>
       <div>
-        <a class="text-white me-3" href="/terminos">Términos</a>
-        <a class="text-white" href="/privacidad">Privacidad</a>
+        <a class="text-white-50 me-3" href="/about">Acerca de</a>
+        <a class="text-white-50 me-3" href="/terminos">Términos</a>
+        <a class="text-white-50" href="/privacidad">Privacidad</a>
       </div>
     </div>
   </div>
@@ -32,9 +58,14 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "PeyoBv",
-  "url": "https://github.com/PeyoBv",
-  "description": "Creador del proyecto Autoguía"
+  "@type": "WebSite",
+  "name": "AutoGuía",
+  "url": "https://autoguia.cl",
+  "description": "Plataforma integral automotriz chilena: comparador de repuestos, talleres certificados, diagnóstico VIN y foro especializado",
+  "author": {
+    "@type": "Person",
+    "name": "PeyoBv",
+    "url": "https://github.com/PeyoBv"
+  }
 }
 </script>
