@@ -1,0 +1,175 @@
+/* Avatar Styles - AutoGuía */
+
+.avatar {
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar sizes */
+.avatar-xs {
+  width: 24px;
+  height: 24px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar-md {
+  width: 48px;
+  height: 48px;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.avatar-xl {
+  width: 96px;
+  height: 96px;
+}
+
+.avatar-2xl {
+  width: 128px;
+  height: 128px;
+}
+
+/* Avatar with border */
+.avatar-bordered {
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1),
+              0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Avatar group (stacked avatars) */
+.avatar-group {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  padding-left: 12px;
+}
+
+.avatar-group .avatar {
+  margin-left: -12px;
+  border: 2px solid #ffffff;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.avatar-group .avatar:hover {
+  z-index: 10;
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* Author card with avatar */
+.author-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.author-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.author-info {
+  flex: 1;
+}
+
+.author-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+  color: inherit;
+}
+
+.author-role {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Avatar placeholder with initials */
+.avatar-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+.avatar-initials.avatar-sm {
+  font-size: 0.75rem;
+}
+
+.avatar-initials.avatar-lg {
+  font-size: 1.5rem;
+}
+
+.avatar-initials.avatar-xl {
+  font-size: 2rem;
+}
+
+/* Status indicator */
+.avatar-status {
+  position: relative;
+}
+
+.avatar-status::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background-color: #10b981; /* Green for online */
+}
+
+.avatar-status.offline::after {
+  background-color: #6b7280; /* Gray for offline */
+}
+
+.avatar-status.busy::after {
+  background-color: #ef4444; /* Red for busy */
+}
+
+.avatar-status.away::after {
+  background-color: #f59e0b; /* Orange for away */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .author-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .avatar-group {
+    justify-content: center;
+  }
+}
