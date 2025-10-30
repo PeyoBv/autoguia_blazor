@@ -3,6 +3,25 @@ bin/
 obj/
 out/
 
+# Documentation temporal (mantener solo README.md, BACKUP-STRATEGY.md, REFACTORING-GUIDE.md en raíz)
+# Todos los demás archivos .md deben ir en Documentation/
+*-IMPLEMENTACION*.md
+*-IMPLEMENTADO.md
+*PROMPT*.md
+*FASE*.md
+*PHASE*.md
+*RESUMEN*.md
+*AUDITORIA*.md
+*REPORTE*.md
+PR_*.md
+*VERIFICACION*.md
+*DIAGNOSTICO*.md
+*ISSUE*.md
+*HOTFIX*.md
+*CLEANUP*.md
+*SCRAPER*-IMPLEMENTACION.md
+*SERVICE-TESTS*.md
+
 # User-specific files
 *.rsuser
 *.suo
