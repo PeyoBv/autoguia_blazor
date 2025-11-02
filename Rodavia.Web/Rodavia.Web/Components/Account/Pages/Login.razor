@@ -10,17 +10,17 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Iniciar Sesión - AutoGuía</PageTitle>
+<PageTitle>Iniciar SesiÃ³n - Rodavia</PageTitle>
 
 <div class="login-container">
     <div class="login-card">
         <!-- Header -->
         <div class="login-header">
             <div class="logo-container">
-                <i class="fas fa-car-side fa-3x text-primary"></i>
+                <i class="fas fa-car-side fa-3x"></i>
             </div>
-            <h1>AutoGuía</h1>
-            <p class="subtitle">Tu Asistente Automotriz Personal</p>
+            <h1>Rodavia</h1>
+            <p class="subtitle">Tu Marketplace Automotriz de Confianza</p>
         </div>
 
         <!-- Status Message -->
@@ -39,7 +39,7 @@
             <div class="form-group">
                 <label for="email" class="form-label">
                     <i class="fas fa-envelope me-2"></i>
-                    Correo Electrónico
+                    Correo Electrï¿½nico
                 </label>
                 <InputText @bind-Value="Input.Email" 
                           class="form-control modern-input" 
@@ -53,14 +53,14 @@
             <div class="form-group">
                 <label for="password" class="form-label">
                     <i class="fas fa-lock me-2"></i>
-                    Contraseña
+                    Contraseï¿½a
                 </label>
                 <InputText type="password" 
                           @bind-Value="Input.Password" 
                           class="form-control modern-input" 
                           autocomplete="current-password" 
                           aria-required="true" 
-                          placeholder="••••••••" 
+                          placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" 
                           id="password" />
                 <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
             </div>
@@ -78,12 +78,12 @@
                 @if (isLoading)
                 {
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Iniciando sesión...</span>
+                    <span>Iniciando sesiï¿½n...</span>
                 }
                 else
                 {
                     <i class="fas fa-sign-in-alt me-2"></i>
-                    <span>Iniciar Sesión</span>
+                    <span>Iniciar Sesiï¿½n</span>
                 }
             </button>
         </EditForm>
@@ -124,19 +124,19 @@
             <p class="text-center mb-2">
                 <a href="Account/ForgotPassword" class="link-secondary">
                     <i class="fas fa-question-circle me-1"></i>
-                    ¿Olvidaste tu contraseña?
+                    ï¿½Olvidaste tu contraseï¿½a?
                 </a>
             </p>
             <p class="text-center mb-2">
-                <span class="text-muted">¿No tienes una cuenta?</span>
+                <span class="text-muted">ï¿½No tienes una cuenta?</span>
                 <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="link-primary fw-bold ms-1">
-                    Regístrate aquí
+                    Regï¿½strate aquï¿½
                 </a>
             </p>
             <p class="text-center mb-0">
                 <a href="Account/ResendEmailConfirmation" class="link-secondary small">
                     <i class="fas fa-envelope me-1"></i>
-                    Reenviar confirmación de email
+                    Reenviar confirmaciï¿½n de email
                 </a>
             </p>
         </div>
@@ -182,7 +182,7 @@
             
             if (result.Succeeded)
             {
-                Logger.LogInformation("Usuario inició sesión correctamente: {Email}", Input.Email);
+                Logger.LogInformation("Usuario iniciï¿½ sesiï¿½n correctamente: {Email}", Input.Email);
                 RedirectManager.RedirectTo(ReturnUrl);
             }
             else if (result.RequiresTwoFactor)
@@ -198,13 +198,13 @@
             }
             else
             {
-                errorMessage = "Credenciales inválidas. Por favor, verifica tu email y contraseña.";
+                errorMessage = "Credenciales invï¿½lidas. Por favor, verifica tu email y contraseï¿½a.";
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error durante el inicio de sesión");
-            errorMessage = "Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.";
+            Logger.LogError(ex, "Error durante el inicio de sesiï¿½n");
+            errorMessage = "Ocurriï¿½ un error durante el inicio de sesiï¿½n. Por favor, intï¿½ntalo de nuevo.";
         }
         finally
         {
@@ -214,17 +214,17 @@
 
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "El correo electrónico es requerido")]
-        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
-        [Display(Name = "Correo Electrónico")]
+        [Required(ErrorMessage = "El correo electrï¿½nico es requerido")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrï¿½nico no es vï¿½lido")]
+        [Display(Name = "Correo Electrï¿½nico")]
         public string Email { get; set; } = "";
 
-        [Required(ErrorMessage = "La contraseña es requerida")]
+        [Required(ErrorMessage = "La contraseï¿½a es requerida")]
         [DataType(DataType.Password)]
-        [Display(Name = "Contraseña")]
+        [Display(Name = "Contraseï¿½a")]
         public string Password { get; set; } = "";
 
-        [Display(Name = "¿Recordarme?")]
+        [Display(Name = "ï¿½Recordarme?")]
         public bool RememberMe { get; set; }
     }
 }

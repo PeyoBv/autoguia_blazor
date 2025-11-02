@@ -15,42 +15,106 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Registrarse - Rodavia</PageTitle>
 
-<h1>Register</h1>
+<div class="register-container">
+    <div class="register-card">
+        <!-- Header -->
+        <div class="register-header">
+            <div class="logo-container">
+                <i class="fas fa-user-plus fa-3x"></i>
+            </div>
+            <h1>Rodavia</h1>
+            <p class="subtitle">Crea tu cuenta ahora</p>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
-            <h2>Create a new account.</h2>
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
+        <!-- Status Message -->
+        <div class="register-form">
+            @if (!string.IsNullOrEmpty(Message))
+            {
+                <div class="alert alert-danger alert-modern" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Error:</strong> @Message
+                </div>
+            }
+
+            <!-- Register Form -->
+            <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope me-2"></i>
+                        Correo Electrónico
+                    </label>
+                    <InputText @bind-Value="Input.Email" 
+                              class="form-control modern-input" 
+                              autocomplete="username" 
+                              aria-required="true" 
+                              placeholder="tu@email.com" 
+                              id="email" />
+                    <ValidationMessage For="() => Input.Email" class="text-danger small mt-1" />
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>
+                        Contraseña
+                    </label>
+                    <InputText type="password" 
+                              @bind-Value="Input.Password" 
+                              class="form-control modern-input" 
+                              autocomplete="new-password" 
+                              aria-required="true" 
+                              placeholder="Mínimo 6 caracteres" 
+                              id="password" />
+                    <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-group">
+                    <label for="confirm-password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>
+                        Confirmar Contraseña
+                    </label>
+                    <InputText type="password" 
+                              @bind-Value="Input.ConfirmPassword" 
+                              class="form-control modern-input" 
+                              autocomplete="new-password" 
+                              aria-required="true" 
+                              placeholder="Repite tu contraseña" 
+                              id="confirm-password" />
+                    <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger small mt-1" />
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-register">
+                    <i class="fas fa-user-check me-2"></i>
+                    Registrarse
+                </button>
+                
+                <AntiforgeryToken />
+            </EditForm>
+
+            <!-- External Login Section -->
+            <div class="external-login-section">
+                <div class="separator">
+                    O regístrate con
+                </div>
+                <ExternalLoginPicker />
             </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="password">Password</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
+
+            <!-- Login Link -->
+            <div class="register-footer">
+                ¿Ya tienes cuenta? 
+                <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))">
+                    Inicia sesión aquí
+                </a>
             </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="confirm-password">Confirm Password</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </EditForm>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
+        </div>
     </div>
 </div>
 
@@ -63,7 +127,7 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
-    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+    private string? Message => identityErrors is null ? null : $"{string.Join(", ", identityErrors.Select(error => error.Description))}";
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -80,7 +144,7 @@
             return;
         }
 
-        Logger.LogInformation("User created a new account with password.");
+        Logger.LogInformation("Usuario creó una nueva cuenta con contraseña.");
 
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -110,8 +174,8 @@
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+            throw new InvalidOperationException($"No se puede crear una instancia de '{nameof(ApplicationUser)}'. " +
+                $"Asegúrate de que '{nameof(ApplicationUser)}' no es una clase abstracta y tiene un constructor sin parámetros.");
         }
     }
 
@@ -119,27 +183,28 @@
     {
         if (!UserManager.SupportsUserEmail)
         {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
+            throw new NotSupportedException("La UI predeterminada requiere un almacén de usuarios con soporte de correo.");
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
     }
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "El correo electrónico es requerido.")]
+        [EmailAddress(ErrorMessage = "Por favor ingresa un correo electrónico válido.")]
+        [Display(Name = "Correo Electrónico")]
         public string Email { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "La contraseña es requerida.")]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y un máximo de {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Contraseña")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Confirmar contraseña")]
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmPassword { get; set; } = "";
     }
 }
+
