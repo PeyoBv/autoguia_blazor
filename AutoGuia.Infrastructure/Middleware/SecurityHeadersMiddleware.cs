@@ -32,7 +32,7 @@ public class SecurityHeadersMiddleware
             "connect-src 'self' https://api.autoguia.cl; " +
             "frame-ancestors 'self'; " +
             "base-uri 'self'; " +
-            "form-action 'self'; " +
+            "form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl; " +
             "upgrade-insecure-requests;");
 
         // X-Content-Type-Options - Previene MIME sniffing

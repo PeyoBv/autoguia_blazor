@@ -691,10 +691,28 @@ Para contribuir al proyecto:
 
 El proyecto incluye documentación técnica detallada en la carpeta `Documentation/`:
 
-- **[AUTENTICACION.md](./Documentation/AUTENTICACION.md)** - Sistema de autenticación completo con Google OAuth2 y ASP.NET Identity
-- **[SUSCRIPCIONES.md](./Documentation/SUSCRIPCIONES.md)** - Sistema de planes y suscripciones con DTOs y validaciones
+### Configuración e Instalación
 - **[INSTALACION_Y_CONFIGURACION.md](./Documentation/INSTALACION_Y_CONFIGURACION.md)** - Guía completa de instalación y configuración local
+- **[GOOGLE_MAPS_SETUP.md](./Documentation/GOOGLE_MAPS_SETUP.md)** - Configuración de Google Maps API
+- **[GOOGLE-OAUTH-SETUP.md](./Documentation/GOOGLE-OAUTH-SETUP.md)** - Configuración de autenticación con Google OAuth2
+- **[EMAIL-SERVICE-SETUP.md](./Documentation/EMAIL-SERVICE-SETUP.md)** - Configuración del servicio de email
+- **[TRANSBANK-SETUP.md](./Documentation/TRANSBANK-SETUP.md)** - Configuración de Transbank para pagos
+
+### Arquitectura y Desarrollo
+- **[AUTENTICACION.md](./Documentation/AUTENTICACION.md)** - Sistema de autenticación completo con ASP.NET Identity
+- **[SUSCRIPCIONES.md](./Documentation/SUSCRIPCIONES.md)** - Sistema de planes y suscripciones
+- **[CHAT-ASISTENTE-IMPLEMENTACION.md](./Documentation/CHAT-ASISTENTE-IMPLEMENTACION.md)** - Implementación del asistente virtual
+
+### Deployment y Diagnóstico
 - **[DEPLOYMENT_AZURE.md](./Documentation/DEPLOYMENT_AZURE.md)** - Guía de deployment a Azure con scripts automatizados
+- **[TRANSBANK-TESTING-GUIDE.md](./Documentation/TRANSBANK-TESTING-GUIDE.md)** - Guía de testing de Transbank
+- **[DIAGNOSTICO-API.md](./Documentation/DIAGNOSTICO-API.md)** - Diagnóstico de APIs
+- **[DIAGNOSTICO-ARQUITECTURA.md](./Documentation/DIAGNOSTICO-ARQUITECTURA.md)** - Análisis de arquitectura
+- **[DIAGNOSTICO-GUIA-USUARIO.md](./Documentation/DIAGNOSTICO-GUIA-USUARIO.md)** - Guía de diagnóstico para usuarios
+
+### Estrategias Operacionales
+- **[BACKUP-STRATEGY.md](./BACKUP-STRATEGY.md)** - Estrategia de respaldo y recuperación
+- **[REFACTORING-GUIDE.md](./REFACTORING-GUIDE.md)** - Guía de refactorización del código
 
 ## 🗺️ Roadmap
 

@@ -1,0 +1,153 @@
+<footer class="footer bg-dark text-white mt-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Quiénes Somos -->
+            <div class="col-lg-4">
+                <h5 class="text-warning mb-3">
+                    <i class="fas fa-car me-2"></i>Quiénes Somos
+                </h5>
+                <p class="text-light">
+                    <strong>AutoGuía</strong> es la plataforma líder en Chile y Latinoamérica para el sector automotriz. 
+                    Conectamos a conductores con talleres certificados, ofrecemos herramientas de diagnóstico con IA 
+                    y fomentamos una comunidad activa de entusiastas del motor.
+                </p>
+                <p class="text-light mb-0">
+                    <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                    Santiago, Chile 🇨🇱
+                </p>
+            </div>
+
+            <!-- Misión -->
+            <div class="col-lg-4">
+                <h5 class="text-warning mb-3">
+                    <i class="fas fa-bullseye me-2"></i>Misión
+                </h5>
+                <p class="text-light">
+                    Democratizar el acceso a servicios automotrices de calidad mediante tecnología innovadora, 
+                    proporcionando información transparente, comparación de precios en tiempo real y conectando 
+                    a la comunidad automotriz con los mejores profesionales del sector.
+                </p>
+            </div>
+
+            <!-- Visión -->
+            <div class="col-lg-4">
+                <h5 class="text-warning mb-3">
+                    <i class="fas fa-eye me-2"></i>Visión
+                </h5>
+                <p class="text-light">
+                    Ser la plataforma de referencia en Latinoamérica para el cuidado y mantenimiento vehicular, 
+                    integrando inteligencia artificial, IoT y blockchain para crear un ecosistema automotriz 
+                    digital, confiable y accesible para todos.
+                </p>
+            </div>
+        </div>
+
+        <hr class="my-4 border-secondary" />
+
+        <!-- Tecnologías y Redes Sociales -->
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h6 class="text-warning mb-3">
+                    <i class="fas fa-code me-2"></i>Tecnologías
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary">.NET 8</span>
+                    <span class="badge bg-primary">Blazor</span>
+                    <span class="badge bg-info">PostgreSQL</span>
+                    <span class="badge bg-success">Entity Framework</span>
+                    <span class="badge bg-warning text-dark">Bootstrap 5</span>
+                    <span class="badge bg-danger">Docker</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <h6 class="text-warning mb-3">
+                    <i class="fas fa-share-alt me-2"></i>Conecta Conmigo
+                </h6>
+                <div class="social-links d-flex justify-content-md-end gap-3">
+                    <a href="https://github.com/PeyoBv" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-outline-light btn-sm" title="GitHub">
+                        <i class="fab fa-github fa-lg me-2"></i>GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/pedro-barrientos-vera/" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-outline-info btn-sm" title="LinkedIn">
+                        <i class="fab fa-linkedin fa-lg me-2"></i>LinkedIn
+                    </a>
+                    <a href="mailto:barrientos.pedro86@gmail.com" 
+                       class="btn btn-outline-warning btn-sm" title="Email">
+                        <i class="fas fa-envelope fa-lg me-2"></i>Contacto
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4 border-secondary" />
+
+        <!-- Copyright y Links -->
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-light">
+                    &copy; @DateTime.Now.Year <strong>AutoGuía</strong>. Todos los derechos reservados.
+                </p>
+                <small class="text-muted">
+                    Desarrollado con <i class="fas fa-heart text-danger"></i> por Pedro Barrientos
+                </small>
+            </div>
+            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                <div class="footer-links">
+                    <a href="/terminos" class="text-light text-decoration-none me-3 hover-warning">
+                        <i class="fas fa-file-contract me-1"></i>Términos
+                    </a>
+                    <a href="/privacidad" class="text-light text-decoration-none me-3 hover-warning">
+                        <i class="fas fa-shield-alt me-1"></i>Privacidad
+                    </a>
+                    <a href="/foro" class="text-light text-decoration-none hover-warning">
+                        <i class="fas fa-question-circle me-1"></i>Ayuda
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .footer {
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    }
+
+    .social-links a {
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+
+    .social-links a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-outline-light:hover {
+        background-color: #333;
+        border-color: #fff;
+    }
+
+    .btn-outline-info:hover {
+        background-color: #0dcaf0;
+        color: #000;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .hover-warning:hover {
+        color: #ffc107 !important;
+        text-decoration: underline !important;
+    }
+
+    .footer .badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+</style>

@@ -17,23 +17,17 @@ public class ComparadorServiceWithScrapers : IComparadorService
     private readonly AutoGuiaDbContext _context;
     private readonly ILogger<ComparadorServiceWithScrapers> _logger;
     private readonly ConsumiblesScraperService? _mercadoLibreScraper;
-    private readonly AutoplanetConsumiblesScraperService? _autoplanetScraper;
-    private readonly MundoRepuestosConsumiblesScraperService? _mundoRepuestosScraper;
 
     public ComparadorServiceWithScrapers(
         ComparadorService baseService,
         AutoGuiaDbContext context,
         ILogger<ComparadorServiceWithScrapers> logger,
-        ConsumiblesScraperService? mercadoLibreScraper = null,
-        AutoplanetConsumiblesScraperService? autoplanetScraper = null,
-        MundoRepuestosConsumiblesScraperService? mundoRepuestosScraper = null)
+        ConsumiblesScraperService? mercadoLibreScraper = null)
     {
         _baseService = baseService;
         _context = context;
         _logger = logger;
         _mercadoLibreScraper = mercadoLibreScraper;
-        _autoplanetScraper = autoplanetScraper;
-        _mundoRepuestosScraper = mundoRepuestosScraper;
     }
 
     /// <summary>
@@ -50,7 +44,7 @@ public class ComparadorServiceWithScrapers : IComparadorService
         {
             var tareas = new List<Task<List<OfertaDto>>>();
 
-            // Scraper 1: MercadoLibre
+            // Scraper: MercadoLibre (único activo)
             if (_mercadoLibreScraper != null)
             {
                 tareas.Add(Task.Run(async () =>
@@ -65,46 +59,6 @@ public class ComparadorServiceWithScrapers : IComparadorService
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, "⚠️ Error en MercadoLibre");
-                        return new List<OfertaDto>();
-                    }
-                }));
-            }
-
-            // Scraper 2: Autoplanet
-            if (_autoplanetScraper != null)
-            {
-                tareas.Add(Task.Run(async () =>
-                {
-                    try
-                    {
-                        _logger.LogInformation("⏳ Buscando en Autoplanet...");
-                        var ofertas = await _autoplanetScraper.BuscarConsumiblesAsync(termino, categoria);
-                        _logger.LogInformation("✅ Autoplanet: {Count} ofertas", ofertas.Count);
-                        return ofertas;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "⚠️ Error en Autoplanet");
-                        return new List<OfertaDto>();
-                    }
-                }));
-            }
-
-            // Scraper 3: MundoRepuestos
-            if (_mundoRepuestosScraper != null)
-            {
-                tareas.Add(Task.Run(async () =>
-                {
-                    try
-                    {
-                        _logger.LogInformation("⏳ Buscando en MundoRepuestos...");
-                        var ofertas = await _mundoRepuestosScraper.BuscarConsumiblesAsync(termino, categoria);
-                        _logger.LogInformation("✅ MundoRepuestos: {Count} ofertas", ofertas.Count);
-                        return ofertas;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "⚠️ Error en MundoRepuestos");
                         return new List<OfertaDto>();
                     }
                 }));

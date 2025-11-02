@@ -60,14 +60,14 @@
             <div class="card h-100 text-center border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-warning bg-gradient text-white rounded-3 mb-3 d-inline-flex align-items-center justify-content-center">
-                        <i class="fas fa-search-dollar fa-2x"></i>
+                        <i class="fas fa-shopping-cart fa-2x"></i>
                     </div>
-                    <h3 class="card-title h4">Comparador de Precios</h3>
+                    <h3 class="card-title h4">Catálogo de Productos</h3>
                     <p class="card-text">
-                        Encuentra los mejores precios de repuestos automotrices. 
-                        Compara ofertas de múltiples tiendas en un solo lugar.
+                        Explora productos automotrices de calidad. 
+                        Encuentra repuestos, accesorios y consumibles para tu vehículo.
                     </p>
-                    <a href="/productos" class="btn btn-warning">Comparar Precios</a>
+                    <a href="/consumibles" class="btn btn-warning">Ver Productos</a>
                 </div>
             </div>
         </div>
@@ -138,5 +138,34 @@
     
     .fa-10x {
         font-size: 8em;
+    }
+    
+    .car-animation {
+        animation: float 3s ease-in-out infinite;
+        position: relative;
+    }
+    
+    .car-svg {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+    }
+    
+    .car-label {
+        margin-top: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
     }
 </style>

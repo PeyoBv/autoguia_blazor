@@ -76,6 +76,49 @@ public class Suscripcion
     /// </summary>
     public bool RenovacionAutomatica { get; set; } = false;
 
+    // ==================== CAMPOS DE INTEGRACIÓN DE PAGOS ====================
+
+    /// <summary>
+    /// Proveedor de pagos utilizado (ej: "Transbank", "MercadoPago", "Stripe")
+    /// </summary>
+    [StringLength(50)]
+    public string? PaymentProvider { get; set; }
+
+    /// <summary>
+    /// ID del cliente en el proveedor de pagos (customer_id)
+    /// </summary>
+    [StringLength(200)]
+    public string? PaymentCustomerId { get; set; }
+
+    /// <summary>
+    /// Token del método de pago asociado (tbk_token, payment_method_id)
+    /// </summary>
+    [StringLength(200)]
+    public string? PaymentMethodToken { get; set; }
+
+    /// <summary>
+    /// ID de la suscripción en el proveedor de pagos (para pagos recurrentes)
+    /// </summary>
+    [StringLength(200)]
+    public string? PaymentSubscriptionId { get; set; }
+
+    /// <summary>
+    /// Estado del último pago realizado (ej: "Approved", "Rejected", "Pending")
+    /// </summary>
+    [StringLength(50)]
+    public string? LastPaymentStatus { get; set; }
+
+    /// <summary>
+    /// ID de la última transacción procesada (AuthorizationCode de Transbank)
+    /// </summary>
+    [StringLength(200)]
+    public string? LastTransactionId { get; set; }
+
+    /// <summary>
+    /// Fecha programada para el próximo cobro automático
+    /// </summary>
+    public DateTime? NextBillingDate { get; set; }
+
     /// <summary>
     /// Fecha en que se canceló la suscripción (si aplica)
     /// </summary>

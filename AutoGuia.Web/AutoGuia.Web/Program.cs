@@ -55,6 +55,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+// ✅ Configurar API Controllers con JSON case-insensitive para Transbank
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
@@ -191,6 +198,14 @@ builder.Services.AddScoped<IHtmlSanitizationService, HtmlSanitizationService>();
 // 💳 Servicio de gestión de suscripciones
 builder.Services.AddScoped<ISuscripcionService, SuscripcionService>();
 
+// 💰 Servicios de Pagos con Transbank
+builder.Services.AddHttpClient(); // Requerido para TransbankGateway
+builder.Services.AddScoped<AutoGuia.Infrastructure.Services.Payments.ITransbankGateway, AutoGuia.Web.Services.Payments.TransbankGateway>();
+builder.Services.AddScoped<AutoGuia.Infrastructure.Services.Payments.ISubscriptionBillingService, AutoGuia.Web.Services.Payments.SubscriptionBillingService>();
+
+// 🔄 Background Service para facturación automática de suscripciones
+builder.Services.AddHostedService<AutoGuia.Web.Services.SubscriptionBillingBackgroundService>();
+
 // 🤖 Servicio de diagnóstico con IA de Gemini
 builder.Services.AddScoped<IGeminiService, GeminiService>();
 
@@ -210,9 +225,9 @@ builder.Services.AddScoped<ComparadorService>();
 builder.Services.AddScoped<IComparadorService, AutoGuia.Web.Services.ComparadorServiceWithScrapers>();
 
 // 🛒 Servicios de Scraping de Consumibles Automotrices
-builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre
-builder.Services.AddScoped<AutoplanetConsumiblesScraperService>();    // Autoplanet
-builder.Services.AddScoped<MundoRepuestosConsumiblesScraperService>(); // MundoRepuestos
+builder.Services.AddScoped<ConsumiblesScraperService>();              // MercadoLibre (único activo)
+// builder.Services.AddScoped<AutoplanetConsumiblesScraperService>();    // Autoplanet (deshabilitado)
+// builder.Services.AddScoped<MundoRepuestosConsumiblesScraperService>(); // MundoRepuestos (deshabilitado)
 
 // 🌐 HttpClient para scrapers de consumibles
 builder.Services.AddHttpClient("ConsumiblesScraperClient", client =>
@@ -294,6 +309,9 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+// ✅ Mapear API Controllers (para PaymentsController y otros)
+app.MapControllers();
 
 // ✅ PLAN DE ACCIÓN: Inicialización completa de base de datos
 // 1. Aplicar migraciones automáticamente
