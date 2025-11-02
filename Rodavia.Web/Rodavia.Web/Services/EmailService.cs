@@ -38,7 +38,7 @@ public class EmailService : IEmailService
         try
         {
             var htmlBody = GenerarPlantillaBienvenida(nombreUsuario, confirmationUrl);
-            return await EnviarEmailAsync(destinatario, "¡Bienvenido a AutoGuía! 🚗", htmlBody);
+            return await EnviarEmailAsync(destinatario, "¡Bienvenido a Rodavia! 🚗", htmlBody);
         }
         catch (Exception ex)
         {
@@ -117,7 +117,7 @@ public class EmailService : IEmailService
 <head>
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Bienvenido a AutoGuía</title>
+    <title>Bienvenido a Rodavia</title>
 </head>
 <body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>
     <table width='100%' cellpadding='0' cellspacing='0' style='background-color: #f4f4f4; padding: 20px;'>
@@ -128,10 +128,10 @@ public class EmailService : IEmailService
                     <tr>
                         <td style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;'>
                             <h1 style='color: white; margin: 0; font-size: 28px;'>
-                                🚗 AutoGuía
+                                🚗 Rodavia
                             </h1>
                             <p style='color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;'>
-                                Tu guía automotriz en Chile
+                                Tu plataforma automotriz en Latinoamérica
                             </p>
                         </td>
                     </tr>
