@@ -1,66 +1,10 @@
 ﻿@page "/"
 @rendermode InteractiveAuto
+@using AutoGuia.Web.Components.Shared
 
 <PageTitle>AutoGuía - Tu plataforma automotriz integral</PageTitle>
 
-<div class="hero-section bg-primary text-white py-5 mb-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">Bienvenido a AutoGuía</h1>
-                <p class="lead mb-4">
-                    Tu plataforma integral para el sector automotriz en Chile y Latinoamérica. 
-                    Encuentra talleres confiables, resuelve tus dudas en nuestra comunidad y 
-                    accede a información técnica especializada.
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="/consumibles" class="btn btn-warning btn-lg">
-                        <i class="fas fa-shopping-cart me-2"></i>
-                        Ver Productos
-                    </a>
-                    <a href="/talleres" class="btn btn-light btn-lg">
-                        <i class="fas fa-map-marker-alt me-2"></i>
-                        Buscar Talleres
-                    </a>
-                    <a href="/foro" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-comments me-2"></i>
-                        Únete al Foro
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <div class="car-animation">
-                    <svg viewBox="0 0 200 120" class="car-svg" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Cuerpo del auto -->
-                        <rect x="30" y="60" width="140" height="40" rx="10" fill="#ffffff" opacity="0.9"/>
-                        
-                        <!-- Ventanas -->
-                        <path d="M60 60 L80 40 L120 40 L140 60 Z" fill="#007bff" opacity="0.7"/>
-                        
-                        <!-- Ruedas -->
-                        <circle cx="60" cy="100" r="15" fill="#333" stroke="#ffffff" stroke-width="3"/>
-                        <circle cx="60" cy="100" r="8" fill="#666"/>
-                        <circle cx="140" cy="100" r="15" fill="#333" stroke="#ffffff" stroke-width="3"/>
-                        <circle cx="140" cy="100" r="8" fill="#666"/>
-                        
-                        <!-- Faros -->
-                        <ellipse cx="165" cy="70" rx="5" ry="8" fill="#ffeb3b"/>
-                        <ellipse cx="35" cy="70" rx="5" ry="8" fill="#ffeb3b"/>
-                        
-                        <!-- Líneas de velocidad -->
-                        <line x1="5" y1="50" x2="20" y2="50" stroke="#ffffff" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
-                        <line x1="10" y1="65" x2="25" y2="65" stroke="#ffffff" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
-                        <line x1="5" y1="80" x2="20" y2="80" stroke="#ffffff" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
-                    </svg>
-                    <div class="car-label">
-                        <i class="fas fa-tools me-2"></i>
-                        <span>Tu mecánico de confianza</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<Hero />
 
 <div class="container">
     <div class="row g-4 mb-5">

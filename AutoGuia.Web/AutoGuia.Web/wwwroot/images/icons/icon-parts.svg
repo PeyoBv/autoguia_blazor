@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .icon-primary { fill: none; stroke: #0d6efd; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-fill { fill: #0d6efd; opacity: 0.1; }
+      .icon-accent { fill: #212529; }
+    </style>
+  </defs>
+  
+  <!-- Gear/Cog -->
+  <circle class="icon-fill" cx="32" cy="32" r="16"/>
+  
+  <!-- Gear Teeth -->
+  <g class="icon-primary">
+    <!-- Top -->
+    <rect x="30" y="12" width="4" height="6" rx="1"/>
+    <!-- Top Right -->
+    <rect x="41" y="18" width="6" height="4" rx="1" transform="rotate(45 44 20)"/>
+    <!-- Right -->
+    <rect x="46" y="30" width="6" height="4" rx="1"/>
+    <!-- Bottom Right -->
+    <rect x="41" y="42" width="6" height="4" rx="1" transform="rotate(-45 44 44)"/>
+    <!-- Bottom -->
+    <rect x="30" y="46" width="4" height="6" rx="1"/>
+    <!-- Bottom Left -->
+    <rect x="17" y="42" width="6" height="4" rx="1" transform="rotate(45 20 44)"/>
+    <!-- Left -->
+    <rect x="12" y="30" width="6" height="4" rx="1"/>
+    <!-- Top Left -->
+    <rect x="17" y="18" width="6" height="4" rx="1" transform="rotate(-45 20 20)"/>
+  </g>
+  
+  <!-- Gear Outline Circle -->
+  <circle class="icon-primary" cx="32" cy="32" r="16"/>
+  
+  <!-- Center Hole -->
+  <circle class="icon-primary" cx="32" cy="32" r="6"/>
+  <circle class="icon-accent" cx="32" cy="32" r="3"/>
+  
+  <!-- Wrench Symbol (small accent) -->
+  <path class="icon-primary" d="M 46 14 L 50 10" stroke-width="2" opacity="0.7"/>
+  <circle class="icon-accent" cx="48" cy="12" r="2"/>
+</svg>

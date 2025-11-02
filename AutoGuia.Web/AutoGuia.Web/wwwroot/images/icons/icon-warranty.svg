@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .icon-primary { fill: none; stroke: #0d6efd; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-fill { fill: #0d6efd; opacity: 0.1; }
+      .icon-accent { fill: #0d6efd; }
+    </style>
+  </defs>
+  
+  <!-- Shield Background -->
+  <path class="icon-fill" d="M 32 8 L 48 14 L 48 28 Q 48 40 32 52 Q 16 40 16 28 L 16 14 Z"/>
+  
+  <!-- Shield Outline -->
+  <path class="icon-primary" d="M 32 8 L 48 14 L 48 28 Q 48 40 32 52 Q 16 40 16 28 L 16 14 Z"/>
+  
+  <!-- Checkmark -->
+  <path class="icon-primary" d="M 24 30 L 30 36 L 42 24" stroke-width="3"/>
+  
+  <!-- Star accent (warranty badge) -->
+  <circle class="icon-accent" cx="44" cy="18" r="3"/>
+</svg>
