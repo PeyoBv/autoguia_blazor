@@ -1,4 +1,7 @@
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Rodavia.Web.Components.Layout
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,11 +20,10 @@
     <link rel="stylesheet" href="css/suscripciones.css" />
     <link rel="stylesheet" href="Rodavia.Web.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
     <script>
         // Configuraci�n global para manejar errores DOM

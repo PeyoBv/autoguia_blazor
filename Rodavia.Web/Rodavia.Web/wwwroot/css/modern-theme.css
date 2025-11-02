@@ -415,7 +415,7 @@ p {
 /* ========================================
    RESPONSIVE
    ======================================== */
-@@media (max-width: 768px) {
+@media (max-width: 768px) {
     .page-header {
         padding: var(--space-md);
         margin-bottom: var(--space-md);

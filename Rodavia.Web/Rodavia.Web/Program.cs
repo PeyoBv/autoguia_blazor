@@ -22,7 +22,6 @@ using Rodavia.Infrastructure.Middleware;
 using AspNetCoreRateLimit;
 using Rodavia.Infrastructure.Repositories;
 using Rodavia.Infrastructure.Data.Seeders;
-using Rodavia.Infrastructure.Services;
 using Rodavia.Core.Interfaces;
 using Rodavia.Core.DTOs;
 using Rodavia.Core.Entities;
