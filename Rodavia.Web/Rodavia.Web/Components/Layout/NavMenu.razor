@@ -1,108 +1,403 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations
+
 @implements IDisposable
 
 @inject NavigationManager NavigationManager
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">
-            <i class="fas fa-car me-2"></i>AutoGuía
+<!-- Top Navigation Bar -->
+<div class="navbar-modern">
+    <div class="container-fluid navbar-container">
+        <!-- Logo -->
+        <a class="navbar-brand-modern" href="">
+            <i class="fas fa-car-side me-2"></i>
+            <span class="brand-text">Rodavia</span>
         </a>
+
+        <!-- Mobile Toggle -->
+        <input type="checkbox" id="nav-toggle" title="Navigation menu" class="navbar-toggle-checkbox" />
+        <label for="nav-toggle" class="navbar-toggle-label">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+
+        <!-- Navigation Menu -->
+        <div class="nav-menu-modern" onclick="document.querySelector('.navbar-toggle-checkbox').checked = false;">
+            <nav class="nav-list">
+                <!-- Primary Navigation -->
+                <div class="nav-section">
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="" Match="NavLinkMatch.All">
+                            <i class="fas fa-home nav-icon"></i>
+                            <span class="nav-text">Inicio</span>
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="talleres">
+                            <i class="fas fa-map-location-dot nav-icon"></i>
+                            <span class="nav-text">Talleres</span>
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="consumibles">
+                            <i class="fas fa-shopping-bag nav-icon"></i>
+                            <span class="nav-text">Productos</span>
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="foro">
+                            <i class="fas fa-comments nav-icon"></i>
+                            <span class="nav-text">Comunidad</span>
+                        </NavLink>
+                    </div>
+                </div>
+
+                <!-- Secondary Features -->
+                <div class="nav-divider"></div>
+                <div class="nav-section">
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="diagnostico-asistente">
+                            <i class="fas fa-brain nav-icon"></i>
+                            <span class="nav-text">DiagnÃ³stico IA</span>
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="consulta-vehiculo">
+                            <i class="fas fa-magnifying-glass-chart nav-icon"></i>
+                            <span class="nav-text">Consulta VehÃ­culo</span>
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item">
+                        <NavLink class="nav-link-modern" href="suscripciones">
+                            <i class="fas fa-crown nav-icon"></i>
+                            <span class="nav-text">Planes Premium</span>
+                        </NavLink>
+                    </div>
+                </div>
+
+                <!-- Admin Section -->
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <div class="nav-divider"></div>
+                        <div class="nav-section">
+                            <div class="nav-item">
+                                <NavLink class="nav-link-modern nav-admin" href="admin/gestion-talleres">
+                                    <i class="fas fa-sliders nav-icon"></i>
+                                    <span class="nav-text">Panel Admin</span>
+                                </NavLink>
+                            </div>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+
+                <!-- User Section -->
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="nav-divider"></div>
+                        <div class="nav-section">
+                            <div class="nav-item">
+                                <NavLink class="nav-link-modern" href="perfil">
+                                    <i class="fas fa-user-circle nav-icon"></i>
+                                    <span class="nav-text">Mi Perfil</span>
+                                </NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <NavLink class="nav-link-modern" href="Account/Manage">
+                                    <i class="fas fa-gear nav-icon"></i>
+                                    <span class="nav-text">@context.User.Identity?.Name</span>
+                                </NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <form action="Account/Logout" method="post" style="width: 100%;">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                    <button type="submit" class="nav-link-modern nav-logout">
+                                        <i class="fas fa-arrow-right-from-bracket nav-icon"></i>
+                                        <span class="nav-text">Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="nav-divider"></div>
+                        <div class="nav-section">
+                            <div class="nav-item">
+                                <NavLink class="nav-link-modern nav-auth" href="Account/Register">
+                                    <i class="fas fa-user-plus nav-icon"></i>
+                                    <span class="nav-text">Registrarse</span>
+                                </NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <NavLink class="nav-link-modern nav-login" href="Account/Login">
+                                    <i class="fas fa-sign-in-alt nav-icon"></i>
+                                    <span class="nav-text">Iniciar SesiÃ³n</span>
+                                </NavLink>
+                            </div>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </nav>
+        </div>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<style>
+    /* Modern Navbar Styles */
+    .navbar-modern {
+        background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="fas fa-home" aria-hidden="true"></span> Inicio
-            </NavLink>
-        </div>
+    .navbar-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: auto;
+        padding: 0.75rem 0;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="talleres">
-                <span class="fas fa-map-marker-alt" aria-hidden="true"></span> Talleres
-            </NavLink>
-        </div>
+    /* Logo Styling */
+    .navbar-brand-modern {
+        display: flex;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="consumibles">
-                <span class="fas fa-shopping-cart" aria-hidden="true"></span> Productos
-            </NavLink>
-        </div>
+    .navbar-brand-modern:hover {
+        color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="foro">
-                <span class="fas fa-comments" aria-hidden="true"></span> Foro
-            </NavLink>
-        </div>
+    .brand-text {
+        letter-spacing: 0.5px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="diagnostico-asistente">
-                <span class="fas fa-stethoscope" aria-hidden="true"></span> ?? Diagnóstico IA
-            </NavLink>
-        </div>
+    /* Mobile Toggle */
+    .navbar-toggle-checkbox {
+        display: none;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="consulta-vehiculo">
-                <span class="fas fa-search" aria-hidden="true"></span> Consulta Vehículo
-            </NavLink>
-        </div>
+    .navbar-toggle-label {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="suscripciones">
-                <span class="fas fa-crown" aria-hidden="true"></span> ?? Planes Premium
-            </NavLink>
-        </div>
+    .navbar-toggle-label:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-        <AuthorizeView Roles="Admin">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="admin/gestion-talleres">
-                        <span class="fas fa-tools" aria-hidden="true"></span> Panel Admin
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
+    .navbar-toggle-label span {
+        width: 25px;
+        height: 3px;
+        background-color: #ffffff;
+        margin: 5px 0;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
 
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="perfil">
-                        <span class="fas fa-user-circle" aria-hidden="true"></span> Mi Perfil
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
-                    </form>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
-</div>
+    /* Navigation Menu */
+    .nav-menu-modern {
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
+
+    .nav-list {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Navigation Sections */
+    .nav-section {
+        display: flex;
+        flex-direction: row;
+        gap: 0;
+        align-items: center;
+    }
+
+    .nav-divider {
+        height: 24px;
+        width: 1px;
+        background-color: rgba(255, 255, 255, 0.2);
+        margin: 0 0.5rem;
+    }
+
+    /* Navigation Items */
+    .nav-item {
+        position: relative;
+    }
+
+    .nav-link-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        margin: 2px;
+        white-space: nowrap;
+    }
+
+    .nav-link-modern:hover {
+        color: #ffffff;
+        background-color: rgba(0, 123, 255, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .nav-link-modern.active {
+        color: #ffffff;
+        background-color: rgba(0, 123, 255, 0.25);
+        border-left: 3px solid #007bff;
+    }
+
+    /* Icon Styling */
+    .nav-icon {
+        font-size: 1.1rem;
+        min-width: 1.2rem;
+    }
+
+    .nav-text {
+        transition: all 0.3s ease;
+    }
+
+    /* Special Link Styles */
+    .nav-logout {
+        color: rgba(255, 107, 107, 0.8);
+    }
+
+    .nav-logout:hover {
+        color: #ffffff;
+        background-color: rgba(220, 53, 69, 0.15);
+    }
+
+    .nav-login {
+        background-color: rgba(0, 123, 255, 0.2);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .nav-login:hover {
+        background-color: rgba(0, 123, 255, 0.3);
+    }
+
+    .nav-auth {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: rgba(40, 167, 69, 1);
+    }
+
+    .nav-auth:hover {
+        background-color: rgba(40, 167, 69, 0.25);
+        color: #ffffff;
+    }
+
+    .nav-admin {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: rgba(255, 193, 7, 0.9);
+    }
+
+    .nav-admin:hover {
+        background-color: rgba(255, 193, 7, 0.25);
+        color: #ffffff;
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 768px) {
+        .navbar-toggle-label {
+            display: flex;
+        }
+
+        .nav-menu-modern {
+            position: fixed;
+            left: -100%;
+            top: 60px;
+            flex-direction: column;
+            background-color: #1a1f3a;
+            width: 100%;
+            text-align: left;
+            transition: 0.3s;
+            box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .navbar-toggle-checkbox:checked ~ .nav-menu-modern {
+            left: 0;
+        }
+
+        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        .nav-list {
+            flex-direction: column;
+            width: 100%;
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+        }
+
+        .nav-divider {
+            width: calc(100% - 2rem);
+            height: 1px;
+            margin: 0.75rem 1rem;
+        }
+
+        .nav-link-modern {
+            width: 100%;
+            margin: 0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0;
+            gap: 1rem;
+        }
+
+        .nav-link-modern.active {
+            border-left: 4px solid #007bff;
+        }
+    }
+</style>
 
 @code {
     private string? currentUrl;
