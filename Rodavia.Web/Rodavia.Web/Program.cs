@@ -102,30 +102,32 @@ builder.Services.AddAntiforgery(options =>
 var identityConnectionString = builder.Configuration.GetConnectionString("IdentityConnection") ?? 
     builder.Configuration.GetConnectionString("DefaultConnection") ?? 
     throw new InvalidOperationException("Connection string 'DefaultConnection' o 'IdentityConnection' not found.");
-var autoGuiaConnectionString = builder.Configuration.GetConnectionString("AutoGuiaConnection") ?? identityConnectionString;
+var rodaviaConnectionString = builder.Configuration.GetConnectionString("RodaviaConnection") ?? identityConnectionString;
 
-// Configurar bases de datos separadas para Identity y AutoGuía
+// Configurar bases de datos separadas para Identity y Rodavia
 Console.WriteLine("✅ Configurando bases de datos separadas:");
 Console.WriteLine($"   Identity DB: Puerto 5434 - identity_dev");
-Console.WriteLine($"   AutoGuía DB: Puerto 5433 - autoguia_dev");
+Console.WriteLine($"   Rodavia DB: Puerto 5433 - rodavia_dev");
 
 // ✅ Configurar Npgsql para soportar tipos JSONB dinámicos (arrays, objetos)
 var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(identityConnectionString);
 dataSourceBuilder.EnableDynamicJson();
 var identityDataSource = dataSourceBuilder.Build();
 
-            var rodaviaDataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(autoGuiaConnectionString);
-            rodaviaDataSourceBuilder.EnableDynamicJson();
-            var rodaviaDataSource = rodaviaDataSourceBuilder.Build();// Identity en base de datos dedicada con pooling
+var rodaviaDataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(rodaviaConnectionString);
+rodaviaDataSourceBuilder.EnableDynamicJson();
+var rodaviaDataSource = rodaviaDataSourceBuilder.Build();
+
+// Identity en base de datos dedicada con pooling
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(identityDataSource);
 }, poolSize: 128); // Pool size optimizado para Identity (autenticación concurrente)
 
-// AutoGuía en base de datos separada con pooling optimizado
+// Rodavia en base de datos separada con pooling optimizado
 builder.Services.AddDbContextPool<RodaviaDbContext>(options =>
 {
-    options.UseNpgsql(autoguiaDataSource);
+    options.UseNpgsql(rodaviaDataSource);
     // Configuraciones adicionales para producción
     if (!builder.Environment.IsDevelopment())
     {
