@@ -1,4 +1,4 @@
-# AutoGuía Scraper - Dockerfile para worker de scraping
+# Rodavia Scraper - Dockerfile para worker de scraping
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
 WORKDIR /app
 
@@ -12,22 +12,22 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copiar archivos de proyecto y restaurar dependencias
-COPY ["AutoGuia.Scraper/AutoGuia.Scraper.csproj", "AutoGuia.Scraper/"]
-COPY ["AutoGuia.Infrastructure/AutoGuia.Infrastructure.csproj", "AutoGuia.Infrastructure/"]
-COPY ["AutoGuia.Core/AutoGuia.Core.csproj", "AutoGuia.Core/"]
+COPY ["Rodavia.Scraper/Rodavia.Scraper.csproj", "Rodavia.Scraper/"]
+COPY ["Rodavia.Infrastructure/Rodavia.Infrastructure.csproj", "Rodavia.Infrastructure/"]
+COPY ["Rodavia.Core/Rodavia.Core.csproj", "Rodavia.Core/"]
 
-RUN dotnet restore "AutoGuia.Scraper/AutoGuia.Scraper.csproj"
+RUN dotnet restore "Rodavia.Scraper/Rodavia.Scraper.csproj"
 
 # Copiar código fuente
 COPY . .
-WORKDIR "/src/AutoGuia.Scraper"
+WORKDIR "/src/Rodavia.Scraper"
 
 # Build de la aplicación
-RUN dotnet build "AutoGuia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Rodavia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "AutoGuia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Rodavia.Scraper.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
@@ -36,8 +36,8 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Labels para metadatos
-LABEL maintainer="AutoGuia Team" \
-      version="1.0.0" \
-      description="AutoGuía Scraper - Worker de obtención de datos"
+LABEL maintainer="Rodavia Team" \
+      version="1.0" \
+      description="Rodavia Scraper - Worker de obtención de datos"
 
-ENTRYPOINT ["dotnet", "AutoGuia.Scraper.dll"]
+ENTRYPOINT ["dotnet", "Rodavia.Scraper.dll"]

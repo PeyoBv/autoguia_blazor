@@ -78,20 +78,20 @@ graph TB
 
 ### Componentes Principales
 
-1. **Entidades Core** (`AutoGuia.Core`)
+1. **Entidades Core** (`Rodavia.Core`)
    - `Plan`: Define tipos de membresía
    - `Suscripcion`: Registra suscripciones activas/históricas
    - `ApplicationUser`: Usuario con referencia a suscripción
 
-2. **DTOs** (`AutoGuia.Web/DTOs`)
+2. **DTOs** (`Rodavia.Web/DTOs`)
    - `PlanDto`: Transferencia de datos de planes con propiedades calculadas
    - `SuscripcionDto`: Transferencia con lógica de negocio (vigencia, límites)
 
-3. **Servicios** (`AutoGuia.Web/Services`)
+3. **Servicios** (`Rodavia.Web/Services`)
    - `ISuscripcionService`: Contrato del servicio
    - `SuscripcionService`: Implementación con mapeo Entity → DTO
 
-4. **Páginas Blazor** (`AutoGuia.Web/Components/Pages`)
+4. **Páginas Blazor** (`Rodavia.Web/Components/Pages`)
    - `Perfil.razor`: Gestión de suscripción del usuario
    - `Suscripciones.razor`: Catálogo de planes y cambios
 

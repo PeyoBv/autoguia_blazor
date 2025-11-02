@@ -1,4 +1,4 @@
-# 🔐 Sistema de Autenticación - AutoGuía
+# 🔐 Sistema de Autenticación - Rodavia
 
 ## 📋 Descripción General
 
@@ -140,8 +140,8 @@ Authentication__Google__ClientSecret=your-client-secret
     "SmtpServer": "smtp.gmail.com",
     "SmtpPort": 587,
     "UseSsl": true,
-    "SenderName": "AutoGuía",
-    "SenderEmail": "noreply@autoguia.cl",
+    "SenderName": "Rodavia",
+    "SenderEmail": "noreply@Rodavia.cl",
     "Username": "your-email@gmail.com",
     "Password": "your-app-password"
   }
@@ -235,7 +235,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 ### Ejecutar tests:
 
 ```bash
-cd AutoGuia.Tests
+cd Rodavia.Tests
 dotnet test --filter "FullyQualifiedName~AuthenticationTests"
 ```
 
@@ -359,4 +359,4 @@ az webapp config appsettings set --resource-group <group> --name <app> --setting
 
 **Última actualización**: Octubre 2025  
 **Versión**: 1.0.0  
-**Mantenedor**: Equipo AutoGuía
+**Mantenedor**: Equipo Rodavia

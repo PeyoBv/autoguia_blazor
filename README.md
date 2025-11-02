@@ -43,7 +43,7 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 ### 🔐 Autenticación Completa - **FUNCIONAL**
 - **Sistema de registro** y login
 - **Gestión de roles** (Admin/Usuario)
-- **Usuario administrador** automático: `admin@autoguia.cl` / `Admin123!`
+- **Usuario administrador** automático: `admin@Rodavia.cl` / `Admin123!`
 - **Autorización por páginas** implementada
 
 ### 🏢 Panel de Administración - **FUNCIONAL**
@@ -53,7 +53,7 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 
 ### 🕷️ Sistema de Scraping - **COMPLETAMENTE INTEGRADO**
 - **3 Scrapers activos**: Autoplanet, MercadoLibre, MundoRepuestos
-- **Worker en segundo plano** funcional (AutoGuia.Scraper)
+- **Worker en segundo plano** funcional (Rodavia.Scraper)
 - **Integración web** con botón manual "Actualizar Precios"
 - **Scraping automático** cada 60 minutos
 - **Arquitectura modular** con patrón Strategy
@@ -93,7 +93,7 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 ### Estructura de la Solución
 ```
 AutoGuía/
-├── AutoGuia.Core/              # Dominio y entidades de negocio
+├── Rodavia.Core/              # Dominio y entidades de negocio
 │   ├── Entities/               # Entidades del modelo de datos
 │   │   ├── Usuario.cs          # Usuario del sistema
 │   │   ├── Taller.cs           # Talleres mecánicos
@@ -109,9 +109,9 @@ AutoGuía/
 │       ├── TallerDto.cs        # DTOs para talleres
 │       ├── ForoDto.cs          # DTOs para foro
 │       └── ComparadorDto.cs    # DTOs para comparación de precios
-├── AutoGuia.Infrastructure/    # Capa de datos y servicios
+├── Rodavia.Infrastructure/    # Capa de datos y servicios
 │   ├── Data/                   # DbContext y configuración EF
-│   │   └── AutoGuiaDbContext.cs
+│   │   └── RodaviaDbContext.cs
 │   └── Services/               # Implementación de servicios de negocio
 │       ├── TallerService.cs    # Gestión de talleres
 │       ├── ForoService.cs      # Gestión del foro
@@ -120,8 +120,8 @@ AutoGuía/
 │       ├── TiendaService.cs    # Gestión de tiendas
 │       ├── VehiculoService.cs  # Gestión de vehículos
 │       └── IServices.cs        # Interfaces de servicios
-└── AutoGuia.Web/              # Aplicación web Blazor
-    ├── AutoGuia.Web/          # Proyecto servidor
+└── Rodavia.Web/              # Aplicación web Blazor
+    ├── Rodavia.Web/          # Proyecto servidor
     │   ├── Components/
     │   │   ├── Layout/         # Layouts de la aplicación
     │   │   ├── Pages/          # Páginas principales
@@ -134,7 +134,7 @@ AutoGuía/
     │   │   │   └── TestServicios.razor # Página de testing
     │   │   └── Account/        # Páginas de autenticación
     │   └── Program.cs          # Configuración de la aplicación
-    └── AutoGuia.Web.Client/   # Proyecto cliente (WebAssembly)
+    └── Rodavia.Web.Client/   # Proyecto cliente (WebAssembly)
 ```
 
 ### 🏗️ Arquitectura Técnica Validada
@@ -152,11 +152,11 @@ AutoGuía/
 - **JavaScript Interop**: Integración con APIs de mapas ✅
 
 **Proyectos de la Solución:**
-1. **AutoGuia.Core** - Entidades y DTOs (✅ Funcional)
-2. **AutoGuia.Infrastructure** - Servicios y acceso a datos (✅ Funcional)
-3. **AutoGuia.Web** - Aplicación Blazor principal (✅ Funcional)
-4. **AutoGuia.Scraper** - Sistema de scraping automático (✅ Funcional)
-5. **AutoGuia.Web.Client** - Cliente WebAssembly (✅ Funcional)
+1. **Rodavia.Core** - Entidades y DTOs (✅ Funcional)
+2. **Rodavia.Infrastructure** - Servicios y acceso a datos (✅ Funcional)
+3. **Rodavia.Web** - Aplicación Blazor principal (✅ Funcional)
+4. **Rodavia.Scraper** - Sistema de scraping automático (✅ Funcional)
+5. **Rodavia.Web.Client** - Cliente WebAssembly (✅ Funcional)
 
 ### 🕷️ Sistema de Scraping - Detalles Técnicos
 
@@ -276,30 +276,30 @@ AutoGuía/
 1. **Clonar el repositorio**
    ```bash
    git clone <repository-url>
-   cd autoguia
+   cd Rodavia
    ```
 
 2. **Restaurar dependencias**
    ```bash
-   dotnet restore AutoGuia.sln
+   dotnet restore Rodavia.sln
    ```
 
 3. **Compilar la solución**
    ```bash
-   dotnet build AutoGuia.sln
+   dotnet build Rodavia.sln
    ```
 
 4. **Configurar Google Maps API** (opcional pero recomendado)
    ```bash
    # Configurar clave de API usando el administrador de secretos
-   cd AutoGuia.Web/AutoGuia.Web
+   cd Rodavia.Web/Rodavia.Web
    dotnet user-secrets set "GoogleMaps:ApiKey" "TU_CLAVE_DE_GOOGLE_MAPS"
    ```
    > Ver `GOOGLE_MAPS_SETUP.md` para instrucciones detalladas de configuración
 
 5. **Ejecutar la aplicación**
    ```bash
-   dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+   dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
    ```
 
 6. **Acceder a la aplicación** ✅
@@ -315,7 +315,7 @@ AutoGuía/
 
 ### 🔑 Credenciales de Administrador
 
-**Usuario**: `admin@autoguia.cl`  
+**Usuario**: `admin@Rodavia.cl`  
 **Contraseña**: `Admin123!`
 
 > **Nota**: El usuario administrador se crea automáticamente al iniciar la aplicación
@@ -331,7 +331,7 @@ AutoGuía/
 #### 1. **Clonar y Configurar**
 ```bash
 git clone <repository-url>
-cd autoguia
+cd Rodavia
 cp .env.example .env
 # Editar .env con tus configuraciones
 ```
@@ -358,9 +358,9 @@ cp .env.example .env
 
 ```yaml
 AutoGuía Docker Stack:
-├── autoguia-web      # Aplicación Blazor (Puerto 80/443)
-├── autoguia-scraper  # Worker de scraping
-├── autoguia-db       # PostgreSQL 15 (Puerto 5432)
+├── Rodavia-web      # Aplicación Blazor (Puerto 80/443)
+├── Rodavia-scraper  # Worker de scraping
+├── Rodavia-db       # PostgreSQL 15 (Puerto 5432)
 ├── redis             # Cache y sesiones (Puerto 6379)
 └── adminer           # Admin DB (Puerto 8081) [solo desarrollo]
 ```
@@ -411,10 +411,10 @@ docker-compose -f docker-compose.dev.yml up -d
 docker-compose up -d
 
 # Ver logs
-docker-compose logs -f autoguia-web
+docker-compose logs -f Rodavia-web
 
 # Conectar a base de datos
-docker-compose exec autoguia-db psql -U autoguia -d autoguia
+docker-compose exec Rodavia-db psql -U Rodavia -d Rodavia
 ```
 
 ### 🔧 Configuración de Variables de Entorno
@@ -459,15 +459,15 @@ Todos los servicios incluyen health checks:
 docker-compose ps
 
 # Logs específicos
-docker-compose logs -f autoguia-web
-docker-compose logs -f autoguia-scraper
+docker-compose logs -f Rodavia-web
+docker-compose logs -f Rodavia-scraper
 ```
 
 ### 📊 Volúmenes Persistentes
 
 - `postgres-data` - Datos de PostgreSQL
 - `redis-data` - Cache de Redis  
-- `autoguia-logs` - Logs de aplicación
+- `Rodavia-logs` - Logs de aplicación
 - `scraper-logs` - Logs del scraper
 
 ### 🛡️ Seguridad Docker
@@ -575,19 +575,19 @@ La aplicación incluye **52 entidades semilla** automáticamente inicializadas p
 ### Desarrollo
 ```bash
 # Compilar solución
-dotnet build AutoGuia.sln
+dotnet build Rodavia.sln
 
 # Ejecutar aplicación web
-dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
 
 # Ejecutar en modo watch (recarga automática)
-dotnet watch --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+dotnet watch --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
 
 # Limpiar compilación
-dotnet clean AutoGuia.sln
+dotnet clean Rodavia.sln
 
 # Restaurar paquetes NuGet
-dotnet restore AutoGuia.sln
+dotnet restore Rodavia.sln
 ```
 
 ### Base de Datos
@@ -605,7 +605,7 @@ dotnet restore AutoGuia.sln
 
 ### Componentes Blazor
 ```
-AutoGuia.Web/Components/
+Rodavia.Web/Components/
 ├── Layout/
 │   ├── MainLayout.razor      # Layout principal
 │   └── NavMenu.razor         # Menú de navegación actualizado
@@ -763,10 +763,10 @@ Para preguntas o sugerencias sobre el proyecto, crear un issue en el repositorio
    - Validación de patrones de diseño implementados
 
 2. **✅ Análisis de Código por Proyecto**
-   - **AutoGuia.Core**: Entidades y DTOs verificados
-   - **AutoGuia.Infrastructure**: Servicios y DbContext validados
-   - **AutoGuia.Web**: Componentes Blazor probados
-   - **AutoGuia.Scraper**: Sistema de scraping revisado
+   - **Rodavia.Core**: Entidades y DTOs verificados
+   - **Rodavia.Infrastructure**: Servicios y DbContext validados
+   - **Rodavia.Web**: Componentes Blazor probados
+   - **Rodavia.Scraper**: Sistema de scraping revisado
 
 3. **✅ Ejecución y Testing en Vivo**
    - Compilación exitosa de toda la solución

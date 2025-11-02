@@ -3,13 +3,15 @@ version: '3.8'
 
 services:
   # Solo servicios necesarios para desarrollo
-  # Base de datos principal para AutoGuía
-  autoguia-db:
+  # Rodavia - Docker Compose para desarrollo local
+      
+  # Base de datos principal para Rodavia
+  rodavia-db:
     image: postgres:15-alpine
-    container_name: autoguia-db-dev
+    container_name: rodavia-db-dev
     environment:
-      POSTGRES_DB: autoguia_dev
-      POSTGRES_USER: autoguia_dev
+      POSTGRES_DB: rodavia_dev
+      POSTGRES_USER: rodavia_dev
       POSTGRES_PASSWORD: dev123
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
@@ -17,7 +19,7 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - autoguia-dev-network
+      - rodavia-dev-network
     restart: unless-stopped
 
   # Base de datos separada para Identity
@@ -34,34 +36,34 @@ services:
     ports:
       - "5434:5432"
     networks:
-      - autoguia-dev-network
+      - rodavia-dev-network
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: autoguia-redis-dev
+    container_name: rodavia-redis-dev
     command: redis-server --appendonly yes
     volumes:
       - redis-dev-data:/data
     ports:
       - "6380:6379"
     networks:
-      - autoguia-dev-network
+      - rodavia-dev-network
     restart: unless-stopped
 
   # Adminer para desarrollo
   adminer:
     image: adminer:latest
-    container_name: autoguia-adminer-dev
+    container_name: rodavia-adminer-dev
     ports:
       - "8080:8080"
     environment:
-      ADMINER_DEFAULT_SERVER: autoguia-db
+      ADMINER_DEFAULT_SERVER: rodavia-db
     depends_on:
-      - autoguia-db
+      - rodavia-db
       - identity-db
     networks:
-      - autoguia-dev-network
+      - rodavia-dev-network
     restart: unless-stopped
 
 volumes:
@@ -73,5 +75,5 @@ volumes:
     driver: local
 
 networks:
-  autoguia-dev-network:
+  rodavia-dev-network:
     driver: bridge

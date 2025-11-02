@@ -10,7 +10,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🐳 AutoGuía Docker Development Scripts${NC}"
+# Rodavia - Scripts de desarrollo Docker
+      
+echo -e "${BLUE}🐳 Rodavia Docker Development Scripts${NC}"
 echo "========================================"
 
 # Función para mostrar ayuda
@@ -115,9 +117,9 @@ case "${1}" in
     db-reset)
         echo -e "${YELLOW}🗃️  Reseteando base de datos...${NC}"
         check_docker_compose
-        $DOCKER_COMPOSE stop autoguia-db 2>/dev/null || true
+        $DOCKER_COMPOSE stop rodavia-db 2>/dev/null || true
         docker volume rm blazorautoguia_postgres-data 2>/dev/null || true
-        $DOCKER_COMPOSE up -d autoguia-db
+        $DOCKER_COMPOSE up -d rodavia-db
         echo -e "${GREEN}✅ Base de datos reseteada${NC}"
         ;;
     
@@ -126,7 +128,15 @@ case "${1}" in
         case "$2" in
             db|database)
                 echo -e "${YELLOW}🔌 Conectando a PostgreSQL...${NC}"
-                $DOCKER_COMPOSE exec autoguia-db psql -U autoguia -d autoguia
+                                $DOCKER_COMPOSE exec rodavia-db psql -U rodavia_dev -d rodavia_dev
+                
+            fi
+            ;;
+        shell)
+            if [[ "$confirm_shell" == "yes" ]]; then
+                echo -e "${YELLOW}Abriendo bash en contenedor rodavia-web...${NC}"
+            fi
+            $DOCKER_COMPOSE exec rodavia-web /bin/bash
                 ;;
             web)
                 echo -e "${YELLOW}🔌 Conectando a contenedor web...${NC}"

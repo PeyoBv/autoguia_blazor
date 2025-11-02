@@ -81,7 +81,7 @@ Mensajes Asistente: Blanco con borde #e9ecef
 ## 📁 Archivos Creados
 
 ### 1. Componente Blazor
-**Ruta**: `AutoGuia.Web/AutoGuia.Web/Components/Shared/ChatAsistente.razor`
+**Ruta**: `Rodavia.Web/Rodavia.Web/Components/Shared/ChatAsistente.razor`
 
 **Responsabilidades**:
 - Gestión de estado del chat (abierto/cerrado)
@@ -90,7 +90,7 @@ Mensajes Asistente: Blanco con borde #e9ecef
 - Formateo de respuestas
 
 ### 2. Estilos CSS
-**Ruta**: `AutoGuia.Web/AutoGuia.Web/wwwroot/css/chat-asistente.css`
+**Ruta**: `Rodavia.Web/Rodavia.Web/wwwroot/css/chat-asistente.css`
 
 **Características**:
 - Estilos completos del chat
@@ -104,7 +104,7 @@ Mensajes Asistente: Blanco con borde #e9ecef
 
 ### MainLayout.razor
 ```razor
-@using AutoGuia.Web.Components.Shared
+@using Rodavia.Web.Components.Shared
 
 <!-- Al final del archivo -->
 <ChatAsistente />

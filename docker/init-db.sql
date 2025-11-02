@@ -1,4 +1,4 @@
--- AutoGuía - Script de inicialización de base de datos PostgreSQL
+-- Rodavia - Script de inicialización de base de datos PostgreSQL
 -- Este script se ejecuta automáticamente al crear el contenedor de base de datos
 
 -- Crear extensiones necesarias
@@ -16,7 +16,7 @@ SET lc_time = 'es_CL.UTF-8';
 -- Log de inicialización
 DO $$
 BEGIN
-    RAISE NOTICE 'AutoGuía Database initialized successfully at %', NOW();
+    RAISE NOTICE 'Rodavia Database initialized successfully at %', NOW();
     RAISE NOTICE 'Database: %', current_database();
     RAISE NOTICE 'User: %', current_user;
     RAISE NOTICE 'Version: %', version();

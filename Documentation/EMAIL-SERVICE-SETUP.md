@@ -18,7 +18,7 @@ Se ha implementado exitosamente el servicio de envío de emails con MailKit para
 
 1. **`appsettings.json`** - Configuración SMTP
 2. **`Program.cs`** - Registro de servicios
-3. **`AutoGuia.Web.csproj`** - Paquete MailKit agregado
+3. **`Rodavia.Web.csproj`** - Paquete MailKit agregado
 
 ---
 
@@ -41,7 +41,7 @@ Se ha implementado exitosamente el servicio de envío de emails con MailKit para
 
 ```bash
 # Ir al proyecto Web
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 
 # Configurar email
 dotnet user-secrets set "Smtp:Email" "tu-email@gmail.com"
@@ -63,7 +63,7 @@ dotnet user-secrets set "Smtp:Password" "abcdefghijklmnop"
 #### Paso 2: Configurar User Secrets
 
 ```bash
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 
 # Configurar SendGrid
 dotnet user-secrets set "Smtp:Host" "smtp.sendgrid.net"
@@ -75,7 +75,7 @@ dotnet user-secrets set "Smtp:Password" "TU_SENDGRID_API_KEY"
 ### Opción 3: Servidor SMTP Personalizado
 
 ```bash
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 
 dotnet user-secrets set "Smtp:Host" "smtp.tuservidor.com"
 dotnet user-secrets set "Smtp:Port" "587"
@@ -138,7 +138,7 @@ public interface IEmailService
 var exito = await EmailService.EnviarEmailBienvenidaAsync(
     "usuario@example.com",
     "Juan Pérez",
-    "https://autoguia.cl/confirmar?token=abc123"
+    "https://Rodavia.cl/confirmar?token=abc123"
 );
 
 if (exito)
@@ -238,7 +238,7 @@ Sigue los pasos de configuración SMTP (Gmail, SendGrid o personalizado)
 ### 2. Ejecutar la Aplicación
 
 ```bash
-dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
 ```
 
 ### 3. Registrar un Usuario
@@ -290,7 +290,7 @@ Smtp__FromName=AutoGuía
 
 **Solución**:
 ```bash
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 dotnet user-secrets set "Smtp:Email" "tu-email@gmail.com"
 dotnet user-secrets set "Smtp:Password" "tu-contraseña-app"
 ```

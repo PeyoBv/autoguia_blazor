@@ -1,4 +1,4 @@
--- Crear tablas principales de AutoGuía
+-- Crear tablas principales de Rodavia
 CREATE TABLE IF NOT EXISTS "Marcas" (
     "Id" SERIAL PRIMARY KEY,
     "Nombre" VARCHAR(100) NOT NULL,

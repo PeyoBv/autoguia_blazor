@@ -24,7 +24,7 @@
 
 1. **Usar el administrador de secretos** (recomendado):
    ```bash
-   cd AutoGuia.Web/AutoGuia.Web
+   cd Rodavia.Web/Rodavia.Web
    dotnet user-secrets set "GoogleMaps:ApiKey" "TU_CLAVE_REAL_AQUI"
    ```
 
@@ -58,7 +58,7 @@ En Google Cloud Console, ve a tu clave de API y configura:
 
 1. Ejecuta la aplicación:
    ```bash
-   dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+   dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
    ```
 
 2. Ve a la página de Talleres: `https://localhost:7071/talleres`

@@ -16,7 +16,7 @@ CROSS JOIN (
     FROM pg_settings 
     WHERE name = 'max_connections'
 ) s
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 GROUP BY datname, max_conn
 ORDER BY porcentaje_uso DESC;
 
@@ -35,7 +35,7 @@ SELECT
     count(*) AS total_conexiones,
     ROUND(avg(EXTRACT(EPOCH FROM (now() - state_change))), 2) AS promedio_tiempo_estado_seg
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 GROUP BY datname, state
 ORDER BY datname, total_conexiones DESC;
 
@@ -58,7 +58,7 @@ SELECT
     SUBSTRING(query, 1, 100) AS query_preview
 FROM pg_stat_activity
 WHERE 
-    datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+    datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND state = 'idle in transaction'
 ORDER BY segundos_en_estado DESC;
 
@@ -75,7 +75,7 @@ SELECT
     datname AS base_datos,
     deadlocks AS total_deadlocks
 FROM pg_stat_database
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 ORDER BY deadlocks DESC;
 
 -- 🚨 ALERTA: Si deadlocks > 0:
@@ -122,7 +122,7 @@ SELECT
 FROM pg_locks
 JOIN pg_stat_activity ON pg_locks.pid = pg_stat_activity.pid
 LEFT JOIN pg_class ON pg_locks.relation = pg_class.oid
-WHERE pg_stat_activity.datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE pg_stat_activity.datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND NOT pg_locks.granted
 ORDER BY pg_stat_activity.query_start;
 
@@ -142,7 +142,7 @@ SELECT
     state,
     ROUND(avg(EXTRACT(EPOCH FROM (now() - state_change))), 2) AS promedio_edad_seg
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 GROUP BY datname, application_name, state
 ORDER BY total_conexiones DESC;
 
@@ -188,7 +188,7 @@ SELECT
     SUBSTRING(query, 1, 150) AS query_preview
 FROM pg_stat_activity
 WHERE 
-    datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+    datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND state = 'active'
     AND EXTRACT(EPOCH FROM (now() - query_start)) > 30
 ORDER BY segundos_ejecutando DESC;
@@ -205,7 +205,7 @@ SELECT
     'CONEXIONES TOTALES' AS metrica,
     count(*)::text AS valor
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 
 UNION ALL
 
@@ -213,7 +213,7 @@ SELECT
     'CONEXIONES ACTIVAS',
     count(*)::text
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND state = 'active'
 
 UNION ALL
@@ -222,7 +222,7 @@ SELECT
     'CONEXIONES IDLE',
     count(*)::text
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND state = 'idle'
 
 UNION ALL
@@ -231,7 +231,7 @@ SELECT
     'IDLE IN TRANSACTION',
     count(*)::text
 FROM pg_stat_activity
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
     AND state = 'idle in transaction'
 
 UNION ALL
@@ -240,7 +240,7 @@ SELECT
     'DEADLOCKS TOTALES',
     sum(deadlocks)::text
 FROM pg_stat_database
-WHERE datname IN ('autoguia_dev', 'identity_dev', 'autoguia_app', 'autoguia_identity')
+WHERE datname IN ('rodavia_dev', 'identity_dev', 'rodavia_app', 'rodavia_identity')
 
 ORDER BY metrica;
 

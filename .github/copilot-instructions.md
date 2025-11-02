@@ -1,19 +1,19 @@
-# Instrucciones de GitHub Copilot para AutoGuía
+# Instrucciones de GitHub Copilot para Rodavia
 
 ## Contexto del Proyecto
 
-AutoGuía es una plataforma web integral para el sector automotriz en Chile y Latinoamérica desarrollada con .NET 8 y Blazor. El proyecto implementa una arquitectura modular con separación de responsabilidades.
+Rodavia es una plataforma web integral para el sector automotriz en Chile y Latinoamérica desarrollada con .NET 8 y Blazor. El proyecto implementa una arquitectura modular con separación de responsabilidades.
 
 ## Estructura del Proyecto
 
 ```
-AutoGuía/
-├── AutoGuia.Core/              # Dominio - Entidades y DTOs
-├── AutoGuia.Infrastructure/    # Datos - DbContext y Services  
-├── AutoGuia.Web/              # UI - Aplicación Blazor
-│   ├── AutoGuia.Web/          # Servidor
-│   └── AutoGuia.Web.Client/   # Cliente WebAssembly
-└── AutoGuia.sln               # Solución principal
+Rodavia/
+├── Rodavia.Core/              # Dominio - Entidades y DTOs
+├── Rodavia.Infrastructure/    # Datos - DbContext y Services  
+├── Rodavia.Web/              # UI - Aplicación Blazor
+│   ├── Rodavia.Web/          # Servidor
+│   └── Rodavia.Web.Client/   # Cliente WebAssembly
+└── Rodavia.sln               # Solución principal
 ```
 
 ## Patrones y Convenciones

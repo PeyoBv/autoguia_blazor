@@ -17,7 +17,7 @@ Navega a: **[https://console.cloud.google.com](https://console.cloud.google.com)
 - Si no tienes un proyecto, crea uno nuevo:
   - Haz clic en el selector de proyectos (parte superior)
   - Clic en **"Proyecto nuevo"**
-  - Nombre: `AutoGuia` (o el que prefieras)
+  - Nombre: `Rodavia` (o el que prefieras)
   - Clic en **"Crear"**
 
 ### 3. Habilitar Google+ API (Opcional pero recomendado)
@@ -36,7 +36,7 @@ Navega a: **[https://console.cloud.google.com](https://console.cloud.google.com)
   - **Nombre de la aplicación**: `AutoGuía`
   - **Correo electrónico de asistencia**: Tu email
   - **Logo de la aplicación**: (opcional)
-  - **Dominios autorizados**: Tu dominio de producción (ej: `autoguia.cl`)
+  - **Dominios autorizados**: Tu dominio de producción (ej: `Rodavia.cl`)
   - **Correo de contacto del desarrollador**: Tu email
 - Clic en **"Guardar y continuar"**
 
@@ -82,7 +82,7 @@ Ejecuta en la terminal desde la raíz del proyecto:
 
 ```bash
 # Ir al proyecto Web
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 
 # Configurar Client ID
 dotnet user-secrets set "Authentication:Google:ClientId" "TU_CLIENT_ID.apps.googleusercontent.com"
@@ -93,7 +93,7 @@ dotnet user-secrets set "Authentication:Google:ClientSecret" "TU_CLIENT_SECRET"
 
 ### Opción 2: appsettings.json (NO RECOMENDADO para repositorios públicos)
 
-Edita `AutoGuia.Web/AutoGuia.Web/appsettings.json`:
+Edita `Rodavia.Web/Rodavia.Web/appsettings.json`:
 
 ```json
 {
@@ -134,7 +134,7 @@ No necesitas modificar nada en la UI - el sistema detecta automáticamente los p
 
 1. Ejecuta la aplicación:
    ```bash
-   dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+   dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
    ```
 
 2. Navega a: **https://localhost:5001/Account/Login**
@@ -217,7 +217,7 @@ Redirección a página de inicio
 **Solución**: 
 1. Verifica que los valores estén en User Secrets:
    ```bash
-   dotnet user-secrets list --project AutoGuia.Web/AutoGuia.Web
+   dotnet user-secrets list --project Rodavia.Web/Rodavia.Web
    ```
 2. Asegúrate que los valores no estén vacíos
 3. Reinicia la aplicación
