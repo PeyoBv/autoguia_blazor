@@ -7,22 +7,22 @@
 @using Rodavia.Core.DTOs
 @using Rodavia.Infrastructure.Services
 
-<PageTitle>Productos Automotrices - AutoGuÌa</PageTitle>
+<PageTitle>Productos Automotrices - Rodavia</PageTitle>
 
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="h2 mb-3">
                 <i class="fas fa-shopping-cart me-2 text-primary"></i>
-                Cat·logo de Productos Automotrices
+                Cat√°logo de Productos Automotrices
             </h1>
             <p class="lead text-muted">
-                Encuentra los mejores productos para tu vehÌculo en las principales tiendas online
+                Encuentra los mejores productos para tu veh√≠culo en las principales tiendas online
             </p>
         </div>
     </div>
 
-    @* SECCI”N DE CARGA INICIAL *@
+    @* SECCI√ìN DE CARGA INICIAL *@
     @if (IsLoading)
     {
         <div class="row mb-4">
@@ -32,24 +32,24 @@
                         <div class="spinner-border text-primary mb-4" role="status" style="width: 4rem; height: 4rem;">
                             <span class="visually-hidden">Cargando...</span>
                         </div>
-                        <h4 class="mb-3">? @EstadoCarga</h4>
-                        <p class="text-muted">Cargando productos desde m˙ltiples tiendas online...</p>
+                        <h4 class="mb-3">‚è≥ @EstadoCarga</h4>
+                        <p class="text-muted">Cargando productos desde m√∫ltiples tiendas online...</p>
                         
                         <div class="row g-3 mt-4">
                             <div class="col-md-2">
-                                <div class="badge bg-info text-wrap p-2">??? Aceite 10W-40</div>
+                                <div class="badge bg-info text-wrap p-2">üõ¢Ô∏è Aceite 10W-40</div>
                             </div>
                             <div class="col-md-2">
-                                <div class="badge bg-info text-wrap p-2">?? Filtro de aire</div>
+                                <div class="badge bg-info text-wrap p-2">üîß Filtro de aire</div>
                             </div>
                             <div class="col-md-2">
-                                <div class="badge bg-info text-wrap p-2">??? Plumillas</div>
+                                <div class="badge bg-info text-wrap p-2">üßπ Plumillas</div>
                             </div>
                             <div class="col-md-2">
-                                <div class="badge bg-info text-wrap p-2">? BujÌas</div>
+                                <div class="badge bg-info text-wrap p-2">‚ö° Buj√≠as</div>
                             </div>
                             <div class="col-md-2">
-                                <div class="badge bg-info text-wrap p-2">?? Neum·tico</div>
+                                <div class="badge bg-info text-wrap p-2">üõû Neum√°tico</div>
                             </div>
                             <div class="col-md-2">
                                 <div class="badge bg-info text-wrap p-2">?? Radio</div>
@@ -224,11 +224,11 @@
     {
         <div class="alert alert-warning">
             <h5><i class="fas fa-exclamation-triangle me-2"></i>?? No se encontraron productos en las tiendas</h5>
-            <p class="mb-0">Intenta buscar otro tÈrmino manualmente en el formulario de abajo.</p>
+            <p class="mb-0">Intenta buscar otro tÔøΩrmino manualmente en el formulario de abajo.</p>
         </div>
     }
 
-    @* B⁄SQUEDA MANUAL ADICIONAL *@
+    @* BÔøΩSQUEDA MANUAL ADICIONAL *@
     @if (!IsLoading)
     {
         <div class="row mb-4">
@@ -237,19 +237,19 @@
                     <div class="card-header bg-info text-white">
                         <h5 class="mb-0">
                             <i class="fas fa-search me-2"></i>
-                            ?? Buscar Producto EspecÌfico
+                            ?? Buscar Producto EspecÔøΩfico
                         </h5>
                     </div>
                     <div class="card-body">
                         <p class="text-muted mb-3">
                             <i class="fas fa-info-circle me-2"></i>
-                            øBuscas algo en particular? Ingresa el nombre del producto que necesitas
+                            ÔøΩBuscas algo en particular? Ingresa el nombre del producto que necesitas
                         </p>
 
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label for="terminoBusqueda" class="form-label fw-bold">
-                                    <i class="fas fa-keyboard me-2"></i>Buscar producto especÌfico
+                                    <i class="fas fa-keyboard me-2"></i>Buscar producto especÔøΩfico
                                 </label>
                                 <div class="input-group input-group-lg">
                                     <input type="text" 
@@ -269,7 +269,7 @@
                                 </div>
                                 <small class="text-muted">
                                     <i class="fas fa-lightbulb me-1"></i>
-                                    Presiona Enter para buscar r·pidamente
+                                    Presiona Enter para buscar rÔøΩpidamente
                                 </small>
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
@@ -287,7 +287,7 @@
         </div>
     }
 
-    @* RESULTADOS DE B⁄SQUEDA MANUAL *@
+    @* RESULTADOS DE BÔøΩSQUEDA MANUAL *@
     @if (estaBuscandoManual)
     {
         <div class="row mb-4">
@@ -318,7 +318,7 @@
         @if (tiempoBusquedaManualSegundos > 0)
         {
             <div class="alert alert-info">
-                <strong>? B˙squeda completada en @tiempoBusquedaManualSegundos.ToString("F2") segundos</strong>
+                <strong>? BÔøΩsqueda completada en @tiempoBusquedaManualSegundos.ToString("F2") segundos</strong>
             </div>
         }
 
@@ -391,7 +391,7 @@
                                                         <tr>
                                                             <th>Tienda</th>
                                                             <th class="text-end">Precio</th>
-                                                            <th>AcciÛn</th>
+                                                            <th>AcciÔøΩn</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -429,7 +429,7 @@
         {
             <div class="alert alert-warning text-center">
                 <h5><i class="fas fa-exclamation-triangle me-2"></i>No se encontraron resultados para "@ultimoTerminoBuscado"</h5>
-                <p class="mb-0">Intenta con otro tÈrmino de b˙squeda</p>
+                <p class="mb-0">Intenta con otro tÔøΩrmino de bÔøΩsqueda</p>
             </div>
         }
     }
@@ -446,7 +446,7 @@
     private int? ProductoExpandido { get; set; }
 
     // ============================================================================
-    // PROPIEDADES PARA B⁄SQUEDA MANUAL
+    // PROPIEDADES PARA BÔøΩSQUEDA MANUAL
     // ============================================================================
     private List<ProductoConOfertasDto>? resultadosBusquedaManual;
     private string terminoBusqueda = string.Empty;
@@ -457,20 +457,20 @@
     private double tiempoBusquedaManualSegundos = 0;
 
     // ============================================================================
-    // T…RMINOS POPULARES A PRE-CARGAR
+    // TÔøΩRMINOS POPULARES A PRE-CARGAR
     // ============================================================================
     private readonly string[] TerminosPopulares = new[]
     {
         "Aceite 10W-40",
         "Filtro de aire",
         "Plumillas",
-        "BujÌas",
-        "Neum·tico 205/55R16",
+        "BujÔøΩas",
+        "NeumÔøΩtico 205/55R16",
         "Radio Bluetooth"
     };
 
     // ============================================================================
-    // INICIALIZACI”N: CARGA AUTOM¡TICA DE PRODUCTOS POPULARES
+    // INICIALIZACIÔøΩN: CARGA AUTOMÔøΩTICA DE PRODUCTOS POPULARES
     // ============================================================================
     protected override async Task OnInitializedAsync()
     {
@@ -484,12 +484,12 @@
         {
             _logger.LogInformation("?? Iniciando carga de productos populares");
             
-            // Ejecutar b˙squedas en paralelo para todos los tÈrminos
+            // Ejecutar bÔøΩsquedas en paralelo para todos los tÔøΩrminos
             var tareas = TerminosPopulares
                 .Select(termino => BuscarTermino(termino))
                 .ToList();
 
-            // Esperar a que todas las b˙squedas terminen
+            // Esperar a que todas las bÔøΩsquedas terminen
             var resultadosPorTermino = await Task.WhenAll(tareas);
 
             // Combinar todos los resultados en una sola lista
@@ -522,7 +522,7 @@
     }
 
     // ============================================================================
-    // M…TODO AUXILIAR: BUSCAR UN T…RMINO ESPECÕFICO
+    // MÔøΩTODO AUXILIAR: BUSCAR UN TÔøΩRMINO ESPECÔøΩFICO
     // ============================================================================
     private async Task<List<ProductoConOfertasDto>> BuscarTermino(string termino)
     {
@@ -545,7 +545,7 @@
     }
 
     // ============================================================================
-    // M…TODO: EXPANDIR/CONTRAER PRODUCTO (PRODUCTOS POPULARES)
+    // MÔøΩTODO: EXPANDIR/CONTRAER PRODUCTO (PRODUCTOS POPULARES)
     // ============================================================================
     private void ExpandirProducto(int productoId)
     {
@@ -554,7 +554,7 @@
     }
 
     // ============================================================================
-    // M…TODOS PARA B⁄SQUEDA MANUAL
+    // MÔøΩTODOS PARA BÔøΩSQUEDA MANUAL
     // ============================================================================
     private async Task OnBuscarTerminoManual()
     {
@@ -569,7 +569,7 @@
         
         try
         {
-            _logger.LogInformation("?? B˙squeda manual: {Termino}", ultimoTerminoBuscado);
+            _logger.LogInformation("?? BÔøΩsqueda manual: {Termino}", ultimoTerminoBuscado);
             
             var resultadosList = await ComparadorService.BuscarConsumiblesAsync(ultimoTerminoBuscado);
             resultadosBusquedaManual = resultadosList.ToList();
@@ -578,13 +578,13 @@
             tiempoBusquedaManualSegundos = stopwatch.Elapsed.TotalSeconds;
             
             _logger.LogInformation(
-                "? B˙squeda manual completada: {Count} productos encontrados", 
+                "? BÔøΩsqueda manual completada: {Count} productos encontrados", 
                 resultadosBusquedaManual.Count
             );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "? Error en b˙squeda manual");
+            _logger.LogError(ex, "? Error en bÔøΩsqueda manual");
             resultadosBusquedaManual = new List<ProductoConOfertasDto>();
         }
         finally
