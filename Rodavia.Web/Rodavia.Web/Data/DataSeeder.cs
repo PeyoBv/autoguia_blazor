@@ -47,7 +47,7 @@ public static class DataSeeder
         await CreateRoleIfNotExists(roleManager, "Admin");
         await CreateRoleIfNotExists(roleManager, "Usuario");
 
-        var adminEmail = "admin@autoguia.cl";
+        var adminEmail = "admin@rodavia.cl";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
         
         if (adminUser == null)

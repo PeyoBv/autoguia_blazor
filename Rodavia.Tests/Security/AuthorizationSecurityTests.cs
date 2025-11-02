@@ -91,7 +91,7 @@ public class AuthorizationSecurityTests
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, "123"),
-            new Claim(ClaimTypes.Name, "test@autoguia.cl")
+            new Claim(ClaimTypes.Name, "test@rodavia.cl")
         };
         var identity = new ClaimsIdentity(claims, "TestAuth");
         var claimsPrincipal = new ClaimsPrincipal(identity);
