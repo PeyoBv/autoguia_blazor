@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Rodavia.Infrastructure.Data;
 using Rodavia.Core.Entities;
 using Rodavia.Web.Data;
+using System.Diagnostics;
 
 namespace Rodavia.Web.Data;
 
@@ -18,6 +19,7 @@ public static class DataSeeder
     {
         using var scope = serviceProvider.CreateScope();
         var services = scope.ServiceProvider;
+        var stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -29,15 +31,25 @@ public static class DataSeeder
             await identityContext.Database.EnsureCreatedAsync();
             await autoguiaContext.Database.EnsureCreatedAsync();
 
+            // ✅ Verificar si ya hay datos antes de seedear
+            if (await roleManager.RoleExistsAsync("Admin"))
+            {
+                stopwatch.Stop();
+                Console.WriteLine($"✅ Datos ya existen (verificación en {stopwatch.ElapsedMilliseconds}ms). Saltando seeding.");
+                return;
+            }
+
             await SeedIdentityData(userManager, roleManager);
             await SeedApplicationData(autoguiaContext);
             await SeedCategoriesAsync(autoguiaContext);
 
-            Console.WriteLine("✅ Datos semilla aplicados correctamente");
+            stopwatch.Stop();
+            Console.WriteLine($"✅ Datos semilla aplicados correctamente (total: {stopwatch.ElapsedMilliseconds}ms)");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Error al aplicar datos semilla: {ex.Message}");
+            stopwatch.Stop();
+            Console.WriteLine($"❌ Error al aplicar datos semilla ({stopwatch.ElapsedMilliseconds}ms): {ex.Message}");
             throw;
         }
     }
@@ -135,6 +147,51 @@ public static class DataSeeder
                     CalificacionPromedio = 4.8m,
                     EsActivo = true,
                     FechaRegistro = DateTime.UtcNow
+                },
+                new() {
+                    Nombre = "Neumáticos Premium",
+                    Ciudad = "Ñuñoa",
+                    Region = "Metropolitana",
+                    Direccion = "Av. Irrazabal 5000, Ñuñoa",
+                    Telefono = "+56 2 4567 8901",
+                    Email = "ventas@neumaticospremium.cl",
+                    Descripcion = "Especialistas en neumáticos y suspensión",
+                    HorarioAtencion = "Lun-Vie: 9:00-18:00, Sáb: 9:00-13:00",
+                    Latitud = -33.4325,
+                    Longitud = -70.5833,
+                    CalificacionPromedio = 4.7m,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.UtcNow
+                },
+                new() {
+                    Nombre = "Electrical Auto Repair",
+                    Ciudad = "Providencia",
+                    Region = "Metropolitana",
+                    Direccion = "Av. 11 de Septiembre 2000, Providencia",
+                    Telefono = "+56 2 5678 9012",
+                    Email = "contacto@electricalauto.cl",
+                    Descripcion = "Reparación de sistemas eléctricos y electrónicos",
+                    HorarioAtencion = "Lun-Vie: 8:30-19:00, Sáb: 8:30-14:00",
+                    Latitud = -33.4298,
+                    Longitud = -70.5944,
+                    CalificacionPromedio = 4.6m,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.UtcNow
+                },
+                new() {
+                    Nombre = "Pintura y Colisión Auto",
+                    Ciudad = "Estación Central",
+                    Region = "Metropolitana",
+                    Direccion = "Av. Santa Rosa 3500, Estación Central",
+                    Telefono = "+56 2 6789 0123",
+                    Email = "info@pinturaauto.cl",
+                    Descripcion = "Especialistas en pintura y reparación de colisiones",
+                    HorarioAtencion = "Lun-Vie: 9:00-18:00, Sáb: 9:00-13:00",
+                    Latitud = -33.4533,
+                    Longitud = -70.6917,
+                    CalificacionPromedio = 4.4m,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.UtcNow
                 }
             };
 
@@ -143,7 +200,7 @@ public static class DataSeeder
             Console.WriteLine($"   ✅ {talleres.Count} talleres creados");
         }
 
-        Console.WriteLine("✅ Seeding de AutoGuía completado");
+        Console.WriteLine("✅ Seeding de datos completado");
     }
 
     /// <summary>

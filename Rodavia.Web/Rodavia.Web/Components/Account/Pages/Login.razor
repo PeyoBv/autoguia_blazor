@@ -39,7 +39,7 @@
             <div class="form-group">
                 <label for="email" class="form-label">
                     <i class="fas fa-envelope me-2"></i>
-                    Correo Electr�nico
+                    Correo Electrónico
                 </label>
                 <InputText @bind-Value="Input.Email" 
                           class="form-control modern-input" 
@@ -53,14 +53,14 @@
             <div class="form-group">
                 <label for="password" class="form-label">
                     <i class="fas fa-lock me-2"></i>
-                    Contrase�a
+                    Contraseña
                 </label>
                 <InputText type="password" 
                           @bind-Value="Input.Password" 
                           class="form-control modern-input" 
                           autocomplete="current-password" 
                           aria-required="true" 
-                          placeholder="��������" 
+                          placeholder="••••••••" 
                           id="password" />
                 <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
             </div>
@@ -78,12 +78,12 @@
                 @if (isLoading)
                 {
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Iniciando sesi�n...</span>
+                    <span>Iniciando sesión...</span>
                 }
                 else
                 {
                     <i class="fas fa-sign-in-alt me-2"></i>
-                    <span>Iniciar Sesi�n</span>
+                    <span>Iniciar Sesión</span>
                 }
             </button>
         </EditForm>
@@ -124,19 +124,19 @@
             <p class="text-center mb-2">
                 <a href="Account/ForgotPassword" class="link-secondary">
                     <i class="fas fa-question-circle me-1"></i>
-                    �Olvidaste tu contrase�a?
+                    ¿Olvidaste tu contraseña?
                 </a>
             </p>
             <p class="text-center mb-2">
-                <span class="text-muted">�No tienes una cuenta?</span>
+                <span class="text-muted">¿No tienes una cuenta?</span>
                 <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="link-primary fw-bold ms-1">
-                    Reg�strate aqu�
+                    Regístrate aquí
                 </a>
             </p>
             <p class="text-center mb-0">
                 <a href="Account/ResendEmailConfirmation" class="link-secondary small">
                     <i class="fas fa-envelope me-1"></i>
-                    Reenviar confirmaci�n de email
+                    Reenviar confirmación de email
                 </a>
             </p>
         </div>
@@ -182,7 +182,7 @@
             
             if (result.Succeeded)
             {
-                Logger.LogInformation("Usuario inici� sesi�n correctamente: {Email}", Input.Email);
+                Logger.LogInformation("Usuario inició sesión correctamente: {Email}", Input.Email);
                 RedirectManager.RedirectTo(ReturnUrl);
             }
             else if (result.RequiresTwoFactor)
@@ -198,13 +198,13 @@
             }
             else
             {
-                errorMessage = "Credenciales inv�lidas. Por favor, verifica tu email y contrase�a.";
+                errorMessage = "Credenciales inválidas. Por favor, verifica tu email y contraseña.";
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error durante el inicio de sesi�n");
-            errorMessage = "Ocurri� un error durante el inicio de sesi�n. Por favor, int�ntalo de nuevo.";
+            Logger.LogError(ex, "Error durante el inicio de sesión");
+            errorMessage = "Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.";
         }
         finally
         {
@@ -214,17 +214,17 @@
 
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "El correo electr�nico es requerido")]
-        [EmailAddress(ErrorMessage = "El formato del correo electr�nico no es v�lido")]
-        [Display(Name = "Correo Electr�nico")]
+        [Required(ErrorMessage = "El correo electrónico es requerido")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [Display(Name = "Correo Electrónico")]
         public string Email { get; set; } = "";
 
-        [Required(ErrorMessage = "La contrase�a es requerida")]
+        [Required(ErrorMessage = "La contraseña es requerida")]
         [DataType(DataType.Password)]
-        [Display(Name = "Contrase�a")]
+        [Display(Name = "Contraseña")]
         public string Password { get; set; } = "";
 
-        [Display(Name = "�Recordarme?")]
+        [Display(Name = "¿Recordarme?")]
         public bool RememberMe { get; set; }
     }
 }

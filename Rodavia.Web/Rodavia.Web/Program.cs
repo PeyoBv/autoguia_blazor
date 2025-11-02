@@ -98,35 +98,23 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
-var identityConnectionString = builder.Configuration.GetConnectionString("IdentityConnection") ?? 
-    builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-    throw new InvalidOperationException("Connection string 'DefaultConnection' o 'IdentityConnection' not found.");
-var rodaviaConnectionString = builder.Configuration.GetConnectionString("RodaviaConnection") ?? identityConnectionString;
 
-// Configurar bases de datos separadas para Identity y Rodavia
-Console.WriteLine("✅ Configurando bases de datos separadas:");
-Console.WriteLine($"   Identity DB: Puerto 5434 - identity_dev");
-Console.WriteLine($"   Rodavia DB: Puerto 5433 - rodavia_dev");
+// ⚙️ Configuración de Base de Datos - InMemory para Desarrollo Rápido
+Console.WriteLine("✅ Configurando base de datos InMemory:");
+Console.WriteLine($"   Identity DB: RodaviaIdentityDb (InMemory)");
+Console.WriteLine($"   Rodavia DB: RodaviaDb (InMemory)");
 
-// ✅ Configurar Npgsql para soportar tipos JSONB dinámicos (arrays, objetos)
-var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(identityConnectionString);
-dataSourceBuilder.EnableDynamicJson();
-var identityDataSource = dataSourceBuilder.Build();
-
-var rodaviaDataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(rodaviaConnectionString);
-rodaviaDataSourceBuilder.EnableDynamicJson();
-var rodaviaDataSource = rodaviaDataSourceBuilder.Build();
-
-// Identity en base de datos dedicada con pooling
+// ✅ Configurar DbContexts con InMemory Database para desarrollo rápido
+// Identity en base de datos InMemory dedicada con pooling
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(identityDataSource);
+    options.UseInMemoryDatabase("RodaviaIdentityDb");
 }, poolSize: 128); // Pool size optimizado para Identity (autenticación concurrente)
 
 // Rodavia en base de datos separada con pooling optimizado
 builder.Services.AddDbContextPool<RodaviaDbContext>(options =>
 {
-    options.UseNpgsql(rodaviaDataSource);
+    options.UseInMemoryDatabase("RodaviaDb");
     // Configuraciones adicionales para producción
     if (!builder.Environment.IsDevelopment())
     {

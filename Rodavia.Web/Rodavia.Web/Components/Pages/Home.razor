@@ -210,6 +210,64 @@
     </div>
 </section>
 
+<!-- Sección About Us - Carrusel -->
+<section class="about-carousel-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="h3 fw-bold text-dark mb-2">Conoce a Rodavia</h2>
+                <p class="text-muted">Descubre nuestra misión, visión y propósito</p>
+            </div>
+        </div>
+
+        <!-- Carousel Container - Mostrando 3 cards (actual + 2 siguientes) -->
+        <div class="carousel-container mx-auto" style="max-width: 100%;">
+            <div class="carousel-inner-multi">
+                @for (int i = 0; i < 3; i++)
+                {
+                    int cardIndex = (currentSlide + i) % carouselCards.Count;
+                    var card = carouselCards[cardIndex];
+                    <div class="carousel-item-multi @(i == 0 ? "active" : "")">
+                        <div class="about-card">
+                            <div class="card-header-about">
+                                <i class="@card.Icon"></i>
+                                <h3>@card.Title</h3>
+                            </div>
+                            <div class="card-body-about">
+                                @if (card.Location != null)
+                                {
+                                    <p class="card-location">
+                                        <i class="fas fa-map-pin me-2"></i>@card.Location
+                                    </p>
+                                }
+                                <p class="card-text">@card.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Navigation Controls -->
+            <button class="carousel-btn prev" @onclick="PreviousSlide" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next" @onclick="NextSlide" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Dots Indicator -->
+            <div class="carousel-dots mt-4">
+                @foreach (var (index, _) in carouselCards.Select((c, i) => (i, c)))
+                {
+                    <button class="dot @(index == currentSlide ? "active" : "")" 
+                            @onclick="() => GoToSlide(index)"
+                            aria-label="Ir a slide @(index + 1)"></button>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- CTA Final -->
 <section class="cta-section py-5 bg-dark text-white">
     <div class="container text-center">
@@ -320,7 +378,189 @@
         background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     }
 
+    /* About Carousel Section */
+    .about-carousel-section {
+        background: #f8f9fa;
+    }
+
+    .carousel-container {
+        position: relative;
+        perspective: 1000px;
+        padding: 0 50px;
+    }
+
+    .carousel-inner-multi {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        animation: slideIn 0.5s ease-in-out;
+    }
+
+    .carousel-item-multi {
+        opacity: 0.6;
+        transform: scale(0.95);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .carousel-item-multi.active {
+        opacity: 1;
+        transform: scale(1);
+        z-index: 10;
+    }
+
+    @@keyframes slideIn {
+        0% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    @@keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .about-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+    }
+
+    .about-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 123, 255, 0.15);
+    }
+
+    .card-header-about {
+        text-align: center;
+        margin-bottom: 2rem;
+        flex-shrink: 0;
+    }
+
+    .card-header-about i {
+        font-size: 3.5rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .card-header-about h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .card-body-about {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-location {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .card-text {
+        color: #555;
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin: 0;
+        flex: 1;
+        text-align: justify;
+    }
+
+    .card-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .stat-badge {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Carousel Controls */
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 2px solid #007bff;
+        color: #007bff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        z-index: 20;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+
+    .carousel-btn:hover {
+        background: #007bff;
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-btn.prev {
+        left: 0;
+    }
+
+    .carousel-btn.next {
+        right: 0;
+    }
+
+    /* Dots Indicator */
+    .carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ddd;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .dot.active {
+        background: #007bff;
+        transform: scale(1.2);
+    }
+
+    .dot:hover {
+        background: #0056b3;
+    }
+
     /* Responsive */
+    @@media (max-width: 1024px) {
+        .carousel-inner-multi {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @@media (max-width: 768px) {
         .hero-content h1 {
             font-size: 2rem;
@@ -329,5 +569,163 @@
         .lead {
             font-size: 1rem !important;
         }
+
+        .carousel-inner-multi {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .carousel-container {
+            padding: 0 20px;
+        }
+
+        .about-card {
+            padding: 1.5rem;
+        }
+
+        .card-header-about i {
+            font-size: 2.5rem;
+        }
+
+        .card-header-about h3 {
+            font-size: 1.4rem;
+        }
+
+        .carousel-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .carousel-btn.prev {
+            left: -60px;
+        }
+
+        .carousel-btn.next {
+            right: -60px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .carousel-container {
+            margin: 0 -20px;
+        }
+
+        .carousel-inner {
+            height: 600px;
+        }
+
+        .about-card {
+            padding: 1.5rem;
+            margin: 0 20px;
+        }
+
+        .carousel-btn {
+            width: 36px;
+            height: 36px;
+        }
+
+        .carousel-btn.prev,
+        .carousel-btn.next {
+            position: absolute;
+            top: auto;
+            bottom: -60px;
+            transform: translateY(0);
+        }
+
+        .carousel-btn.prev {
+            left: 50%;
+            margin-left: -90px;
+        }
+
+        .carousel-btn.next {
+            right: 50%;
+            margin-right: -90px;
+        }
     }
 </style>
+
+@code {
+    private int currentSlide = 0;
+    private Timer autoPlayTimer;
+
+    private List<CarouselCard> carouselCards = new()
+    {
+        new CarouselCard
+        {
+            Icon = "fas fa-car",
+            Title = "Quiénes Somos",
+            Description = "Rodavia es la plataforma líder en Chile y Latinoamérica para el sector automotriz. Conectamos a conductores con talleres certificados, ofrecemos herramientas de diagnóstico con IA y fomentamos una comunidad activa de entusiastas del motor.",
+            Location = "Santiago, Chile 🇨🇱"
+        },
+        new CarouselCard
+        {
+            Icon = "fas fa-bullseye",
+            Title = "Nuestra Misión",
+            Description = "Democratizar el acceso a servicios automotrices de calidad mediante tecnología innovadora, proporcionando información transparente, comparación de precios en tiempo real y conectando a la comunidad automotriz con los mejores profesionales del sector.",
+            Location = null
+        },
+        new CarouselCard
+        {
+            Icon = "fas fa-eye",
+            Title = "Nuestra Visión",
+            Description = "Ser la plataforma de referencia en Latinoamérica para el cuidado y mantenimiento vehicular, integrando inteligencia artificial, IoT y blockchain para crear un ecosistema automotriz digital, confiable y accesible para todos.",
+            Location = null
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        StartAutoPlay();
+    }
+
+    private void StartAutoPlay()
+    {
+        autoPlayTimer = new Timer(_ =>
+        {
+            NextSlide();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7));
+    }
+
+    private void NextSlide()
+    {
+        currentSlide = (currentSlide + 1) % carouselCards.Count;
+    }
+
+    private void PreviousSlide()
+    {
+        currentSlide = (currentSlide - 1 + carouselCards.Count) % carouselCards.Count;
+        ResetAutoPlay();
+    }
+
+    private void GoToSlide(int index)
+    {
+        currentSlide = index;
+        ResetAutoPlay();
+    }
+
+    private void ResetAutoPlay()
+    {
+        autoPlayTimer?.Dispose();
+        StartAutoPlay();
+    }
+
+    public void Dispose()
+    {
+        autoPlayTimer?.Dispose();
+    }
+
+    public class CarouselCard
+    {
+        public string Icon { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+    }
+}
