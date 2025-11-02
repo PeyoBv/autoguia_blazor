@@ -1,400 +1,386 @@
 @using Microsoft.AspNetCore.Components.Authorization
-@using System.ComponentModel.DataAnnotations
-
-@implements IDisposable
 
 @inject NavigationManager NavigationManager
 
 <!-- Top Navigation Bar -->
-<div class="navbar-modern">
-    <div class="container-fluid navbar-container">
-        <!-- Logo -->
-        <a class="navbar-brand-modern" href="">
-            <i class="fas fa-car-side me-2"></i>
-            <span class="brand-text">Rodavia</span>
+<nav class="top-navbar">
+    <!-- Row 1: Logo -->
+    <div class="navbar-row-1">
+        <a href="" class="navbar-brand">
+            <i class="fas fa-car-side"></i>
+            <span>Rodavia</span>
         </a>
+    </div>
 
-        <!-- Mobile Toggle -->
-        <input type="checkbox" id="nav-toggle" title="Navigation menu" class="navbar-toggle-checkbox" />
-        <label for="nav-toggle" class="navbar-toggle-label">
-            <span></span>
-            <span></span>
-            <span></span>
-        </label>
+    <!-- Row 2: Navigation Items -->
+    <div class="navbar-row-2">
+        <div class="nav-items-left">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </NavLink>
+            <NavLink href="talleres" class="nav-link">
+                <i class="fas fa-map-location-dot"></i>
+                <span>Talleres</span>
+            </NavLink>
+            <NavLink href="consumibles" class="nav-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Productos</span>
+            </NavLink>
+            <NavLink href="foro" class="nav-link">
+                <i class="fas fa-comments"></i>
+                <span>Comunidad</span>
+            </NavLink>
+            <NavLink href="diagnostico-asistente" class="nav-link">
+                <i class="fas fa-brain"></i>
+                <span>IA</span>
+            </NavLink>
+        </div>
 
-        <!-- Navigation Menu -->
-        <div class="nav-menu-modern" onclick="document.querySelector('.navbar-toggle-checkbox').checked = false;">
-            <nav class="nav-list">
-                <!-- Primary Navigation -->
-                <div class="nav-section">
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="" Match="NavLinkMatch.All">
-                            <i class="fas fa-home nav-icon"></i>
-                            <span class="nav-text">Inicio</span>
-                        </NavLink>
-                    </div>
-
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="talleres">
-                            <i class="fas fa-map-location-dot nav-icon"></i>
-                            <span class="nav-text">Talleres</span>
-                        </NavLink>
-                    </div>
-
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="consumibles">
-                            <i class="fas fa-shopping-bag nav-icon"></i>
-                            <span class="nav-text">Productos</span>
-                        </NavLink>
-                    </div>
-
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="foro">
-                            <i class="fas fa-comments nav-icon"></i>
-                            <span class="nav-text">Comunidad</span>
-                        </NavLink>
-                    </div>
-                </div>
-
-                <!-- Secondary Features -->
-                <div class="nav-divider"></div>
-                <div class="nav-section">
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="diagnostico-asistente">
-                            <i class="fas fa-brain nav-icon"></i>
-                            <span class="nav-text">Diagnóstico IA</span>
-                        </NavLink>
-                    </div>
-
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="consulta-vehiculo">
-                            <i class="fas fa-magnifying-glass-chart nav-icon"></i>
-                            <span class="nav-text">Consulta Vehículo</span>
-                        </NavLink>
-                    </div>
-
-                    <div class="nav-item">
-                        <NavLink class="nav-link-modern" href="suscripciones">
-                            <i class="fas fa-crown nav-icon"></i>
-                            <span class="nav-text">Planes Premium</span>
-                        </NavLink>
-                    </div>
-                </div>
-
-                <!-- Admin Section -->
-                <AuthorizeView Roles="Admin">
-                    <Authorized>
-                        <div class="nav-divider"></div>
-                        <div class="nav-section">
-                            <div class="nav-item">
-                                <NavLink class="nav-link-modern nav-admin" href="admin/gestion-talleres">
-                                    <i class="fas fa-sliders nav-icon"></i>
-                                    <span class="nav-text">Panel Admin</span>
-                                </NavLink>
-                            </div>
-                        </div>
-                    </Authorized>
-                </AuthorizeView>
-
-                <!-- User Section -->
-                <AuthorizeView>
-                    <Authorized>
-                        <div class="nav-divider"></div>
-                        <div class="nav-section">
-                            <div class="nav-item">
-                                <NavLink class="nav-link-modern" href="perfil">
-                                    <i class="fas fa-user-circle nav-icon"></i>
-                                    <span class="nav-text">Mi Perfil</span>
-                                </NavLink>
-                            </div>
-                            <div class="nav-item">
-                                <NavLink class="nav-link-modern" href="Account/Manage">
-                                    <i class="fas fa-gear nav-icon"></i>
-                                    <span class="nav-text">@context.User.Identity?.Name</span>
-                                </NavLink>
-                            </div>
-                            <div class="nav-item">
-                                <form action="Account/Logout" method="post" style="width: 100%;">
-                                    <AntiforgeryToken />
-                                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                                    <button type="submit" class="nav-link-modern nav-logout">
-                                        <i class="fas fa-arrow-right-from-bracket nav-icon"></i>
-                                        <span class="nav-text">Logout</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </Authorized>
-                    <NotAuthorized>
-                        <div class="nav-divider"></div>
-                        <div class="nav-section">
-                            <div class="nav-item">
-                                <NavLink class="nav-link-modern nav-auth" href="Account/Register">
-                                    <i class="fas fa-user-plus nav-icon"></i>
-                                    <span class="nav-text">Registrarse</span>
-                                </NavLink>
-                            </div>
-                            <div class="nav-item">
-                                <NavLink class="nav-link-modern nav-login" href="Account/Login">
-                                    <i class="fas fa-sign-in-alt nav-icon"></i>
-                                    <span class="nav-text">Iniciar Sesión</span>
-                                </NavLink>
-                            </div>
-                        </div>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </nav>
+        <div class="nav-items-right">
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink href="perfil" class="nav-link nav-link-profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Mi Perfil</span>
+                    </NavLink>
+                    <form action="Account/Logout" method="post" class="logout-form">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <button type="submit" class="nav-link logout-btn">
+                            <i class="fas fa-arrow-right-from-bracket"></i>
+                            <span>Salir</span>
+                        </button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="Account/Register" class="nav-link nav-register">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Registrarse</span>
+                    </NavLink>
+                    <NavLink href="Account/Login" class="nav-link nav-login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar Sesión</span>
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
     </div>
-</div>
+</nav>
 
 <style>
-    /* Modern Navbar Styles */
-    .navbar-modern {
-        background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* Top Navigation Bar */
+    .top-navbar {
+        background: linear-gradient(90deg, #1a1f3a 0%, #2d3561 100%);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        border-bottom: 3px solid rgba(0, 123, 255, 0.5);
         position: sticky;
         top: 0;
         z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
     }
 
-    .navbar-container {
-        position: relative;
+    /* Row 1: Logo */
+    .navbar-row-1 {
+        display: flex;
+        align-items: center;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid rgba(0, 123, 255, 0.3);
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 1.8rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
+    }
+
+    .navbar-brand:hover {
+        background-color: rgba(0, 123, 255, 0.25);
+        color: #00d4ff;
+        transform: scale(1.05);
+    }
+
+    .navbar-brand i {
+        font-size: 2rem;
+    }
+
+    /* Row 2: Navigation Items */
+    .navbar-row-2 {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: auto;
-        padding: 0.75rem 0;
+        padding: 1rem 2rem;
+        gap: 2rem;
+        flex-wrap: wrap;
     }
 
-    /* Logo Styling */
-    .navbar-brand-modern {
+    .nav-items-left {
         display: flex;
+        gap: 0.75rem;
         align-items: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #ffffff;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
+        flex-wrap: wrap;
     }
 
-    .navbar-brand-modern:hover {
-        color: #007bff;
-        background-color: rgba(0, 123, 255, 0.1);
-    }
-
-    .brand-text {
-        letter-spacing: 0.5px;
-    }
-
-    /* Mobile Toggle */
-    .navbar-toggle-checkbox {
-        display: none;
-    }
-
-    .navbar-toggle-label {
-        display: none;
-        flex-direction: column;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 6px;
-        transition: background-color 0.3s ease;
-    }
-
-    .navbar-toggle-label:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .navbar-toggle-label span {
-        width: 25px;
-        height: 3px;
-        background-color: #ffffff;
-        margin: 5px 0;
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-
-    /* Navigation Menu */
-    .nav-menu-modern {
+    .nav-items-right {
         display: flex;
-        flex-direction: column;
-        padding: 0;
-    }
-
-    .nav-list {
-        display: flex;
-        flex-direction: row;
+        gap: 0.75rem;
         align-items: center;
-        gap: 0;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    /* Navigation Sections */
-    .nav-section {
-        display: flex;
-        flex-direction: row;
-        gap: 0;
-        align-items: center;
-    }
-
-    .nav-divider {
-        height: 24px;
-        width: 1px;
-        background-color: rgba(255, 255, 255, 0.2);
-        margin: 0 0.5rem;
+        flex-wrap: wrap;
     }
 
     /* Navigation Items */
-    .nav-item {
-        position: relative;
-    }
-
-    .nav-link-modern {
-        display: flex;
+    .nav-link {
+        display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        gap: 0.6rem;
+        padding: 0.7rem 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 500;
+        border-radius: 8px;
         transition: all 0.3s ease;
-        border-radius: 6px;
-        margin: 2px;
         white-space: nowrap;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-family: inherit;
     }
 
-    .nav-link-modern:hover {
+    .nav-link:hover {
         color: #ffffff;
-        background-color: rgba(0, 123, 255, 0.15);
-        transform: translateY(-1px);
+        background-color: rgba(0, 123, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
     }
 
-    .nav-link-modern.active {
-        color: #ffffff;
-        background-color: rgba(0, 123, 255, 0.25);
-        border-left: 3px solid #007bff;
-    }
-
-    /* Icon Styling */
-    .nav-icon {
-        font-size: 1.1rem;
-        min-width: 1.2rem;
-    }
-
-    .nav-text {
-        transition: all 0.3s ease;
-    }
-
-    /* Special Link Styles */
-    .nav-logout {
-        color: rgba(255, 107, 107, 0.8);
-    }
-
-    .nav-logout:hover {
-        color: #ffffff;
-        background-color: rgba(220, 53, 69, 0.15);
-    }
-
-    .nav-login {
-        background-color: rgba(0, 123, 255, 0.2);
-        color: #ffffff;
+    .nav-link.active {
+        color: #00d4ff;
+        background-color: rgba(0, 123, 255, 0.4);
+        border-bottom: 3px solid #00d4ff;
         font-weight: 600;
     }
 
-    .nav-login:hover {
-        background-color: rgba(0, 123, 255, 0.3);
+    .nav-link i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
     }
 
-    .nav-auth {
-        background-color: rgba(40, 167, 69, 0.15);
-        color: rgba(40, 167, 69, 1);
+    .nav-link:hover i {
+        transform: scale(1.2);
     }
 
-    .nav-auth:hover {
+    .nav-link span {
+        display: inline;
+    }
+
+    /* Profile Link */
+    .nav-link-profile {
+        background-color: rgba(52, 152, 219, 0.15);
+        color: rgba(52, 152, 219, 0.95);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+
+    .nav-link-profile:hover {
+        background-color: rgba(52, 152, 219, 0.25);
+        color: #ffffff;
+    }
+
+    /* Register Link */
+    .nav-register {
         background-color: rgba(40, 167, 69, 0.25);
+        color: rgba(100, 255, 100, 1);
+        font-weight: 600;
+        border: 1.5px solid rgba(40, 167, 69, 0.5);
+    }
+
+    .nav-register:hover {
+        background-color: rgba(40, 167, 69, 0.35);
         color: #ffffff;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
 
-    .nav-admin {
-        background-color: rgba(255, 193, 7, 0.15);
-        color: rgba(255, 193, 7, 0.9);
-    }
-
-    .nav-admin:hover {
-        background-color: rgba(255, 193, 7, 0.25);
+    /* Login Link */
+    .nav-login {
+        background-color: rgba(0, 123, 255, 0.35);
         color: #ffffff;
+        font-weight: 600;
+        border: 1.5px solid rgba(0, 123, 255, 0.6);
     }
 
-    /* Mobile Responsive */
+    .nav-login:hover {
+        background-color: rgba(0, 123, 255, 0.45);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Logout Form & Button */
+    .logout-form {
+        margin: 0;
+        padding: 0;
+        display: inline;
+    }
+
+    .logout-btn {
+        color: rgba(220, 53, 69, 0.95);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.7rem 1.3rem;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .logout-btn:hover {
+        color: #ffffff;
+        background-color: rgba(220, 53, 69, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+    }
+
+    /* Responsive - Tablet */
+    @@media (max-width: 1024px) {
+        .navbar-row-1 {
+            padding: 0.8rem 1.5rem;
+        }
+
+        .navbar-row-2 {
+            padding: 0.8rem 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            gap: 0.75rem;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            padding: 0.6rem 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-items-left {
+            gap: 0.5rem;
+        }
+
+        .nav-items-right {
+            gap: 0.5rem;
+        }
+    }
+
+    /* Responsive - Mobile */
     @@media (max-width: 768px) {
-        .navbar-toggle-label {
-            display: flex;
+        .navbar-row-1 {
+            padding: 0.8rem 1rem;
+            border-bottom: none;
         }
 
-        .nav-menu-modern {
-            position: fixed;
-            left: -100%;
-            top: 60px;
-            flex-direction: column;
-            background-color: #1a1f3a;
-            width: 100%;
-            text-align: left;
-            transition: 0.3s;
-            box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-            max-height: calc(100vh - 60px);
-            overflow-y: auto;
-        }
-
-        .navbar-toggle-checkbox:checked ~ .nav-menu-modern {
-            left: 0;
-        }
-
-        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
-        }
-
-        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .navbar-toggle-checkbox:checked ~ .navbar-toggle-label span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
-        }
-
-        .nav-list {
-            flex-direction: column;
-            width: 100%;
-            padding: 1rem 0;
-        }
-
-        .nav-section {
-            flex-direction: column;
-            width: 100%;
-            gap: 0;
-        }
-
-        .nav-divider {
-            width: calc(100% - 2rem);
-            height: 1px;
-            margin: 0.75rem 1rem;
-        }
-
-        .nav-link-modern {
-            width: 100%;
-            margin: 0;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0;
+        .navbar-row-2 {
+            padding: 0.8rem 1rem;
+            justify-content: center;
             gap: 1rem;
+            border-top: 1px solid rgba(0, 123, 255, 0.3);
         }
 
-        .nav-link-modern.active {
-            border-left: 4px solid #007bff;
+        .navbar-brand {
+            font-size: 1.4rem;
+            gap: 0.6rem;
+        }
+
+        .navbar-brand i {
+            font-size: 1.6rem;
+        }
+
+        .nav-items-left {
+            width: 100%;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .nav-items-right {
+            width: 100%;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 0.9rem;
+            font-size: 0.9rem;
+            gap: 0.4rem;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+    }
+
+    /* Responsive - Mobile Small */
+    @@media (max-width: 480px) {
+        .navbar-row-1 {
+            padding: 0.6rem 0.75rem;
+        }
+
+        .navbar-row-2 {
+            padding: 0.6rem 0.75rem;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand i {
+            font-size: 1.4rem;
+        }
+
+        .nav-items-left {
+            gap: 0.3rem;
+        }
+
+        .nav-items-right {
+            gap: 0.3rem;
+        }
+
+        .nav-link {
+            padding: 0.4rem 0.7rem;
+            font-size: 0.85rem;
+            gap: 0.3rem;
+        }
+
+        .nav-link span {
+            display: none;
+        }
+
+        .nav-link i {
+            font-size: 0.95rem;
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid #00d4ff;
         }
     }
 </style>
@@ -412,11 +398,6 @@
     {
         currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
 
