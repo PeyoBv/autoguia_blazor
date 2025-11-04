@@ -102,10 +102,10 @@
     }
 
 .nav-item ::deep a.active {
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.9), rgba(0, 86, 179, 0.9));
-    color: white;
+    background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.9), rgba(var(--color-primary-rgb), 0.7));
+    color: var(--text-on-primary);
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
     transform: translateX(4px);
 }
 

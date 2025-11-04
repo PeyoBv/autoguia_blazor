@@ -17,102 +17,121 @@
 
 <PageTitle>Registrarse - Rodavia</PageTitle>
 
-<div class="register-container">
-    <div class="register-card">
-        <!-- Header -->
-        <div class="register-header">
-            <div class="logo-container">
-                <i class="fas fa-user-plus fa-3x"></i>
+<link rel="stylesheet" href="css/login.css" />
+
+<div class="login-wrapper" data-page="account">
+    <div class="login-container">
+        <!-- Brand Side -->
+        <div class="brand-side">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-car fa-3x"></i>
+                    </div>
+                </div>
+                <h1 class="brand-title">Rodavia</h1>
+                <p class="brand-subtitle">Tu Marketplace Automotriz de Confianza</p>
             </div>
-            <h1>Rodavia</h1>
-            <p class="subtitle">Crea tu cuenta ahora</p>
         </div>
 
-        <!-- Status Message -->
-        <div class="register-form">
-            @if (!string.IsNullOrEmpty(Message))
-            {
-                <div class="alert alert-danger alert-modern" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>Error:</strong> @Message
-                </div>
-            }
-
-            <!-- Register Form -->
-            <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" role="alert" />
-
-                <!-- Email Field -->
-                <div class="form-group">
-                    <label for="email" class="form-label">
-                        <i class="fas fa-envelope me-2"></i>
-                        Correo Electrónico
-                    </label>
-                    <InputText @bind-Value="Input.Email" 
-                              class="form-control modern-input" 
-                              autocomplete="username" 
-                              aria-required="true" 
-                              placeholder="tu@email.com" 
-                              id="email" />
-                    <ValidationMessage For="() => Input.Email" class="text-danger small mt-1" />
+        <!-- Form Side -->
+        <div class="form-side">
+            <div class="form-content">
+                <!-- Header -->
+                <div class="form-header">
+                    <div class="icon-container">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h2>Crear Cuenta</h2>
+                    <p class="form-subtitle">Únete a la comunidad automotriz</p>
                 </div>
 
-                <!-- Password Field -->
-                <div class="form-group">
-                    <label for="password" class="form-label">
-                        <i class="fas fa-lock me-2"></i>
-                        Contraseña
-                    </label>
-                    <InputText type="password" 
-                              @bind-Value="Input.Password" 
-                              class="form-control modern-input" 
-                              autocomplete="new-password" 
-                              aria-required="true" 
-                              placeholder="Mínimo 6 caracteres" 
-                              id="password" />
-                    <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
-                </div>
+                <!-- Status Message -->
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        @Message
+                    </div>
+                }
 
-                <!-- Confirm Password Field -->
-                <div class="form-group">
-                    <label for="confirm-password" class="form-label">
-                        <i class="fas fa-lock me-2"></i>
-                        Confirmar Contraseña
-                    </label>
-                    <InputText type="password" 
-                              @bind-Value="Input.ConfirmPassword" 
-                              class="form-control modern-input" 
-                              autocomplete="new-password" 
-                              aria-required="true" 
-                              placeholder="Repite tu contraseña" 
-                              id="confirm-password" />
-                    <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger small mt-1" />
-                </div>
+                <!-- Register Form -->
+                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" class="login-form">
+                    <DataAnnotationsValidator />
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-register">
-                    <i class="fas fa-user-check me-2"></i>
-                    Registrarse
-                </button>
-                
-                <AntiforgeryToken />
-            </EditForm>
+                    <!-- Email Field -->
+                    <div class="input-group">
+                        <label for="email">
+                            <i class="fas fa-envelope"></i>
+                            Correo Electrónico
+                        </label>
+                        <InputText @bind-Value="Input.Email" 
+                                  class="form-control" 
+                                  autocomplete="username" 
+                                  aria-required="true" 
+                                  placeholder="tu@email.com" 
+                                  id="email" />
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
 
-            <!-- External Login Section -->
-            <div class="external-login-section">
+                    <!-- Password Field -->
+                    <div class="input-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Contraseña
+                        </label>
+                        <InputText type="password" 
+                                  @bind-Value="Input.Password" 
+                                  class="form-control" 
+                                  autocomplete="new-password" 
+                                  aria-required="true" 
+                                  placeholder="Mínimo 6 caracteres" 
+                                  id="password" />
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="input-group">
+                        <label for="confirm-password">
+                            <i class="fas fa-lock"></i>
+                            Confirmar Contraseña
+                        </label>
+                        <InputText type="password" 
+                                  @bind-Value="Input.ConfirmPassword" 
+                                  class="form-control" 
+                                  autocomplete="new-password" 
+                                  aria-required="true" 
+                                  placeholder="Repite tu contraseña" 
+                                  id="confirm-password" />
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-user-check me-2"></i>
+                        Registrarse
+                    </button>
+                    
+                    <AntiforgeryToken />
+                </EditForm>
+
+                <!-- Separator -->
                 <div class="separator">
-                    O regístrate con
+                    <span>O</span>
                 </div>
-                <ExternalLoginPicker />
-            </div>
 
-            <!-- Login Link -->
-            <div class="register-footer">
-                ¿Ya tienes cuenta? 
-                <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))">
-                    Inicia sesión aquí
-                </a>
+                <!-- External Login Section -->
+                <ExternalLoginPicker />
+
+                <!-- Footer Links -->
+                <div class="form-footer">
+                    <span class="text-muted">
+                        ¿Ya tienes una cuenta? 
+                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))" class="link-register">
+                            Inicia sesión aquí
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
     </div>

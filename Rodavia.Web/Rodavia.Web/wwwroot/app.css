@@ -3,17 +3,22 @@ html, body {
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: var(--color-primary);
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    color: var(--text-on-primary);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.5);
 }
 
 .content {
@@ -48,4 +53,30 @@ h1:focus {
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
+}
+
+/* Páginas de Account (Login/Register) sin padding para fondo completo */
+body:has([data-page="account"]) .content {
+    padding: 0 !important;
+}
+
+body:has([data-page="account"]) .top-row {
+    display: none;
+}
+
+body:has([data-page="account"]) main {
+    padding: 0 !important;
+}
+
+/* Alternativamente, clase directa para páginas de cuenta */
+.account-page .content {
+    padding: 0 !important;
+}
+
+.account-page .top-row {
+    display: none;
+}
+
+.account-page main {
+    padding: 0 !important;
 }

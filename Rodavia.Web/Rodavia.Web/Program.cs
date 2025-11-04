@@ -308,13 +308,13 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // Paso 1: Aplicar migraciones de Identity
+        // Paso 1: Crear base de datos de Identity (InMemory)
         var identityContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await identityContext.Database.MigrateAsync();
+        await identityContext.Database.EnsureCreatedAsync();
         
-        // Paso 2: Aplicar migraciones de Rodavia
+        // Paso 2: Crear base de datos de Rodavia (InMemory)
         var rodaviaContext = scope.ServiceProvider.GetRequiredService<RodaviaDbContext>();
-        await rodaviaContext.Database.MigrateAsync();
+        await rodaviaContext.Database.EnsureCreatedAsync();
         
         // Paso 3: Ejecutar seeding de datos (Identity + Aplicación)
         await DataSeeder.SeedData(app.Services);

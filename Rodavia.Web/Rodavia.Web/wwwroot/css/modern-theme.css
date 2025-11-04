@@ -4,20 +4,20 @@
    ======================================== */
 
 :root {
-    /* Colors */
-    --primary: #0078D4;
-    --primary-dark: #005a96;
-    --primary-light: #e7f3ff;
-    --dark-bg: #1a1f3a;
-    --dark-bg-light: #2d3561;
-    --light-bg: #f8f9fa;
-    --text-primary: #1a1f3a;
-    --text-secondary: #666666;
-    --text-light: #999999;
-    --border-light: #e8e8e8;
-    --border-medium: #ddd;
+    /* Colors - Nueva Paleta */
+    --primary: #FCA311;           /* Naranja/Amarillo */
+    --primary-dark: #E89200;
+    --primary-light: #FFBB44;
+    --dark-bg: #000000;           /* Negro */
+    --dark-bg-light: #14213D;     /* Azul oscuro */
+    --light-bg: #E5E5E5;          /* Gris claro */
+    --text-primary: #000000;
+    --text-secondary: #14213D;
+    --text-light: #6C757D;
+    --border-light: #E5E5E5;
+    --border-medium: #D0D0D0;
     --success: #28a745;
-    --warning: #ffc107;
+    --warning: #FCA311;
     --danger: #dc3545;
     
     /* Spacing */

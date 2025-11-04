@@ -1,10 +1,40 @@
 <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
-            <NotAuthorized>
-                <RedirectToLogin />
-            </NotAuthorized>
-        </AuthorizeRouteView>
+        <!-- ✅ Permitir acceso sin autenticación a rutas públicas -->
+        @if (IsPublicRoute(routeData.PageType.FullName ?? ""))
+        {
+            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        }
+        else
+        {
+            <!-- ✅ Proteger rutas privadas con autenticación -->
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        }
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
+@code {
+    private static readonly string[] PublicRoutes = new[]
+    {
+        "Rodavia.Web.Components.Account.Pages.Login",
+        "Rodavia.Web.Components.Account.Pages.Register",
+        "Rodavia.Web.Components.Account.Pages.ForgotPassword",
+        "Rodavia.Web.Components.Account.Pages.ConfirmEmail",
+        "Rodavia.Web.Components.Account.Pages.ResetPassword",
+        "Rodavia.Web.Components.Account.Pages.ExternalLogin",
+        "Rodavia.Web.Components.Account.Pages.ExternalLoginCallback",
+        "Rodavia.Web.Components.Account.Pages.ResendEmailConfirmation",
+        "Rodavia.Web.Components.Account.Pages.ConfirmEmailChange"
+    };
+
+    private static bool IsPublicRoute(string pageTypeName)
+    {
+        return PublicRoutes.Any(route => pageTypeName.Contains(route));
+    }
+}
+

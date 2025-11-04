@@ -1,0 +1,89 @@
+/* ===============================================
+   Variables de Color - Paleta del Proyecto
+   AutoGuía - 2025
+   =============================================== */
+
+:root {
+    /* Paleta Principal */
+    --color-primary: #FCA311;        /* Naranja/Amarillo - Color de acción principal */
+    --color-secondary: #14213D;      /* Azul oscuro - Color secundario */
+    --color-dark: #000000;           /* Negro - Fondos oscuros */
+    --color-light: #E5E5E5;          /* Gris claro - Fondos claros */
+    --color-white: #FFFFFF;          /* Blanco - Texto en fondos oscuros */
+    
+    /* Variaciones de Primary (Naranja) */
+    --color-primary-light: #FFBB44;
+    --color-primary-dark: #E89200;
+    --color-primary-rgb: 252, 163, 17;
+    
+    /* Variaciones de Secondary (Azul oscuro) */
+    --color-secondary-light: #1B2B4F;
+    --color-secondary-dark: #0D1527;
+    --color-secondary-rgb: 20, 33, 61;
+    
+    /* Variaciones de Light */
+    --color-light-dark: #D0D0D0;
+    --color-light-darker: #BABABA;
+    
+    /* Estados */
+    --color-success: #28A745;
+    --color-danger: #DC3545;
+    --color-warning: #FFC107;
+    --color-info: #17A2B8;
+    
+    /* Texto */
+    --text-primary: #000000;         /* Texto principal en fondos claros */
+    --text-secondary: #FFFFFF;       /* Texto en fondos oscuros */
+    --text-muted: #6C757D;          /* Texto secundario */
+    --text-on-primary: #000000;      /* Texto en botones naranjas */
+    --text-on-secondary: #FFFFFF;    /* Texto en botones azules */
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    --gradient-secondary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+    --gradient-dark: linear-gradient(135deg, #000000 0%, var(--color-secondary) 100%);
+    --gradient-mixed: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    
+    /* Bordes */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 24px;
+    
+    /* Espaciado */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    
+    /* Transiciones */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* Clases de utilidad para aplicar colores */
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-secondary { background-color: var(--color-secondary) !important; }
+.bg-dark { background-color: var(--color-dark) !important; }
+.bg-light { background-color: var(--color-light) !important; }
+.bg-white { background-color: var(--color-white) !important; }
+
+.text-primary-color { color: var(--color-primary) !important; }
+.text-secondary-color { color: var(--color-secondary) !important; }
+.text-dark { color: var(--color-dark) !important; }
+.text-light { color: var(--color-light) !important; }
+.text-white { color: var(--color-white) !important; }
+
+.border-primary { border-color: var(--color-primary) !important; }
+.border-secondary { border-color: var(--color-secondary) !important; }
+.border-dark { border-color: var(--color-dark) !important; }
+.border-light { border-color: var(--color-light) !important; }
