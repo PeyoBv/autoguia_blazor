@@ -2,388 +2,81 @@
 
 @inject NavigationManager NavigationManager
 
-<!-- Top Navigation Bar -->
-<nav class="top-navbar">
-    <!-- Row 1: Logo -->
-    <div class="navbar-row-1">
-        <a href="" class="navbar-brand">
-            <i class="fas fa-car-side"></i>
-            <span>Rodavia</span>
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">
+            <i class="fas fa-car-side me-2"></i>
+            Rodavia
         </a>
     </div>
+</div>
 
-    <!-- Row 2: Navigation Items -->
-    <div class="navbar-row-2">
-        <div class="nav-items-left">
-            <NavLink href="" Match="NavLinkMatch.All" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Inicio</span>
-            </NavLink>
-            <NavLink href="talleres" class="nav-link">
-                <i class="fas fa-map-location-dot"></i>
-                <span>Talleres</span>
-            </NavLink>
-            <NavLink href="consumibles" class="nav-link">
-                <i class="fas fa-shopping-bag"></i>
-                <span>Productos</span>
-            </NavLink>
-            <NavLink href="foro" class="nav-link">
-                <i class="fas fa-comments"></i>
-                <span>Comunidad</span>
-            </NavLink>
-            <NavLink href="diagnostico-asistente" class="nav-link">
-                <i class="fas fa-brain"></i>
-                <span>IA</span>
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
 
-        <div class="nav-items-right">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="talleres">
+                <i class="fas fa-wrench me-2" aria-hidden="true"></i> Talleres
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="consumibles">
+                <i class="fas fa-shopping-bag me-2" aria-hidden="true"></i> Productos
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="foro">
+                <i class="fas fa-comments me-2" aria-hidden="true"></i> Comunidad
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="diagnostico-asistente">
+                <i class="fas fa-brain me-2" aria-hidden="true"></i> IA
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="suscripciones">
+                <i class="fas fa-crown me-2" aria-hidden="true"></i> Planes
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3" style="margin-top: auto; padding-top: 2rem;">
             <AuthorizeView>
                 <Authorized>
-                    <NavLink href="perfil" class="nav-link nav-link-profile">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Mi Perfil</span>
+                    <NavLink class="nav-link" href="perfil">
+                        <i class="fas fa-user-circle me-2" aria-hidden="true"></i> Mi Perfil
                     </NavLink>
-                    <form action="Account/Logout" method="post" class="logout-form">
+                    <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link logout-btn">
-                            <i class="fas fa-arrow-right-from-bracket"></i>
-                            <span>Salir</span>
+                        <button type="submit" class="nav-link">
+                            <i class="fas fa-arrow-right-from-bracket me-2" aria-hidden="true"></i> Salir
                         </button>
                     </form>
                 </Authorized>
                 <NotAuthorized>
-                    <NavLink href="Account/Register" class="nav-link nav-register">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Registrarse</span>
+                    <NavLink class="nav-link btn-register" href="Account/Register">
+                        <i class="fas fa-user-plus me-2" aria-hidden="true"></i> Registrarse
                     </NavLink>
-                    <NavLink href="Account/Login" class="nav-link nav-login">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Iniciar Sesión</span>
+                    <NavLink class="nav-link btn-login" href="Account/Login">
+                        <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i> Iniciar Sesión
                     </NavLink>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
-    </div>
-</nav>
-
-<style>
-    /* Top Navigation Bar */
-    .top-navbar {
-        background: linear-gradient(90deg, var(--color-dark) 0%, var(--color-secondary) 100%);
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        border-bottom: 3px solid rgba(var(--color-primary-rgb), 0.5);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        width: 100%;
-    }
-
-    /* Row 1: Logo */
-    .navbar-row-1 {
-        display: flex;
-        align-items: center;
-        padding: 1rem 2rem;
-        border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.3);
-    }
-
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: var(--color-white);
-        text-decoration: none;
-        font-size: 1.8rem;
-        font-weight: 700;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        letter-spacing: 1px;
-    }
-
-    .navbar-brand:hover {
-        background-color: rgba(var(--color-primary-rgb), 0.25);
-        color: var(--color-primary);
-        transform: scale(1.05);
-    }
-
-    .navbar-brand i {
-        font-size: 2rem;
-    }
-
-    /* Row 2: Navigation Items */
-    .navbar-row-2 {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 2rem;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .nav-items-left {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .nav-items-right {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    /* Navigation Items */
-    .nav-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.7rem 1.3rem;
-        color: rgba(255, 255, 255, 0.9);
-        text-decoration: none;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-family: inherit;
-    }
-
-    .nav-link:hover {
-        color: var(--color-white);
-        background-color: rgba(var(--color-primary-rgb), 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.2);
-    }
-
-    .nav-link.active {
-        color: var(--color-primary);
-        background-color: rgba(var(--color-primary-rgb), 0.4);
-        border-bottom: 3px solid var(--color-primary);
-        font-weight: 600;
-    }
-
-    .nav-link i {
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
-    }
-
-    .nav-link:hover i {
-        transform: scale(1.2);
-    }
-
-    .nav-link span {
-        display: inline;
-    }
-
-    /* Profile Link */
-    .nav-link-profile {
-        background-color: rgba(var(--color-secondary-rgb), 0.15);
-        color: var(--color-primary);
-        border: 1px solid rgba(var(--color-primary-rgb), 0.3);
-    }
-
-    .nav-link-profile:hover {
-        background-color: rgba(var(--color-primary-rgb), 0.25);
-        color: var(--color-white);
-    }
-
-    /* Register Link */
-    .nav-register {
-        background-color: var(--color-primary);
-        color: var(--text-on-primary);
-        font-weight: 600;
-        border: 1.5px solid var(--color-primary-dark);
-    }
-
-    .nav-register:hover {
-        background-color: var(--color-primary-light);
-        color: var(--text-on-primary);
-        box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.4);
-    }
-
-    /* Login Link */
-    .nav-login {
-        background-color: transparent;
-        color: var(--color-white);
-        font-weight: 600;
-        border: 1.5px solid var(--color-primary);
-    }
-
-    .nav-login:hover {
-        background-color: rgba(var(--color-primary-rgb), 0.2);
-        box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
-    }
-
-    /* Logout Form & Button */
-    .logout-form {
-        margin: 0;
-        padding: 0;
-        display: inline;
-    }
-
-    .logout-btn {
-        color: rgba(220, 53, 69, 0.95);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.7rem 1.3rem;
-        text-decoration: none;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-family: inherit;
-    }
-
-    .logout-btn:hover {
-        color: #ffffff;
-        background-color: rgba(220, 53, 69, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
-    }
-
-    /* Responsive - Tablet */
-    @@media (max-width: 1024px) {
-        .navbar-row-1 {
-            padding: 0.8rem 1.5rem;
-        }
-
-        .navbar-row-2 {
-            padding: 0.8rem 1.5rem;
-            gap: 1.5rem;
-        }
-
-        .navbar-brand {
-            font-size: 1.6rem;
-            gap: 0.75rem;
-        }
-
-        .navbar-brand i {
-            font-size: 1.8rem;
-        }
-
-        .nav-link {
-            padding: 0.6rem 1.1rem;
-            font-size: 0.95rem;
-        }
-
-        .nav-items-left {
-            gap: 0.5rem;
-        }
-
-        .nav-items-right {
-            gap: 0.5rem;
-        }
-    }
-
-    /* Responsive - Mobile */
-    @@media (max-width: 768px) {
-        .navbar-row-1 {
-            padding: 0.8rem 1rem;
-            border-bottom: none;
-        }
-
-        .navbar-row-2 {
-            padding: 0.8rem 1rem;
-            justify-content: center;
-            gap: 1rem;
-            border-top: 1px solid rgba(var(--color-primary-rgb), 0.3);
-        }
-
-        .navbar-brand {
-            font-size: 1.4rem;
-            gap: 0.6rem;
-        }
-
-        .navbar-brand i {
-            font-size: 1.6rem;
-        }
-
-        .nav-items-left {
-            width: 100%;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-
-        .nav-items-right {
-            width: 100%;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-
-        .nav-link {
-            padding: 0.5rem 0.9rem;
-            font-size: 0.9rem;
-            gap: 0.4rem;
-        }
-
-        .nav-link i {
-            font-size: 1rem;
-        }
-    }
-
-    /* Responsive - Mobile Small */
-    @@media (max-width: 480px) {
-        .navbar-row-1 {
-            padding: 0.6rem 0.75rem;
-        }
-
-        .navbar-row-2 {
-            padding: 0.6rem 0.75rem;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .navbar-brand {
-            font-size: 1.2rem;
-            gap: 0.5rem;
-        }
-
-        .navbar-brand i {
-            font-size: 1.4rem;
-        }
-
-        .nav-items-left {
-            gap: 0.3rem;
-        }
-
-        .nav-items-right {
-            gap: 0.3rem;
-        }
-
-        .nav-link {
-            padding: 0.4rem 0.7rem;
-            font-size: 0.85rem;
-            gap: 0.3rem;
-        }
-
-        .nav-link span {
-            display: none;
-        }
-
-        .nav-link i {
-            font-size: 0.95rem;
-        }
-
-        .nav-link.active {
-            border-bottom: 2px solid var(--color-primary);
-        }
-    }
-</style>
+    </nav>
+</div>
 
 @code {
     private string? currentUrl;
@@ -398,6 +91,11 @@
     {
         currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
 

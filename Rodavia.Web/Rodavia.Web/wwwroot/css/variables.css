@@ -38,36 +38,77 @@
     --text-on-primary: #000000;      /* Texto en botones naranjas */
     --text-on-secondary: #FFFFFF;    /* Texto en botones azules */
     
-    /* Sombras */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
-    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
+    /* Sombras Premium - Estilo Notion/Stripe */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.2);
+    --shadow-2xl: 0 20px 60px rgba(0, 0, 0, 0.25);
     
-    /* Gradientes */
-    --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    --gradient-secondary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
-    --gradient-dark: linear-gradient(135deg, #000000 0%, var(--color-secondary) 100%);
-    --gradient-mixed: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    /* Sombras de color - Para efectos premium */
+    --shadow-primary: 0 8px 24px rgba(var(--color-primary-rgb), 0.25);
+    --shadow-primary-lg: 0 12px 40px rgba(var(--color-primary-rgb), 0.35);
+    --shadow-secondary: 0 8px 24px rgba(var(--color-secondary-rgb), 0.2);
+    --shadow-secondary-lg: 0 12px 40px rgba(var(--color-secondary-rgb), 0.3);
     
-    /* Bordes */
+    /* Sombras internas - Para profundidad */
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-inset-lg: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    /* Gradientes Modernos - Estilo Premium */
+    --gradient-primary: linear-gradient(135deg, #FCA311 0%, #E89200 100%);
+    --gradient-primary-hover: linear-gradient(135deg, #FFBB44 0%, #FCA311 100%);
+    --gradient-secondary: linear-gradient(135deg, #14213D 0%, #0D1527 100%);
+    --gradient-secondary-hover: linear-gradient(135deg, #1B2B4F 0%, #14213D 100%);
+    --gradient-dark: linear-gradient(135deg, #000000 0%, #14213D 100%);
+    --gradient-dark-reverse: linear-gradient(135deg, #14213D 0%, #000000 100%);
+    --gradient-mixed: linear-gradient(135deg, #14213D 0%, #FCA311 100%);
+    --gradient-mixed-reverse: linear-gradient(135deg, #FCA311 0%, #14213D 100%);
+    
+    /* Gradientes sutiles para backgrounds */
+    --gradient-light: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
+    --gradient-light-reverse: linear-gradient(135deg, #F8F9FA 0%, #E5E5E5 100%);
+    
+    /* Gradientes con transparencia - Para overlays */
+    --gradient-overlay-dark: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(20, 33, 61, 0.8) 100%);
+    --gradient-overlay-light: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%);
+    
+    /* Bordes Redondeados */
+    --border-radius-xs: 6px;
     --border-radius-sm: 8px;
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
-    --border-radius-xl: 24px;
+    --border-radius-xl: 20px;
+    --border-radius-2xl: 24px;
+    --border-radius-3xl: 32px;
+    --border-radius-full: 9999px;
     
-    /* Espaciado */
+    /* Espaciado Expandido */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --spacing-2xl: 48px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 48px;
+    --spacing-4xl: 64px;
     
-    /* Transiciones */
-    --transition-fast: 0.2s ease;
-    --transition-normal: 0.3s ease;
-    --transition-slow: 0.5s ease;
+    /* Transiciones Premium - Curvas de animación */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Blur Effects - Para glassmorphism */
+    --blur-sm: blur(8px);
+    --blur-md: blur(16px);
+    --blur-lg: blur(24px);
+    
+    /* Opacidades */
+    --opacity-disabled: 0.5;
+    --opacity-hover: 0.9;
+    --opacity-overlay: 0.6;
 }
 
 /* Clases de utilidad para aplicar colores */

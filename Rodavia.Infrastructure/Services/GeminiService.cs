@@ -61,8 +61,9 @@ Responde de manera profesional pero comprensible para usuarios sin conocimiento 
         {
             _apiKey = configuration["GeminiApi:ApiKey"]
                 ?? throw new InvalidOperationException("GeminiApi:ApiKey no configurada");
-            // Para el paquete Mscc.GenerativeAI, usar "gemini-1.5-pro-latest" o simplemente omitir el modelo
-            _model = configuration["GeminiApi:Model"] ?? "gemini-1.5-pro-latest";
+            // Usar gemini-2.5-flash (modelo estable y eficiente recomendado para producción)
+            // Alternativas: gemini-2.5-pro (más potente), gemini-2.5-flash-lite (más rápido)
+            _model = configuration["GeminiApi:Model"] ?? "gemini-2.5-flash";
             _logger = logger;
         }
 

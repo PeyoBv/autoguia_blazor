@@ -17,41 +17,62 @@
 
 <PageTitle>Registrarse - Rodavia</PageTitle>
 
-<link rel="stylesheet" href="css/login.css" />
+<link rel="stylesheet" href="css/login.css?v=2.0" />
 
-<div class="login-wrapper" data-page="account">
+<div class="login-wrapper">
     <div class="login-container">
-        <!-- Brand Side -->
+        <!-- Brand Side with Animated Background -->
         <div class="brand-side">
+            <div class="brand-overlay"></div>
             <div class="brand-content">
-                <div class="brand-logo">
+                <div class="brand-logo animate-float">
                     <div class="logo-icon">
-                        <i class="fas fa-car fa-3x"></i>
+                        <i class="fas fa-car-side"></i>
                     </div>
                 </div>
-                <h1 class="brand-title">Rodavia</h1>
-                <p class="brand-subtitle">Tu Marketplace Automotriz de Confianza</p>
+                <h1 class="brand-title animate-slide-up">Rodavia</h1>
+                <p class="brand-subtitle animate-slide-up delay-1">Tu Marketplace Automotriz Premium</p>
+                <div class="brand-features animate-fade-in delay-2">
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <span>Comunidad Activa</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-award"></i>
+                        <span>Garantía Total</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-rocket"></i>
+                        <span>Innovación</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Form Side -->
+        <!-- Form Side with Glassmorphism Card -->
         <div class="form-side">
-            <div class="form-content">
-                <!-- Header -->
+            <div class="form-content animate-slide-right">
+                <!-- Form Header Premium -->
                 <div class="form-header">
-                    <div class="icon-container">
-                        <i class="fas fa-user-plus"></i>
+                    <div class="welcome-badge">
+                        <i class="fas fa-sparkles"></i>
+                        <span>Únete a Rodavia</span>
                     </div>
-                    <h2>Crear Cuenta</h2>
-                    <p class="form-subtitle">Únete a la comunidad automotriz</p>
+                    <h2 class="form-title">Crea tu Cuenta</h2>
+                    <p class="form-description">Comienza tu experiencia automotriz</p>
                 </div>
 
                 <!-- Status Message -->
                 @if (!string.IsNullOrEmpty(Message))
                 {
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        @Message
+                    <div class="alert alert-error animate-shake">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Error</strong>
+                            <p>@Message</p>
+                        </div>
                     </div>
                 }
 
@@ -59,78 +80,87 @@
                 <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" class="login-form">
                     <DataAnnotationsValidator />
 
-                    <!-- Email Field -->
-                    <div class="input-group">
-                        <label for="email">
+                    <!-- Email Input Group -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">
                             <i class="fas fa-envelope"></i>
-                            Correo Electrónico
+                            <span>Correo Electrónico</span>
                         </label>
-                        <InputText @bind-Value="Input.Email" 
-                                  class="form-control" 
-                                  autocomplete="username" 
-                                  aria-required="true" 
-                                  placeholder="tu@email.com" 
-                                  id="email" />
-                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                        <div class="input-wrapper">
+                            <InputText @bind-Value="Input.Email" 
+                                      class="form-input" 
+                                      autocomplete="username" 
+                                      aria-required="true" 
+                                      placeholder="nombre@ejemplo.com" 
+                                      id="email" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.Email" class="validation-message" />
                     </div>
 
-                    <!-- Password Field -->
-                    <div class="input-group">
-                        <label for="password">
+                    <!-- Password Input Group -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">
                             <i class="fas fa-lock"></i>
-                            Contraseña
+                            <span>Contraseña</span>
                         </label>
-                        <InputText type="password" 
-                                  @bind-Value="Input.Password" 
-                                  class="form-control" 
-                                  autocomplete="new-password" 
-                                  aria-required="true" 
-                                  placeholder="Mínimo 6 caracteres" 
-                                  id="password" />
-                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                        <div class="input-wrapper">
+                            <InputText type="password" 
+                                      @bind-Value="Input.Password" 
+                                      class="form-input" 
+                                      autocomplete="new-password" 
+                                      aria-required="true" 
+                                      placeholder="Mínimo 6 caracteres" 
+                                      id="password" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.Password" class="validation-message" />
                     </div>
 
-                    <!-- Confirm Password Field -->
-                    <div class="input-group">
-                        <label for="confirm-password">
-                            <i class="fas fa-lock"></i>
-                            Confirmar Contraseña
+                    <!-- Confirm Password Input Group -->
+                    <div class="form-group">
+                        <label for="confirm-password" class="form-label">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Confirmar Contraseña</span>
                         </label>
-                        <InputText type="password" 
-                                  @bind-Value="Input.ConfirmPassword" 
-                                  class="form-control" 
-                                  autocomplete="new-password" 
-                                  aria-required="true" 
-                                  placeholder="Repite tu contraseña" 
-                                  id="confirm-password" />
-                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                        <div class="input-wrapper">
+                            <InputText type="password" 
+                                      @bind-Value="Input.ConfirmPassword" 
+                                      class="form-input" 
+                                      autocomplete="new-password" 
+                                      aria-required="true" 
+                                      placeholder="Repite tu contraseña" 
+                                      id="confirm-password" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="validation-message" />
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn-login">
-                        <i class="fas fa-user-check me-2"></i>
-                        Registrarse
+                    <button type="submit" class="btn-primary-gradient">
+                        <i class="fas fa-user-check"></i>
+                        <span>Crear Cuenta</span>
                     </button>
                     
                     <AntiforgeryToken />
                 </EditForm>
 
-                <!-- Separator -->
-                <div class="separator">
-                    <span>O</span>
+                <!-- Divider Premium -->
+                <div class="divider">
+                    <span class="divider-text">O regístrate con</span>
                 </div>
 
                 <!-- External Login Section -->
                 <ExternalLoginPicker />
 
-                <!-- Footer Links -->
+                <!-- Login Link -->
                 <div class="form-footer">
-                    <span class="text-muted">
-                        ¿Ya tienes una cuenta? 
+                    <p class="footer-text">
+                        ¿Ya tienes cuenta?
                         <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))" class="link-register">
-                            Inicia sesión aquí
+                            Inicia sesión <i class="fas fa-arrow-right"></i>
                         </a>
-                    </span>
+                    </p>
                 </div>
             </div>
         </div>
