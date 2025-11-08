@@ -47,7 +47,7 @@ jobs:
           dotnet-version: '8.x'
 
       - name: 📦 Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
 
       - name: 🏗️ Build with dotnet
         run: dotnet build Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj --configuration Release --no-restore
