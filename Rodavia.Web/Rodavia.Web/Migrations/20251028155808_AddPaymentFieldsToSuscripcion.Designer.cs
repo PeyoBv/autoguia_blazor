@@ -25,7 +25,7 @@ namespace Rodavia.Web.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PaymentLog", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PaymentLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -91,7 +91,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("PaymentLogs", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PaymentMethod", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PaymentMethod", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -173,7 +173,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("PaymentMethods", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Plan", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Plan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -250,7 +250,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("Planes", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Suscripcion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Suscripcion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -364,7 +364,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("Suscripciones", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.TransbankTransaction", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.TransbankTransaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -490,7 +490,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("TransbankTransactions", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Web.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Rodavia.Web.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -686,9 +686,9 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PaymentLog", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PaymentLog", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.TransbankTransaction", "Transaction")
+                    b.HasOne("Rodavia.Core.Entities.TransbankTransaction", "Transaction")
                         .WithMany()
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -696,15 +696,15 @@ namespace Rodavia.Web.Migrations
                     b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Suscripcion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Suscripcion", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Plan", "Plan")
+                    b.HasOne("Rodavia.Core.Entities.Plan", "Plan")
                         .WithMany("Suscripciones")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany("Suscripciones")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -713,14 +713,14 @@ namespace Rodavia.Web.Migrations
                     b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.TransbankTransaction", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.TransbankTransaction", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.PaymentMethod", "PaymentMethod")
+                    b.HasOne("Rodavia.Core.Entities.PaymentMethod", "PaymentMethod")
                         .WithMany("Transactions")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("AutoGuia.Core.Entities.Suscripcion", "Suscripcion")
+                    b.HasOne("Rodavia.Core.Entities.Suscripcion", "Suscripcion")
                         .WithMany()
                         .HasForeignKey("SuscripcionId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -741,7 +741,7 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -750,7 +750,7 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -765,7 +765,7 @@ namespace Rodavia.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -774,24 +774,24 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PaymentMethod", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PaymentMethod", b =>
                 {
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Plan", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Plan", b =>
                 {
                     b.Navigation("Suscripciones");
                 });
 
-            modelBuilder.Entity("AutoGuia.Web.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Rodavia.Web.Data.ApplicationUser", b =>
                 {
                     b.Navigation("Suscripciones");
                 });

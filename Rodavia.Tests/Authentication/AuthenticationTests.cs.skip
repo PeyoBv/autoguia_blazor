@@ -1,13 +1,13 @@
-using AutoGuia.Core.Entities;
-using AutoGuia.Web.Data;
-using AutoGuia.Web.Services;
+using Rodavia.Core.Entities;
+using Rodavia.Web.Data;
+using Rodavia.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
 
-namespace AutoGuia.Tests.Authentication;
+namespace Rodavia.Tests.Authentication;
 
 /// <summary>
 /// Tests unitarios para el sistema de autenticación con Google OAuth2 y gestión de usuarios

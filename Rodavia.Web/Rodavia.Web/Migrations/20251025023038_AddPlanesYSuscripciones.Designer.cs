@@ -25,7 +25,7 @@ namespace Rodavia.Web.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Plan", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Plan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,7 +102,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("Planes", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Suscripcion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Suscripcion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,7 +189,7 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("Suscripciones", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Web.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Rodavia.Web.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -385,15 +385,15 @@ namespace Rodavia.Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Suscripcion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Suscripcion", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Plan", "Plan")
+                    b.HasOne("Rodavia.Core.Entities.Plan", "Plan")
                         .WithMany("Suscripciones")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany("Suscripciones")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -413,7 +413,7 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,7 +422,7 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -437,7 +437,7 @@ namespace Rodavia.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -446,19 +446,19 @@ namespace Rodavia.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("AutoGuia.Web.Data.ApplicationUser", null)
+                    b.HasOne("Rodavia.Web.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Plan", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Plan", b =>
                 {
                     b.Navigation("Suscripciones");
                 });
 
-            modelBuilder.Entity("AutoGuia.Web.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Rodavia.Web.Data.ApplicationUser", b =>
                 {
                     b.Navigation("Suscripciones");
                 });

@@ -1,6 +1,6 @@
-# AutoGuia.Tests 🧪
+# Rodavia.Tests 🧪
 
-Proyecto de tests unitarios para **AutoGuía** - Plataforma Automotriz.
+Proyecto de tests unitarios para **Rodavia** - Plataforma Automotriz.
 
 ## 📦 Tecnologías
 
@@ -13,8 +13,8 @@ Proyecto de tests unitarios para **AutoGuía** - Plataforma Automotriz.
 ## 🗂️ Estructura
 
 ```
-AutoGuia.Tests/
-├── AutoGuia.Tests.csproj          # Proyecto de tests
+Rodavia.Tests/
+├── Rodavia.Tests.csproj          # Proyecto de tests
 ├── Services/
 │   └── CategoriaServiceTests.cs   # Tests de CategoriaService (10 tests)
 └── README.md                      # Este archivo
@@ -110,8 +110,8 @@ Para más detalles sobre los tests de CategoriaService, ver:
 
 ### Referencias de Proyectos
 ```xml
-<ProjectReference Include="..\AutoGuia.Infrastructure\AutoGuia.Infrastructure.csproj" />
-<ProjectReference Include="..\AutoGuia.Core\AutoGuia.Core.csproj" />
+<ProjectReference Include="..\Rodavia.Infrastructure\Rodavia.Infrastructure.csproj" />
+<ProjectReference Include="..\Rodavia.Core\Rodavia.Core.csproj" />
 ```
 
 ## 🐛 Debugging
@@ -170,6 +170,6 @@ public async Task ObtenerCategoriasAsync_DebeRetornarSoloCategoriasActivas()
 
 ---
 
-**Proyecto**: AutoGuía  
+**Proyecto**: Rodavia  
 **Framework**: .NET 8  
 **Última actualización**: 20 de octubre de 2025

@@ -1,4 +1,4 @@
-# 🔍 Auditoría de Assets - AutoGuía
+# 🔍 Auditoría de Assets - Rodavia
 **Fecha**: 27 de octubre de 2025  
 **Estado**: Assets creados pero integración incompleta
 
@@ -12,10 +12,10 @@ De los assets creados recientemente, **solo el logo horizontal está funcionalme
 
 | Asset | Ubicación | Tamaño | Estado |
 |-------|-----------|--------|--------|
-| **Logo Horizontal** | `/images/logo-autoguia-horizontal.svg` | ~2.5KB | ✅ **INTEGRADO** en Header.razor |
-| **Logo Vertical** | `/images/logo-autoguia-vertical.svg` | ~2.3KB | ⚠️ Creado pero no usado |
-| **Logo Icon** | `/images/logo-autoguia-icon.svg` | ~2KB | ⚠️ Creado pero no usado |
-| **Hero Banner** | `/images/hero-autoguia.jpg` | 1.28MB | ⚠️ Referenciado en Hero.razor (no se usa el componente) |
+| **Logo Horizontal** | `/images/logo-rodavia-horizontal.svg` | ~2.5KB | ✅ **INTEGRADO** en Header.razor |
+| **Logo Vertical** | `/images/logo-rodavia-vertical.svg` | ~2.3KB | ⚠️ Creado pero no usado |
+| **Logo Icon** | `/images/logo-rodavia-icon.svg` | ~2KB | ⚠️ Creado pero no usado |
+| **Hero Banner** | `/images/hero-rodavia.jpg` | 1.28MB | ⚠️ Referenciado en Hero.razor (no se usa el componente) |
 | **Avatar Author** | `/images/avatar-author.svg` | 3.5KB | ✅ **INTEGRADO** en Footer.razor |
 | **Car Compact SVG** | `/images/products/car-placeholder-compact.svg` | 2.25KB | ❌ No usado |
 | **Car SUV SVG** | `/images/products/car-placeholder-suv.svg` | 2.49KB | ❌ No usado |
@@ -36,12 +36,12 @@ De los assets creados recientemente, **solo el logo horizontal está funcionalme
 ### 1. **Hero.razor NO se está usando** ❌
 - **Problema**: El componente `Components/Hero.razor` existe pero no se renderiza en ninguna página
 - **Evidencia**: Búsqueda de `<Hero` no arroja resultados
-- **Impacto**: hero-autoguia.jpg (1.28MB) y hero.css (155 lines) NO se cargan
+- **Impacto**: hero-rodavia.jpg (1.28MB) y hero.css (155 lines) NO se cargan
 - **Consecuencia**: El asset más grande del proyecto está desperdiciado
 
 **Ubicación actual del Hero.razor**:
 ```
-c:\Users\barri\OneDrive\Documentos\GitHub\blazorautoguia\Components\Hero.razor
+c:\Users\barri\OneDrive\Documentos\GitHub\blazorrodavia\Components\Hero.razor
 ```
 
 **Páginas que deberían usarlo**:
@@ -72,7 +72,7 @@ Los 6 iconos vectoriales creados no están integrados en ningún componente:
 - `icon-parts.svg` (repuestos)
 
 **Lugares ideales para usarlos**:
-- Home.razor: Sección "¿Por qué elegir AutoGuía?" (actualmente usa Font Awesome)
+- Home.razor: Sección "¿Por qué elegir Rodavia?" (actualmente usa Font Awesome)
 - Suscripciones.razor: Features de planes premium
 - Footer.razor: Links de servicios
 - Repuestos.razor: Categorías de productos
@@ -103,7 +103,7 @@ Los 3 SVG de carros no se referencian en:
 ### 🔴 PRIORIDAD ALTA (Funcionalidad Básica)
 
 #### 1. Linkear CSS Faltantes
-**Archivo**: `AutoGuia.Web/AutoGuia.Web/Components/App.razor`  
+**Archivo**: `Rodavia.Web/Rodavia.Web/Components/App.razor`  
 **Línea**: Después de línea 16 (después de suscripciones.css)
 
 ```html
@@ -119,15 +119,15 @@ Los 3 SVG de carros no se referencian en:
 ---
 
 #### 2. Integrar Hero.razor en Home.razor
-**Archivo**: `AutoGuia.Web/AutoGuia.Web/Components/Pages/Home.razor`  
+**Archivo**: `Rodavia.Web/Rodavia.Web/Components/Pages/Home.razor`  
 **Acción**: Reemplazar el hero inline existente (líneas 5-26) con:
 
 ```razor
 @page "/"
 @rendermode InteractiveAuto
-@using AutoGuia.Web.Components
+@using Rodavia.Web.Components
 
-<PageTitle>AutoGuía - Tu plataforma automotriz integral</PageTitle>
+<PageTitle>Rodavia - Tu plataforma automotriz integral</PageTitle>
 
 <Hero />
 
@@ -136,7 +136,7 @@ Los 3 SVG de carros no se referencian en:
 ```
 
 **Beneficios**:
-- ✅ hero-autoguia.jpg se carga (1.28MB justificado)
+- ✅ hero-rodavia.jpg se carga (1.28MB justificado)
 - ✅ hero.css efectivo
 - ✅ CTAs consistentes con diseño profesional
 - ✅ Mejor primera impresión visual
@@ -162,8 +162,8 @@ Los 3 SVG de carros no se referencian en:
 ### 🟡 PRIORIDAD MEDIA (Mejoras Visuales)
 
 #### 4. Reemplazar Font Awesome con Iconos Custom en Home.razor
-**Archivo**: `AutoGuia.Web/AutoGuia.Web/Components/Pages/Home.razor`  
-**Sección**: Líneas 80-121 ("¿Por qué elegir AutoGuía?")
+**Archivo**: `Rodavia.Web/Rodavia.Web/Components/Pages/Home.razor`  
+**Sección**: Líneas 80-121 ("¿Por qué elegir Rodavia?")
 
 **Cambios**:
 ```html
@@ -181,7 +181,7 @@ Los 3 SVG de carros no se referencian en:
 - `fa-mobile-alt` → `icon-delivery.svg` (entrega rápida)
 
 **Beneficios**:
-- ✅ Consistencia visual con logo AutoGuía (mismo color #0d6efd)
+- ✅ Consistencia visual con logo Rodavia (mismo color #0d6efd)
 - ✅ Reduce dependencia de Font Awesome
 - ✅ Iconos más específicos para contexto automotriz
 
@@ -241,7 +241,7 @@ Los 3 SVG de carros no se referencian en:
 
 ### 🟢 PRIORIDAD BAJA (Optimizaciones)
 
-#### 7. Generar Favicon desde logo-autoguia-icon.svg
+#### 7. Generar Favicon desde logo-rodavia-icon.svg
 **Herramienta recomendada**: https://realfavicongenerator.net/
 
 **Archivos a generar**:
@@ -265,11 +265,11 @@ Los 3 SVG de carros no se referencian en:
 **Archivo**: `App.razor` (dentro de `<head>`)
 
 ```html
-<meta property="og:image" content="https://autoguia.cl/images/logo-autoguia-vertical.svg" />
+<meta property="og:image" content="https://rodavia.cl/images/logo-rodavia-vertical.svg" />
 <meta property="og:image:width" content="140" />
 <meta property="og:image:height" content="140" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="AutoGuía - Plataforma Automotriz Integral" />
+<meta property="og:title" content="Rodavia - Plataforma Automotriz Integral" />
 <meta property="og:description" content="Compara repuestos, encuentra talleres certificados y obtén diagnósticos con IA" />
 ```
 
@@ -280,7 +280,7 @@ Los 3 SVG de carros no se referencian en:
 
 ---
 
-#### 9. Comprimir hero-autoguia.jpg
+#### 9. Comprimir hero-rodavia.jpg
 **Problema**: 1.28MB es pesado para hero banner  
 **Target**: <500KB
 
@@ -289,14 +289,14 @@ Los 3 SVG de carros no se referencian en:
 2. **ImageOptim** (local): `choco install imageoptim`
 3. **PowerShell con ImageMagick**:
    ```powershell
-   magick convert hero-autoguia.jpg -quality 85 -resize 2560x hero-autoguia-optimized.jpg
+   magick convert hero-rodavia.jpg -quality 85 -resize 2560x hero-rodavia-optimized.jpg
    ```
 
 **Comando sugerido**:
 ```powershell
 # Si tienes ImageMagick instalado
-cd AutoGuia.Web/AutoGuia.Web/wwwroot/images
-magick convert hero-autoguia.jpg -quality 80 -strip hero-autoguia-optimized.jpg
+cd Rodavia.Web/Rodavia.Web/wwwroot/images
+magick convert hero-rodavia.jpg -quality 80 -strip hero-rodavia-optimized.jpg
 ```
 
 **Impacto**: Mejora LCP (Largest Contentful Paint) en PageSpeed Insights
@@ -308,8 +308,8 @@ magick convert hero-autoguia.jpg -quality 80 -strip hero-autoguia-optimized.jpg
 
 ```json
 {
-  "name": "AutoGuía - Plataforma Automotriz",
-  "short_name": "AutoGuía",
+  "name": "Rodavia - Plataforma Automotriz",
+  "short_name": "Rodavia",
   "description": "Tu plataforma integral para el mundo automotriz chileno",
   "start_url": "/",
   "display": "standalone",
@@ -317,7 +317,7 @@ magick convert hero-autoguia.jpg -quality 80 -strip hero-autoguia-optimized.jpg
   "theme_color": "#0d6efd",
   "icons": [
     {
-      "src": "/images/logo-autoguia-icon.svg",
+      "src": "/images/logo-rodavia-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -357,8 +357,8 @@ magick convert hero-autoguia.jpg -quality 80 -strip hero-autoguia-optimized.jpg
 - [ ] Agregar iconos custom en cards de servicios
 
 ### Fase 3: Optimizaciones (2 horas)
-- [ ] Generar favicon package desde logo-autoguia-icon.svg
-- [ ] Comprimir hero-autoguia.jpg (<500KB)
+- [ ] Generar favicon package desde logo-rodavia-icon.svg
+- [ ] Comprimir hero-rodavia.jpg (<500KB)
 - [ ] Crear manifest.json para PWA
 - [ ] Agregar Open Graph meta tags
 
@@ -369,10 +369,10 @@ magick convert hero-autoguia.jpg -quality 80 -strip hero-autoguia-optimized.jpg
 ```
 wwwroot/
 ├── images/
-│   ├── logo-autoguia-horizontal.svg ✅ (Header)
-│   ├── logo-autoguia-vertical.svg 🎯 (Open Graph)
-│   ├── logo-autoguia-icon.svg 🎯 (Favicon source)
-│   ├── hero-autoguia.jpg ⚠️ (Comprimir)
+│   ├── logo-rodavia-horizontal.svg ✅ (Header)
+│   ├── logo-rodavia-vertical.svg 🎯 (Open Graph)
+│   ├── logo-rodavia-icon.svg 🎯 (Favicon source)
+│   ├── hero-rodavia.jpg ⚠️ (Comprimir)
 │   ├── avatar-author.svg ✅ (Footer, About)
 │   ├── icons/ 🎯
 │   │   ├── icon-warranty.svg (Home features)
@@ -413,7 +413,7 @@ wwwroot/
 ### Ejecutar auditoría completa
 ```powershell
 # Verificar assets no usados
-cd c:\Users\barri\OneDrive\Documentos\GitHub\blazorautoguia
+cd c:\Users\barri\OneDrive\Documentos\GitHub\blazorrodavia
 Get-ChildItem -Recurse -Filter "*.svg" | Where-Object { 
   $_.FullName -match "wwwroot\\images" 
 } | ForEach-Object {
@@ -428,15 +428,15 @@ Get-ChildItem -Recurse -Filter "*.svg" | Where-Object {
 ### Test de integración CSS
 ```powershell
 # Verificar que CSS están linkeados
-Select-String -Path "AutoGuia.Web/AutoGuia.Web/Components/App.razor" -Pattern "hero.css|avatar.css"
+Select-String -Path "Rodavia.Web/Rodavia.Web/Components/App.razor" -Pattern "hero.css|avatar.css"
 # Si no arroja resultados → CSS NO están linkeados
 ```
 
-### Comprimir hero-autoguia.jpg (si tienes ImageMagick)
+### Comprimir hero-rodavia.jpg (si tienes ImageMagick)
 ```powershell
-cd AutoGuia.Web/AutoGuia.Web/wwwroot/images
-magick convert hero-autoguia.jpg -quality 80 -resize 2560x -strip hero-autoguia-opt.jpg
-# Verificar tamaño: Get-Item hero-autoguia-opt.jpg | Select-Object Length
+cd Rodavia.Web/Rodavia.Web/wwwroot/images
+magick convert hero-rodavia.jpg -quality 80 -resize 2560x -strip hero-rodavia-opt.jpg
+# Verificar tamaño: Get-Item hero-rodavia-opt.jpg | Select-Object Length
 ```
 
 ---
@@ -471,7 +471,7 @@ magick convert hero-autoguia.jpg -quality 80 -resize 2560x -strip hero-autoguia-
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-6">
-        <h1 class="display-4 fw-bold mb-3">Bienvenido a AutoGuía</h1>
+        <h1 class="display-4 fw-bold mb-3">Bienvenido a Rodavia</h1>
         <!-- Hero inline básico -->
       </div>
       <div class="col-lg-6 text-center">
@@ -486,9 +486,9 @@ magick convert hero-autoguia.jpg -quality 80 -resize 2560x -strip hero-autoguia-
 ```razor
 @page "/"
 @rendermode InteractiveAuto
-@using AutoGuia.Web.Components
+@using Rodavia.Web.Components
 
-<PageTitle>AutoGuía - Tu plataforma automotriz integral</PageTitle>
+<PageTitle>Rodavia - Tu plataforma automotriz integral</PageTitle>
 
 <!-- Hero con imagen profesional y gradientes -->
 <Hero />
@@ -533,8 +533,8 @@ magick convert hero-autoguia.jpg -quality 80 -resize 2560x -strip hero-autoguia-
 
 **Próximo Paso Inmediato**: Ejecutar cambios de Fase 1 y commit:
 ```bash
-git add AutoGuia.Web/AutoGuia.Web/Components/App.razor
-git add AutoGuia.Web/AutoGuia.Web/Components/Pages/Home.razor
+git add Rodavia.Web/Rodavia.Web/Components/App.razor
+git add Rodavia.Web/Rodavia.Web/Components/Pages/Home.razor
 git add Pages/About.razor
 git commit -m "fix: Integrar assets creados (hero.css, avatar.css, Hero component)"
 git push origin main

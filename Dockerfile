@@ -1,4 +1,4 @@
-# AutoGuía - Dockerfile para aplicación web
+# Rodavia - Dockerfile para aplicación web
 # Multi-stage build optimizado para producción
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
@@ -7,9 +7,9 @@ EXPOSE 8080
 EXPOSE 8081
 
 # Configurar usuario no-root para seguridad
-RUN addgroup --system --gid 1001 autoguia && \
-    adduser --system --uid 1001 --ingroup autoguia autoguia
-USER autoguia
+RUN addgroup --system --gid 1001 rodavia && \
+    adduser --system --uid 1001 --ingroup rodavia rodavia
+USER rodavia
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release

@@ -28,7 +28,7 @@ namespace Rodavia.Infrastructure.Services
                 var talleresData = talleres.Select(ConvertirTallerAMarcador).ToArray();
 
                 // Invocar función JavaScript para inicializar el mapa
-                await _jsRuntime.InvokeAsync<string>("autoguiaMap.initMap", mapElementId, talleresData, apiKey);
+                await _jsRuntime.InvokeAsync<string>("rodaviaMap.initMap", mapElementId, talleresData, apiKey);
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@ namespace Rodavia.Infrastructure.Services
             try
             {
                 var marcadorData = ConvertirTallerAMarcador(taller);
-                await _jsRuntime.InvokeVoidAsync("autoguiaMap.addSingleMarker", marcadorData);
+                await _jsRuntime.InvokeVoidAsync("rodaviaMap.addSingleMarker", marcadorData);
             }
             catch (Exception ex)
             {
@@ -62,7 +62,7 @@ namespace Rodavia.Infrastructure.Services
         {
             try
             {
-                await _jsRuntime.InvokeVoidAsync("autoguiaMap.centerMap", latitud, longitud, zoom);
+                await _jsRuntime.InvokeVoidAsync("rodaviaMap.centerMap", latitud, longitud, zoom);
             }
             catch (Exception ex)
             {
@@ -78,7 +78,7 @@ namespace Rodavia.Infrastructure.Services
         {
             try
             {
-                await _jsRuntime.InvokeVoidAsync("autoguiaMap.clearMarkers");
+                await _jsRuntime.InvokeVoidAsync("rodaviaMap.clearMarkers");
             }
             catch (Exception ex)
             {
