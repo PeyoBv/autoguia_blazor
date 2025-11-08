@@ -27,12 +27,12 @@ namespace Rodavia.Infrastructure.Configuration
                 .WriteTo.Console(
                     outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(
-                    path: "logs/autoguia-.log",
+                    path: "logs/rodavia-.log",
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 30,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(
-                    path: "logs/errors/autoguia-errors-.log",
+                    path: "logs/errors/rodavia-errors-.log",
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 90,

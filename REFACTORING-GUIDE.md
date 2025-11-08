@@ -1,27 +1,27 @@
-# 🎯 AutoGuía - Guía Completa de Refactorización
+# 🎯 Rodavia - Guía Completa de Refactorización
 ## Transición de "Comparador de Precios" a "Centro de Información Vehicular"
 
 ---
 
 ## ✅ **YA COMPLETADO:**
 
-### 1. Proyecto AutoGuia.Scraper
-- ✅ Eliminado de `AutoGuia.sln`
-- ✅ Eliminada referencia en `AutoGuia.Web.csproj`
-- ⏳ Pendiente: Eliminar carpeta física `AutoGuia.Scraper/` (hacerlo manualmente o con `Remove-Item`)
+### 1. Proyecto Rodavia.Scraper
+- ✅ Eliminado de `Rodavia.sln`
+- ✅ Eliminada referencia en `Rodavia.Web.csproj`
+- ⏳ Pendiente: Eliminar carpeta física `Rodavia.Scraper/` (hacerlo manualmente o con `Remove-Item`)
 
 ---
 
 ## 📋 **FASE 1: LIMPIEZA MANUAL (Pasos Restantes)**
 
-### **Paso 1-A: Eliminar Entidades Obsoletas (AutoGuia.Core/Entities)**
+### **Paso 1-A: Eliminar Entidades Obsoletas (Rodavia.Core/Entities)**
 
 Eliminar estos archivos:
 ```
-❌ AutoGuia.Core/Entities/Producto.cs
-❌ AutoGuia.Core/Entities/Tienda.cs
-❌ AutoGuia.Core/Entities/Oferta.cs
-❌ AutoGuia.Core/Entities/ProductoVehiculoCompatible.cs
+❌ Rodavia.Core/Entities/Producto.cs
+❌ Rodavia.Core/Entities/Tienda.cs
+❌ Rodavia.Core/Entities/Oferta.cs
+❌ Rodavia.Core/Entities/ProductoVehiculoCompatible.cs
 ```
 
 ✅ **MANTENER:**
@@ -34,7 +34,7 @@ Eliminar estos archivos:
 - `RespuestaForo.cs`
 - `ResenasTaller.cs`
 
-### **Paso 1-B: Eliminar DTOs Obsoletos (AutoGuia.Core/DTOs)**
+### **Paso 1-B: Eliminar DTOs Obsoletos (Rodavia.Core/DTOs)**
 
 Eliminar estos archivos (si existen):
 ```
@@ -48,9 +48,9 @@ Eliminar estos archivos (si existen):
 - `ForoDto.cs`
 - `VinInfo.cs`
 
-### **Paso 1-C: Limpiar AutoGuiaDbContext.cs**
+### **Paso 1-C: Limpiar RodaviaDbContext.cs**
 
-Archivo: `AutoGuia.Infrastructure/Data/AutoGuiaDbContext.cs`
+Archivo: `Rodavia.Infrastructure/Data/RodaviaDbContext.cs`
 
 **Eliminar estos DbSets:**
 ```csharp
@@ -74,7 +74,7 @@ public DbSet<ResenasTaller> ReseniasTaller { get; set; }
 
 ### **Paso 1-D: Limpiar Interfaces de Servicios**
 
-Archivo: `AutoGuia.Infrastructure/Services/IServices.cs`
+Archivo: `Rodavia.Infrastructure/Services/IServices.cs`
 
 **Eliminar estas interfaces:**
 ```csharp
@@ -89,7 +89,7 @@ Archivo: `AutoGuia.Infrastructure/Services/IServices.cs`
 - `IVehiculoService`
 - `IVinDecoderService` (lo refactorizaremos en Fase 2)
 
-### **Paso 1-E: Eliminar Servicios Obsoletos (AutoGuia.Infrastructure/Services)**
+### **Paso 1-E: Eliminar Servicios Obsoletos (Rodavia.Infrastructure/Services)**
 
 Eliminar estos archivos:
 ```
@@ -100,7 +100,7 @@ Eliminar estos archivos:
 
 ### **Paso 1-F: Limpiar Program.cs**
 
-Archivo: `AutoGuia.Web/AutoGuia.Web/Program.cs`
+Archivo: `Rodavia.Web/Rodavia.Web/Program.cs`
 
 **Eliminar estos registros de servicios:**
 ```csharp
@@ -121,16 +121,16 @@ Archivo: `AutoGuia.Web/AutoGuia.Web/Program.cs`
 
 Eliminar estos archivos (si existen):
 ```
-❌ AutoGuia.Web/Components/Pages/Productos.razor
-❌ AutoGuia.Web/Components/Pages/ComparadorPrecios.razor
-❌ AutoGuia.Web/Components/Pages/DetalleProducto.razor
-❌ AutoGuia.Web/Components/Pages/Repuestos.razor
-❌ AutoGuia.Web/Services/ScraperIntegrationService.cs
+❌ Rodavia.Web/Components/Pages/Productos.razor
+❌ Rodavia.Web/Components/Pages/ComparadorPrecios.razor
+❌ Rodavia.Web/Components/Pages/DetalleProducto.razor
+❌ Rodavia.Web/Components/Pages/Repuestos.razor
+❌ Rodavia.Web/Services/ScraperIntegrationService.cs
 ```
 
 ### **Paso 1-H: Limpiar NavMenu.razor**
 
-Archivo: `AutoGuia.Web/Components/Layout/NavMenu.razor`
+Archivo: `Rodavia.Web/Components/Layout/NavMenu.razor`
 
 **Eliminar el enlace a Repuestos:**
 ```razor
@@ -143,7 +143,7 @@ Archivo: `AutoGuia.Web/Components/Layout/NavMenu.razor`
 
 ### **Paso 1-I: Limpiar appsettings.json**
 
-Archivo: `AutoGuia.Web/appsettings.json`
+Archivo: `Rodavia.Web/appsettings.json`
 
 **Eliminar la sección "ScrapingSettings":**
 ```json
@@ -158,13 +158,13 @@ Archivo: `AutoGuia.Web/appsettings.json`
 
 ```powershell
 # Navegar al proyecto Web
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 
 # Crear migración que eliminará las tablas obsoletas
-dotnet ef migrations add RemoveScrapingModel --context AutoGuiaDbContext
+dotnet ef migrations add RemoveScrapingModel --context RodaviaDbContext
 
 # Aplicar la migración
-dotnet ef database update --context AutoGuiaDbContext
+dotnet ef database update --context RodaviaDbContext
 
 # Volver al directorio raíz
 cd ..\..

@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.0.0
 MinimumVisualStudioVersion = 16.0.0.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoGuia.Web", "AutoGuia.Web\AutoGuia.Web.csproj", "{4D9806B0-9162-4453-B569-E54B9834B47F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rodavia.Web", "Rodavia.Web\Rodavia.Web.csproj", "{4D9806B0-9162-4453-B569-E54B9834B47F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoGuia.Web.Client", "AutoGuia.Web.Client\AutoGuia.Web.Client.csproj", "{8CDA498B-0699-453C-B9F7-3C10E0B7CE57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rodavia.Web.Client", "Rodavia.Web.Client\Rodavia.Web.Client.csproj", "{8CDA498B-0699-453C-B9F7-3C10E0B7CE57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

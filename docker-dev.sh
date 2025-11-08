@@ -1,5 +1,5 @@
 #!/bin/bash
-# AutoGuía - Scripts de desarrollo Docker
+# Rodavia - Scripts de desarrollo Docker
 
 set -e
 
@@ -118,7 +118,7 @@ case "${1}" in
         echo -e "${YELLOW}🗃️  Reseteando base de datos...${NC}"
         check_docker_compose
         $DOCKER_COMPOSE stop rodavia-db 2>/dev/null || true
-        docker volume rm blazorautoguia_postgres-data 2>/dev/null || true
+        docker volume rm blazorrodavia_postgres-data 2>/dev/null || true
         $DOCKER_COMPOSE up -d rodavia-db
         echo -e "${GREEN}✅ Base de datos reseteada${NC}"
         ;;
@@ -140,7 +140,7 @@ case "${1}" in
                 ;;
             web)
                 echo -e "${YELLOW}🔌 Conectando a contenedor web...${NC}"
-                $DOCKER_COMPOSE exec autoguia-web /bin/bash
+                $DOCKER_COMPOSE exec rodavia-web /bin/bash
                 ;;
             redis)
                 echo -e "${YELLOW}🔌 Conectando a Redis...${NC}"

@@ -32,11 +32,11 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-version }}
     
     - name: 📦 Restore dependencies
-      run: dotnet restore --no-cache AutoGuia.sln
+      run: dotnet restore --no-cache Rodavia.sln
     
     - name: 🔨 Build (Release)
       run: |
-        dotnet build AutoGuia.sln \
+        dotnet build Rodavia.sln \
           --no-restore \
           -c Release \
           --nologo \
@@ -45,7 +45,7 @@ jobs:
     
     - name: 🧪 Run unit tests with coverage
       run: |
-        dotnet test AutoGuia.sln \
+        dotnet test Rodavia.sln \
           --no-build \
           -c Release \
           --logger "trx;LogFileName=test-results.trx" \
@@ -68,7 +68,7 @@ jobs:
       with:
         files: ./coverage/coverage.opencover.xml
         flags: unittests
-        name: codecov-autoguia
+        name: codecov-rodavia
         fail_ci_if_error: false
         verbose: true
       env:
@@ -108,7 +108,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: 📦 Restore dependencies
-      run: dotnet restore AutoGuia.sln
+      run: dotnet restore Rodavia.sln
     
     - name: 🔒 Security scan - Vulnerable packages
       run: |
@@ -159,13 +159,13 @@ jobs:
       run: |
         if [ -n "$SONAR_TOKEN" ]; then
           dotnet sonarscanner begin \
-            /k:"PeyoBv_autoguia_blazor" \
+            /k:"PeyoBv_rodavia_blazor" \
             /o:"peyobv" \
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage/coverage.opencover.xml"
           
-          dotnet build AutoGuia.sln -c Release
+          dotnet build Rodavia.sln -c Release
           
           dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         else
@@ -200,8 +200,8 @@ jobs:
         file: ./Dockerfile
         push: ${{ github.ref == 'refs/heads/main' }}
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/autoguia:latest
-          ${{ secrets.DOCKER_USERNAME }}/autoguia:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/rodavia:latest
+          ${{ secrets.DOCKER_USERNAME }}/rodavia:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 

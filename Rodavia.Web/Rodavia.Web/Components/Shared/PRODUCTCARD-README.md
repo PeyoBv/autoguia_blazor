@@ -1,7 +1,7 @@
 # ProductCard Component - Guía de Uso
 
 ## 📦 Ubicación
-`AutoGuia.Web/AutoGuia.Web/Components/Shared/ProductCard.razor`
+`Rodavia.Web/Rodavia.Web/Components/Shared/ProductCard.razor`
 
 ## ✨ Características
 
@@ -46,7 +46,7 @@
 ### Ejemplo Básico
 ```razor
 @page "/productos"
-@using AutoGuia.Web.Components.Shared
+@using Rodavia.Web.Components.Shared
 
 <div class="card-grid">
   <ProductCard 

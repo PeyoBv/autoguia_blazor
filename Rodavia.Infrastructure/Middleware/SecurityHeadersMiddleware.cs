@@ -29,7 +29,7 @@ public class SecurityHeadersMiddleware
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
             "img-src 'self' data: https: blob:; " +
-            "connect-src 'self' https://api.autoguia.cl; " +
+            "connect-src 'self' https://api.rodavia.cl; " +
             "frame-ancestors 'self'; " +
             "base-uri 'self'; " +
             "form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl; " +

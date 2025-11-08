@@ -5,7 +5,7 @@ Este documento explica cómo configurar el despliegue continuo de Rodavia a Azur
 ## 📋 Requisitos Previos
 
 1. **Azure App Service creado** con el nombre `rodavia`
-2. **Repositorio en GitHub** (PeyoBv/autoguia_blazor)
+2. **Repositorio en GitHub** (PeyoBv/rodavia_blazor)
 3. **Publish Profile** de Azure App Service
 
 ---
@@ -33,7 +33,7 @@ az webapp deployment list-publishing-profiles \
 
 ## 🔑 Paso 2: Configurar el Secreto en GitHub
 
-1. Ve a tu repositorio en GitHub: https://github.com/PeyoBv/autoguia_blazor
+1. Ve a tu repositorio en GitHub: https://github.com/PeyoBv/rodavia_blazor
 2. Haz clic en **Settings** (Configuración)
 3. En el menú lateral izquierdo, ve a **Secrets and variables** → **Actions**
 4. Haz clic en **"New repository secret"**

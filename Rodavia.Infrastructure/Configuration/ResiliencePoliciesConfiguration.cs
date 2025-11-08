@@ -26,7 +26,7 @@ namespace Rodavia.Infrastructure.Configuration
             services.AddHttpClient("MercadoLibre", client =>
             {
                 client.BaseAddress = new Uri(configuration["MercadoLibre:BaseUrl"] ?? "https://api.mercadolibre.com");
-                client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia/1.0");
+                client.DefaultRequestHeaders.Add("User-Agent", "Rodavia/1.0");
                 client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
             })
             .AddPolicyHandler(GetRetryPolicy(maxRetries, retryDelaySeconds))
@@ -37,7 +37,7 @@ namespace Rodavia.Infrastructure.Configuration
             services.AddHttpClient("Ebay", client =>
             {
                 client.BaseAddress = new Uri(configuration["Ebay:BaseUrl"] ?? "https://api.ebay.com");
-                client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia/1.0");
+                client.DefaultRequestHeaders.Add("User-Agent", "Rodavia/1.0");
                 client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
             })
             .AddPolicyHandler(GetRetryPolicy(maxRetries, retryDelaySeconds))
@@ -47,7 +47,7 @@ namespace Rodavia.Infrastructure.Configuration
             // HttpClient genérico para otros servicios
             services.AddHttpClient("Default", client =>
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "AutoGuia/1.0");
+                client.DefaultRequestHeaders.Add("User-Agent", "Rodavia/1.0");
                 client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
             })
             .AddPolicyHandler(GetRetryPolicy(maxRetries, retryDelaySeconds))

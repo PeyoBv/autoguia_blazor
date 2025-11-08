@@ -22,7 +22,7 @@ namespace Rodavia.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Categoria", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Categoria", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,7 +110,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.CausaPosible", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.CausaPosible", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -153,7 +153,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("causas_posibles", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ConsultaDiagnostico", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ConsultaDiagnostico", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -198,7 +198,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("consultas_diagnostico", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Marca", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Marca", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -272,7 +272,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Modelo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Modelo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -407,7 +407,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Oferta", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Oferta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -460,7 +460,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Ofertas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PasoVerificacion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PasoVerificacion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -504,7 +504,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("pasos_verificacion", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Producto", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Producto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -574,7 +574,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Productos");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ProductoVehiculoCompatible", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ProductoVehiculoCompatible", b =>
                 {
                     b.Property<int>("ProductoId")
                         .HasColumnType("integer");
@@ -602,7 +602,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("ProductoVehiculoCompatibles");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PublicacionForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PublicacionForo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -659,7 +659,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("PublicacionesForo");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.RecomendacionPreventiva", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.RecomendacionPreventiva", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -702,7 +702,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("recomendaciones_preventivas", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Resena", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Resena", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -739,7 +739,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Resena");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ResenasTaller", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ResenasTaller", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -775,7 +775,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("ResenasTaller");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.RespuestaForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.RespuestaForo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -823,7 +823,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("RespuestasForo");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Sintoma", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Sintoma", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -866,7 +866,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("sintomas", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.SistemaAutomotriz", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.SistemaAutomotriz", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -899,7 +899,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("sistemas_automotrices", "diagnostico");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Subcategoria", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Subcategoria", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1014,7 +1014,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Taller", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Taller", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1139,7 +1139,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Tienda", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Tienda", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1197,7 +1197,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Tiendas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Usuario", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1246,7 +1246,7 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ValorFiltro", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ValorFiltro", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1463,7 +1463,7 @@ namespace Rodavia.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Vehiculo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Vehiculo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1531,9 +1531,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.ToTable("Vehiculos");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.CausaPosible", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.CausaPosible", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Sintoma", "Sintoma")
+                    b.HasOne("Rodavia.Core.Entities.Sintoma", "Sintoma")
                         .WithMany("CausasPosibles")
                         .HasForeignKey("SintomaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1542,14 +1542,14 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Sintoma");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ConsultaDiagnostico", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ConsultaDiagnostico", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Sintoma", "SintomaRelacionado")
+                    b.HasOne("Rodavia.Core.Entities.Sintoma", "SintomaRelacionado")
                         .WithMany()
                         .HasForeignKey("SintomaRelacionadoId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("AutoGuia.Core.Entities.Usuario", "Usuario")
+                    b.HasOne("Rodavia.Core.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1560,9 +1560,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Modelo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Modelo", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Marca", "Marca")
+                    b.HasOne("Rodavia.Core.Entities.Marca", "Marca")
                         .WithMany("Modelos")
                         .HasForeignKey("MarcaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1571,15 +1571,15 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Marca");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Oferta", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Oferta", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Producto", "Producto")
+                    b.HasOne("Rodavia.Core.Entities.Producto", "Producto")
                         .WithMany("Ofertas")
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Core.Entities.Tienda", "Tienda")
+                    b.HasOne("Rodavia.Core.Entities.Tienda", "Tienda")
                         .WithMany("Ofertas")
                         .HasForeignKey("TiendaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1590,9 +1590,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Tienda");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PasoVerificacion", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PasoVerificacion", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.CausaPosible", "CausaPosible")
+                    b.HasOne("Rodavia.Core.Entities.CausaPosible", "CausaPosible")
                         .WithMany("PasosVerificacion")
                         .HasForeignKey("CausaPosibleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1601,9 +1601,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("CausaPosible");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Producto", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Producto", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Categoria", "Categoria")
+                    b.HasOne("Rodavia.Core.Entities.Categoria", "Categoria")
                         .WithMany()
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1612,15 +1612,15 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Categoria");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ProductoVehiculoCompatible", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ProductoVehiculoCompatible", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Modelo", "Modelo")
+                    b.HasOne("Rodavia.Core.Entities.Modelo", "Modelo")
                         .WithMany()
                         .HasForeignKey("ModeloId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Core.Entities.Producto", "Producto")
+                    b.HasOne("Rodavia.Core.Entities.Producto", "Producto")
                         .WithMany("VehiculosCompatibles")
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1631,9 +1631,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Producto");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PublicacionForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PublicacionForo", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Usuario", "Usuario")
+                    b.HasOne("Rodavia.Core.Entities.Usuario", "Usuario")
                         .WithMany("PublicacionesForo")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1642,9 +1642,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.RecomendacionPreventiva", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.RecomendacionPreventiva", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.CausaPosible", "CausaPosible")
+                    b.HasOne("Rodavia.Core.Entities.CausaPosible", "CausaPosible")
                         .WithMany("Recomendaciones")
                         .HasForeignKey("CausaPosibleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1653,9 +1653,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("CausaPosible");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Resena", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Resena", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Taller", "Taller")
+                    b.HasOne("Rodavia.Core.Entities.Taller", "Taller")
                         .WithMany("Resenas")
                         .HasForeignKey("TallerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1664,15 +1664,15 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Taller");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ResenasTaller", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ResenasTaller", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Taller", "Taller")
+                    b.HasOne("Rodavia.Core.Entities.Taller", "Taller")
                         .WithMany()
                         .HasForeignKey("TallerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Core.Entities.Usuario", "Usuario")
+                    b.HasOne("Rodavia.Core.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1683,19 +1683,19 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.RespuestaForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.RespuestaForo", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.PublicacionForo", "Publicacion")
+                    b.HasOne("Rodavia.Core.Entities.PublicacionForo", "Publicacion")
                         .WithMany("Respuestas")
                         .HasForeignKey("PublicacionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoGuia.Core.Entities.RespuestaForo", "RespuestaPadre")
+                    b.HasOne("Rodavia.Core.Entities.RespuestaForo", "RespuestaPadre")
                         .WithMany("RespuestasHijas")
                         .HasForeignKey("RespuestaPadreId");
 
-                    b.HasOne("AutoGuia.Core.Entities.Usuario", "Usuario")
+                    b.HasOne("Rodavia.Core.Entities.Usuario", "Usuario")
                         .WithMany("RespuestasForo")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1708,9 +1708,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Sintoma", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Sintoma", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.SistemaAutomotriz", "SistemaAutomotriz")
+                    b.HasOne("Rodavia.Core.Entities.SistemaAutomotriz", "SistemaAutomotriz")
                         .WithMany("Sintomas")
                         .HasForeignKey("SistemaAutomotrizId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1719,9 +1719,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("SistemaAutomotriz");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Subcategoria", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Subcategoria", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Categoria", "Categoria")
+                    b.HasOne("Rodavia.Core.Entities.Categoria", "Categoria")
                         .WithMany("Subcategorias")
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1730,9 +1730,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Categoria");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.ValorFiltro", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.ValorFiltro", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Subcategoria", "Subcategoria")
+                    b.HasOne("Rodavia.Core.Entities.Subcategoria", "Subcategoria")
                         .WithMany("Valores")
                         .HasForeignKey("SubcategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1741,9 +1741,9 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Subcategoria");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Vehiculo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Vehiculo", b =>
                 {
-                    b.HasOne("AutoGuia.Core.Entities.Usuario", "Usuario")
+                    b.HasOne("Rodavia.Core.Entities.Usuario", "Usuario")
                         .WithMany("Vehiculos")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1752,66 +1752,66 @@ namespace Rodavia.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Categoria", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Categoria", b =>
                 {
                     b.Navigation("Subcategorias");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.CausaPosible", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.CausaPosible", b =>
                 {
                     b.Navigation("PasosVerificacion");
 
                     b.Navigation("Recomendaciones");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Marca", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Marca", b =>
                 {
                     b.Navigation("Modelos");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Producto", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Producto", b =>
                 {
                     b.Navigation("Ofertas");
 
                     b.Navigation("VehiculosCompatibles");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.PublicacionForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.PublicacionForo", b =>
                 {
                     b.Navigation("Respuestas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.RespuestaForo", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.RespuestaForo", b =>
                 {
                     b.Navigation("RespuestasHijas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Sintoma", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Sintoma", b =>
                 {
                     b.Navigation("CausasPosibles");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.SistemaAutomotriz", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.SistemaAutomotriz", b =>
                 {
                     b.Navigation("Sintomas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Subcategoria", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Subcategoria", b =>
                 {
                     b.Navigation("Valores");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Taller", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Taller", b =>
                 {
                     b.Navigation("Resenas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Tienda", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Tienda", b =>
                 {
                     b.Navigation("Ofertas");
                 });
 
-            modelBuilder.Entity("AutoGuia.Core.Entities.Usuario", b =>
+            modelBuilder.Entity("Rodavia.Core.Entities.Usuario", b =>
                 {
                     b.Navigation("PublicacionesForo");
 

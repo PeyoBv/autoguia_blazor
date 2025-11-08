@@ -157,7 +157,7 @@ if (Test-Path $publishProfilePath) {
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "1. Ve a tu repositorio en GitHub:" -ForegroundColor White
-    Write-Host "   https://github.com/PeyoBv/autoguia_blazor/settings/secrets/actions" -ForegroundColor Cyan
+    Write-Host "   https://github.com/PeyoBv/rodavia_blazor/settings/secrets/actions" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "2. Haz clic en 'New repository secret'" -ForegroundColor White
     Write-Host ""

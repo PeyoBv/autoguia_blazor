@@ -101,7 +101,7 @@ $cars = @{
     "suv-blue" = "URL_DEL_PNG_3"
 }
 
-$outputPath = "AutoGuia.Web/AutoGuia.Web/wwwroot/images/products"
+$outputPath = "Rodavia.Web/Rodavia.Web/wwwroot/images/products"
 
 foreach ($car in $cars.GetEnumerator()) {
     Write-Host "⬇️  Descargando $($car.Key)..."
@@ -112,7 +112,7 @@ foreach ($car in $cars.GetEnumerator()) {
 
 ---
 
-## 🎯 Autos Prioritarios para AutoGuía Chile
+## 🎯 Autos Prioritarios para Rodavia Chile
 
 ### Categoría Compactos (Más vendidos)
 - ✅ Suzuki Swift
@@ -168,4 +168,4 @@ Estos se pueden reemplazar cuando tengas las imágenes reales.
 ---
 
 **Última actualización**: 27 de octubre de 2025
-**Autor**: AutoGuía Development Team
+**Autor**: Rodavia Development Team
