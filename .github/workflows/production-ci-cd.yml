@@ -205,19 +205,81 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  notify:
-    name: Notify Status
+  notify-success:
+    name: Notify Success
     runs-on: ubuntu-latest
     needs: [build-and-test, security-scan, code-quality]
-    if: always()
+    if: success()
     
     steps:
-    - name: 📢 Build Status
+    - name: ✅ Success Notification
       run: |
-        if [ "${{ needs.build-and-test.result }}" == "success" ] && \
-           [ "${{ needs.security-scan.result }}" == "success" ]; then
-          echo "✅ All checks passed successfully!"
-        else
-          echo "❌ Some checks failed"
-          exit 1
-        fi
+        echo "══════════════════════════════════════════════"
+        echo "✅ PRODUCTION CI/CD - ALL CHECKS PASSED"
+        echo "══════════════════════════════════════════════"
+        echo "📦 Build & Test: ${{ needs.build-and-test.result }}"
+        echo "🔒 Security Scan: ${{ needs.security-scan.result }}"
+        echo "📊 Code Quality: ${{ needs.code-quality.result }}"
+        echo "══════════════════════════════════════════════"
+        echo "🎉 Pipeline completed successfully!"
+        echo "🚀 Ready for production deployment"
+        
+    # Opcional: Agregar integración con Slack/Discord/Email
+    # - name: 📧 Send Slack notification
+    #   uses: 8398a7/action-slack@v3
+    #   with:
+    #     status: custom
+    #     custom_payload: |
+    #       {
+    #         "text": "✅ Production CI/CD: All checks passed!",
+    #         "attachments": [{
+    #           "color": "good",
+    #           "fields": [{
+    #             "title": "Repository",
+    #             "value": "${{ github.repository }}",
+    #             "short": true
+    #           }]
+    #         }]
+    #       }
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-scan, code-quality]
+    if: failure()
+    
+    steps:
+    - name: ❌ Failure Notification
+      run: |
+        echo "══════════════════════════════════════════════"
+        echo "❌ PRODUCTION CI/CD - CHECKS FAILED"
+        echo "══════════════════════════════════════════════"
+        echo "📦 Build & Test: ${{ needs.build-and-test.result }}"
+        echo "🔒 Security Scan: ${{ needs.security-scan.result }}"
+        echo "📊 Code Quality: ${{ needs.code-quality.result }}"
+        echo "══════════════════════════════════════════════"
+        echo "⚠️ PRODUCTION DEPLOYMENT BLOCKED"
+        echo "📝 Please review the failed jobs above"
+        echo "🔧 Fix issues before merging to main"
+        
+    # Opcional: Notificar fallos críticos
+    # - name: 📧 Send failure notification
+    #   uses: 8398a7/action-slack@v3
+    #   with:
+    #     status: custom
+    #     custom_payload: |
+    #       {
+    #         "text": "❌ Production CI/CD: Checks failed!",
+    #         "attachments": [{
+    #           "color": "danger",
+    #           "fields": [{
+    #             "title": "Commit",
+    #             "value": "${{ github.sha }}",
+    #             "short": true
+    #           }]
+    #         }]
+    #       }
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
