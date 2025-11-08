@@ -133,7 +133,7 @@ namespace Rodavia.Tests.Services.ExternalServices
                         condition = "new",
                         available_quantity = 10,
                         sold_quantity = 5,
-                        shipping = new { free_shipping = true }
+                        shipping = new { FreeShipping = true }
                     }
                 }
             };
