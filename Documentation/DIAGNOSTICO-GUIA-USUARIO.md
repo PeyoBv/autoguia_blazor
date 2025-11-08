@@ -962,7 +962,7 @@ Mi Vehículo → Alertas
 ### 🆘 ¿Necesitas Ayuda?
 
 **📧 Email de Soporte**
-- Dirección: soporte@autoguia.com
+- Dirección: soporte@Rodavia.com
 - Tiempo de respuesta: 24-48 horas
 - Horario: 24/7
 
@@ -976,11 +976,11 @@ Mi Vehículo → Alertas
 - Horario: Lunes a Viernes, 9 AM - 6 PM
 
 **🌐 Centro de Ayuda**
-- URL: https://autoguia.com/ayuda
+- URL: https://Rodavia.com/ayuda
 - FAQs, tutoriales en video, guías paso a paso
 
 **👥 Comunidad de Usuarios**
-- Foro: https://comunidad.autoguia.com
+- Foro: https://comunidad.Rodavia.com
 - Comparte experiencias, haz preguntas, ayuda a otros
 
 ---
@@ -1010,7 +1010,7 @@ Mi Vehículo → Alertas
      ```
 
 2. **Por email**:
-   - Envía a: bugs@autoguia.com
+   - Envía a: bugs@Rodavia.com
    - Incluye capturas de pantalla si es posible
    - Detalla pasos para reproducir el error
 
@@ -1024,7 +1024,7 @@ Mi Vehículo → Alertas
 ### 📚 Recursos Adicionales
 
 **🎓 Tutoriales en Video**
-- YouTube: @AutoGuiaOficial
+- YouTube: @RodaviaOficial
 - Videos de 3-5 minutos
 - Cómo usar cada función
 
@@ -1071,8 +1071,8 @@ AutoGuía proporciona el Asistente de Diagnóstico como:
 - Derecho a eliminar datos en cualquier momento
 
 Para detalles completos, consulta:
-- [Términos y Condiciones Completos](https://autoguia.com/terminos)
-- [Política de Privacidad](https://autoguia.com/privacidad)
+- [Términos y Condiciones Completos](https://Rodavia.com/terminos)
+- [Política de Privacidad](https://Rodavia.com/privacidad)
 
 ---
 
@@ -1090,12 +1090,12 @@ Para detalles completos, consulta:
 
 **¿Listo para diagnosticar tu vehículo?**
 
-1. ✅ [Inicia sesión en AutoGuía](https://autoguia.com/login)
-2. 🔍 [Accede al Asistente de Diagnóstico](https://autoguia.com/diagnostico)
+1. ✅ [Inicia sesión en AutoGuía](https://Rodavia.com/login)
+2. 🔍 [Accede al Asistente de Diagnóstico](https://Rodavia.com/diagnostico)
 3. 📝 Describe tu síntoma
 4. 🎯 Recibe diagnóstico instantáneo
 
-**¿Necesitas ayuda?** Contáctanos en soporte@autoguia.com
+**¿Necesitas ayuda?** Contáctanos en soporte@Rodavia.com
 
 ---
 

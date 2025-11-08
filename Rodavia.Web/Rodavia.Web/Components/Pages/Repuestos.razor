@@ -1,0 +1,506 @@
+@page "/repuestos"
+@rendermode InteractiveServer
+@inject ICategoriaService CategoriaService
+@inject NavigationManager Navigation
+@using Rodavia.Core.DTOs
+@using Rodavia.Infrastructure.Services
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Repuestos - Rodavia</PageTitle>
+
+<div style="padding: 2rem 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <div class="page-header">
+            <h1 style="margin: 0; font-size: 2rem;">
+                <i class="fas fa-cogs" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                Buscar Repuestos
+            </h1>
+            <p style="margin: 0.75rem 0 0 0; color: var(--text-secondary); font-size: 0.95rem;">
+                Encuentra los mejores precios en repuestos automotrices comparando entre múltiples tiendas
+            </p>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
+    <!-- Info Box -->
+    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-left: 4px solid var(--primary); border-radius: 4px; padding: 1rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
+        <i class="fas fa-info-circle" style="color: var(--primary); font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem;"></i>
+        <div>
+            <strong style="color: var(--text-primary);">Búsqueda en tiempo real:</strong>
+            <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">Comparamos precios entre múltiples tiendas para encontrar las mejores ofertas.</p>
+        </div>
+    </div>
+
+    <!-- Categorías de Consumibles -->
+    @if (cargandoCategorias)
+    {
+        <div style="display: flex; justify-content: center; padding: 2rem;">
+            <div style="text-align: center;">
+                <div class="spinner-border" style="color: var(--primary); border-width: 3px; width: 2.5rem; height: 2.5rem; margin: 0 auto 1rem;"></div>
+                <p style="color: var(--text-secondary);">Cargando categorías...</p>
+            </div>
+        </div>
+    }
+    else if (categorias != null && categorias.Any())
+    {
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.1rem; margin: 0 0 1rem 0; color: var(--text-primary);">
+                <i class="fas fa-filter" style="color: var(--primary); margin-right: 0.5rem;"></i>Categorías de Consumibles
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                @foreach (var categoria in categorias)
+                {
+                    <button type="button" 
+                            class="btn-modern"
+                            style="@(categoriaSeleccionada == categoria.Id ? "background: var(--primary); color: white;" : "background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color);") padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;"
+                            @onclick="() => SeleccionarCategoria(categoria.Id)">
+                        @if (!string.IsNullOrEmpty(categoria.IconUrl))
+                        {
+                            <i class="@categoria.IconUrl" style="margin-right: 0.5rem;"></i>
+                        }
+                        @categoria.Nombre
+                        @if (categoria.Subcategorias?.Any() == true)
+                        {
+                            <span style="background: @(categoriaSeleccionada == categoria.Id ? "rgba(255,255,255,0.3)" : "var(--border-color)"); padding: 0.25rem 0.5rem; border-radius: 3px; margin-left: 0.5rem; font-size: 0.85rem;">@categoria.Subcategorias.Count</span>
+                        }
+                    </button>
+                }
+                @if (categoriaSeleccionada.HasValue)
+                {
+                    <button type="button" 
+                            class="btn-modern"
+                            style="background: var(--light-bg); color: var(--danger); border: 1px solid var(--danger); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;"
+                            @onclick="() => categoriaSeleccionada = null">
+                        <i class="fas fa-times" style="margin-right: 0.5rem;"></i>Limpiar
+                    </button>
+                }
+            </div>
+            
+            <!-- Subcategorías de la categoría seleccionada -->
+            @if (categoriaSeleccionada.HasValue)
+            {
+                var catSeleccionada = categorias.FirstOrDefault(c => c.Id == categoriaSeleccionada.Value);
+                if (catSeleccionada?.Subcategorias?.Any() == true)
+                {
+                    <div style="background: var(--light-bg); border-left: 4px solid var(--primary); border-radius: 4px; padding: 1rem;">
+                        <small style="color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.75rem;">Filtros disponibles:</small>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                            @foreach (var subcategoria in catSeleccionada.Subcategorias)
+                            {
+                                <div>
+                                    <label style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">@subcategoria.Nombre</label>
+                                    @if (subcategoria.Valores?.Any() == true)
+                                    {
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                            @foreach (var valor in subcategoria.Valores)
+                                            {
+                                                <span class="badge-modern" style="background: var(--primary); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@valor.Valor</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+
+    <!-- Formulario de Búsqueda -->
+    <div style="margin-bottom: 2rem;">
+        <div class="card-minimal">
+            <div style="padding: 1.5rem;">
+                <EditForm Model="@query" OnValidSubmit="HandleSearch">
+                    <DataAnnotationsValidator />
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <!-- Término de búsqueda -->
+                        <label for="termino" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                            <i class="fas fa-search" style="color: var(--primary); margin-right: 0.5rem;"></i>¿Qué repuesto buscas?
+                        </label>
+                        <InputText @bind-Value="query.TerminoDeBusqueda" 
+                                   class="form-input"
+                                   id="termino"
+                                   placeholder="Ej: pastillas de freno, filtro de aceite, bujías..."
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem;" />
+                        <ValidationMessage For="@(() => query.TerminoDeBusqueda)" style="color: var(--danger); font-size: 0.85rem; display: block; margin-top: 0.25rem;" />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <!-- Marca del vehículo -->
+                        <div>
+                            <label for="marca" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-car" style="color: var(--primary); margin-right: 0.5rem;"></i>Marca del vehículo
+                            </label>
+                            <InputText @bind-Value="query.Marca" 
+                                       class="form-input"
+                                       id="marca"
+                                       placeholder="Ej: Toyota"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                        </div>
+
+                        <!-- Modelo -->
+                        <div>
+                            <label for="modelo" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-car-side" style="color: var(--primary); margin-right: 0.5rem;"></i>Modelo
+                            </label>
+                            <InputText @bind-Value="query.Modelo" 
+                                       class="form-input"
+                                       id="modelo"
+                                       placeholder="Ej: Corolla"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                        </div>
+
+                        <!-- Año -->
+                        <div>
+                            <label for="ano" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-calendar" style="color: var(--primary); margin-right: 0.5rem;"></i>Año
+                            </label>
+                            <InputText @bind-Value="query.Ano" 
+                                       class="form-input"
+                                       id="ano"
+                                       placeholder="Ej: 2018"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <!-- Motor -->
+                        <div>
+                            <label for="motor" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-cog" style="color: var(--primary); margin-right: 0.5rem;"></i>Motor (opcional)
+                            </label>
+                            <InputText @bind-Value="query.Motor" 
+                                       class="form-input"
+                                       id="motor"
+                                       placeholder="Ej: 1.8L"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                        </div>
+
+                        <!-- Versión -->
+                        <div>
+                            <label for="version" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                                <i class="fas fa-tag" style="color: var(--primary); margin-right: 0.5rem;"></i>Versión (opcional)
+                            </label>
+                            <InputText @bind-Value="query.Version" 
+                                       class="form-input"
+                                       id="version"
+                                       placeholder="Ej: XEI"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="submit" class="btn-modern" disabled="@estaBuscando" 
+                                style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1;">
+                            @if (estaBuscando)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" style="display: inline-block; width: 1rem; height: 1rem; border-width: 2px; margin-right: 0.5rem;"></span>
+                                <span>Buscando en tiendas...</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                                <span>Buscar Mejores Precios</span>
+                            }
+                        </button>
+                        <button type="button" @onclick="LimpiarFormulario" class="btn-modern"
+                                style="background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-eraser" style="margin-right: 0.5rem;"></i>Limpiar
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado de búsqueda -->
+    @if (estaBuscando)
+    {
+        <div style="background: linear-gradient(135deg, var(--primary) 0%, rgba(0,120,212,0.8) 100%); border-radius: 8px; padding: 2rem; text-align: center; color: white; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 1rem;">
+                <div class="spinner-border" style="color: white; border-width: 3px; width: 3rem; height: 3rem;"></div>
+                <h5 style="margin: 0; font-size: 1.2rem;">Buscando en múltiples tiendas...</h5>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9;">Estamos comparando precios en Autoplanet, MercadoLibre y MundoRepuestos</p>
+            </div>
+        </div>
+    }
+
+    <!-- Resultados -->
+    @if (!estaBuscando && resultadosBusqueda != null && resultadosBusqueda.Any())
+    {
+        <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 4px solid var(--success); border-radius: 4px; padding: 1rem; margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <i class="fas fa-check-circle" style="color: var(--success); font-size: 1.5rem; flex-shrink: 0;"></i>
+            <div>
+                <strong style="color: var(--text-primary);">¡Búsqueda exitosa!</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">Se encontraron <strong>@resultadosBusqueda.Count productos</strong> con <strong>@resultadosBusqueda.Sum(p => p.CantidadOfertas) ofertas</strong> disponibles.</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            @foreach (var producto in resultadosBusqueda)
+            {
+                <div class="card-minimal" style="position: relative; overflow: hidden;">
+                    <!-- Imagen del producto -->
+                    <div style="height: 200px; overflow: hidden; background: var(--light-bg); display: flex; align-items: center; justify-content: center;">
+                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        {
+                            <img src="@producto.ImagenUrl" style="width: 100%; height: 100%; object-fit: cover;" alt="@producto.Nombre" />
+                        }
+                        else
+                        {
+                            <i class="fas fa-cog" style="font-size: 3rem; color: var(--text-muted);"></i>
+                        }
+                    </div>
+                    
+                    <!-- Badge de cantidad de ofertas -->
+                    <div style="position: absolute; top: 0.75rem; right: 0.75rem;">
+                        <span class="badge-modern" style="background: var(--primary); color: white; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem;">@producto.CantidadOfertas ofertas</span>
+                    </div>
+
+                    <div style="padding: 1rem;">
+                        <!-- Nombre del producto -->
+                        <h6 style="font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem 0; color: var(--text-primary);">@producto.Nombre</h6>
+                        
+                        <!-- Número de parte -->
+                        @if (!string.IsNullOrEmpty(producto.NumeroDeParte))
+                        {
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 0.5rem 0;">
+                                <i class="fas fa-barcode" style="margin-right: 0.25rem;"></i>@producto.NumeroDeParte
+                            </p>
+                        }
+                        
+                        <!-- Descripción -->
+                        @if (!string.IsNullOrEmpty(producto.Descripcion))
+                        {
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 1rem 0; line-height: 1.4;">@producto.Descripcion</p>
+                        }
+                        
+                        <!-- Rango de precios -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin: 1rem 0;">
+                            <div>
+                                <small style="color: var(--text-muted); display: block; font-size: 0.8rem;">Desde</small>
+                                <span style="font-size: 1.3rem; font-weight: 700; color: var(--success);">@producto.PrecioMinimo.ToString("C0")</span>
+                            </div>
+                            @if (producto.PrecioMaximo > producto.PrecioMinimo)
+                            {
+                                <div style="text-align: right;">
+                                    <small style="color: var(--text-muted); display: block; font-size: 0.8rem;">Hasta</small>
+                                    <span style="font-size: 1rem; color: var(--text-muted);">@producto.PrecioMaximo.ToString("C0")</span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Lista de ofertas -->
+                        <div style="margin-bottom: 1rem;">
+                            <small style="color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.75rem; font-size: 0.85rem;">Ofertas disponibles:</small>
+                            @foreach (var oferta in producto.Ofertas.Take(3))
+                            {
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0.75rem; background: var(--light-bg); border-radius: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        @if (!string.IsNullOrEmpty(oferta.TiendaLogoUrl))
+                                        {
+                                            <img src="@oferta.TiendaLogoUrl" alt="@oferta.TiendaNombre" 
+                                                 style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" />
+                                        }
+                                        <small style="color: var(--text-secondary); font-size: 0.85rem;">@oferta.TiendaNombre</small>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <strong style="color: var(--success); font-weight: 700;">@oferta.Precio.ToString("C0")</strong>
+                                        @if (oferta.PorcentajeDescuento > 0)
+                                        {
+                                            <span class="badge-modern" style="background: var(--danger); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem; margin-left: 0.5rem;">-@oferta.PorcentajeDescuento%</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            @if (producto.Ofertas.Count > 3)
+                            {
+                                <div style="padding: 0.75rem; background: var(--light-bg); border-radius: 4px; text-align: center;">
+                                    <small style="color: var(--text-muted); font-size: 0.85rem;">Y @(producto.Ofertas.Count - 3) más...</small>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Botones -->
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button @onclick="() => VerComparacion(producto.Id)" class="btn-modern" 
+                                    style="background: var(--primary); color: white; padding: 0.75rem 1rem; border: none; border-radius: 4px; font-size: 0.9rem; cursor: pointer; flex: 1; text-align: center;">
+                                <i class="fas fa-chart-bar" style="margin-right: 0.5rem;"></i>Ver Comparación
+                            </button>
+                            @if (producto.Ofertas.Any() && !string.IsNullOrEmpty(producto.Ofertas.First().UrlProductoEnTienda))
+                            {
+                                <a href="@producto.Ofertas.First().UrlProductoEnTienda" 
+                                   target="_blank" 
+                                   class="btn-modern"
+                                   style="background: var(--success); color: white; padding: 0.75rem 1rem; border: none; border-radius: 4px; font-size: 0.9rem; cursor: pointer; flex: 1; text-align: center; text-decoration: none;">
+                                    <i class="fas fa-external-link-alt" style="margin-right: 0.5rem;"></i>Ver en Tienda
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (!estaBuscando && resultadosBusqueda != null && !resultadosBusqueda.Any())
+    {
+        <!-- Sin resultados -->
+        <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-left: 4px solid var(--warning); border-radius: 4px; padding: 2rem; text-align: center;">
+            <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; display: block;"></i>
+            <h4 style="font-size: 1.3rem; margin: 0 0 0.75rem 0; color: var(--text-primary);">No se encontraron productos</h4>
+            <p style="color: var(--text-secondary); margin: 0 0 1rem 0;">No pudimos encontrar repuestos que coincidan con tu búsqueda.</p>
+            <p style="color: var(--text-secondary); margin: 0;">
+                <strong>Sugerencias:</strong><br/>
+                • Verifica la ortografía<br/>
+                • Usa términos más generales (ej: "filtro" en lugar de "filtro de aceite sintético")<br/>
+                • Intenta buscar sin especificar marca o modelo
+            </p>
+        </div>
+    }
+
+    <!-- Tips de búsqueda -->
+    @if (resultadosBusqueda == null && !estaBuscando)
+    {
+        <div style="margin-top: 3rem;">
+            <h4 style="font-size: 1.2rem; margin: 0 0 2rem 0; color: var(--text-primary);">
+                <i class="fas fa-lightbulb" style="color: var(--warning); margin-right: 0.5rem;"></i>
+                Tips para una mejor búsqueda
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="card-minimal" style="text-align: center;">
+                    <i class="fas fa-search" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
+                    <h5 style="font-size: 1rem; margin: 0 0 0.75rem 0; color: var(--text-primary);">Sé específico</h5>
+                    <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Usa el nombre exacto del repuesto: "pastillas de freno delanteras" en lugar de solo "frenos"</p>
+                </div>
+                <div class="card-minimal" style="text-align: center;">
+                    <i class="fas fa-car" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
+                    <h5 style="font-size: 1rem; margin: 0 0 0.75rem 0; color: var(--text-primary);">Incluye tu vehículo</h5>
+                    <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Especifica marca, modelo y año para resultados más precisos</p>
+                </div>
+                <div class="card-minimal" style="text-align: center;">
+                    <i class="fas fa-clock" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
+                    <h5 style="font-size: 1rem; margin: 0 0 0.75rem 0; color: var(--text-primary);">Precios en tiempo real</h5>
+                    <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Cada búsqueda obtiene los precios actualizados directamente de las tiendas</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease-in-out;
+    }
+    
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        transform: translateY(-2px);
+    }
+</style>
+
+@code {
+    // Variables de estado
+    private BusquedaRepuestoQuery query = new BusquedaRepuestoQuery();
+    private List<ProductoConOfertasDto>? resultadosBusqueda;
+    private bool estaBuscando = false;
+    
+    // Categorías y filtros
+    private List<CategoriaDto>? categorias;
+    private int? categoriaSeleccionada;
+    private bool cargandoCategorias = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCategoriasAsync();
+    }
+
+    /// <summary>
+    /// Carga las categorías desde el servicio
+    /// </summary>
+    private async Task CargarCategoriasAsync()
+    {
+        cargandoCategorias = true;
+        try
+        {
+            var resultado = await CategoriaService.ObtenerCategoriasAsync();
+            categorias = resultado.ToList();
+            Console.WriteLine($"✅ Categorías cargadas: {categorias.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error cargando categorías: {ex.Message}");
+        }
+        finally
+        {
+            cargandoCategorias = false;
+        }
+    }
+
+    /// <summary>
+    /// Maneja la selección de categoría
+    /// </summary>
+    private async Task SeleccionarCategoria(int categoriaId)
+    {
+        categoriaSeleccionada = categoriaId;
+        Console.WriteLine($"✅ Categoría seleccionada: {categoriaId}");
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Maneja la búsqueda de repuestos
+    /// </summary>
+    private async Task HandleSearch()
+    {
+        if (estaBuscando) return;
+
+        estaBuscando = true;
+        resultadosBusqueda = null;
+        StateHasChanged();
+
+        try
+        {
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+            Console.WriteLine("🔍 BÚSQUEDA DE REPUESTOS");
+            Console.WriteLine($"   Término: '{query.TerminoDeBusqueda}'");
+            Console.WriteLine($"   Categoría: {categoriaSeleccionada}");
+            Console.WriteLine("═══════════════════════════════════════════════════════════");
+
+            // TODO: Implementar búsqueda real cuando se integre con API/Scraper
+            await Task.Delay(1000); // Simulación
+            resultadosBusqueda = new List<ProductoConOfertasDto>();
+            
+            Console.WriteLine("⚠️ Búsqueda no implementada aún - esperando integración con API");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ ERROR: {ex.Message}");
+        }
+        finally
+        {
+            estaBuscando = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Limpia el formulario de búsqueda
+    /// </summary>
+    private void LimpiarFormulario()
+    {
+        query = new BusquedaRepuestoQuery();
+        resultadosBusqueda = null;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Navega a la página de detalle/comparación del producto
+    /// </summary>
+    private void VerComparacion(int productoId)
+    {
+        Navigation.NavigateTo($"/producto/{productoId}");
+    }
+}

@@ -1,0 +1,56 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Rodavia.Web.Components.Layout
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/site.css" />
+    <link rel="stylesheet" href="css/modern-theme.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="css/chat-asistente.css" />
+    <link rel="stylesheet" href="css/perfil.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="stylesheet" href="css/suscripciones.css" />
+    <link rel="stylesheet" href="css/hero.css" />
+    <link rel="stylesheet" href="css/avatar.css" />
+    <link rel="stylesheet" href="Rodavia.Web.styles.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+    <script>
+        // Configuración global para manejar errores DOM
+        window.blazorCulture = {
+            get: () => 'es-CL',
+            set: (value) => console.log('Setting culture to', value)
+        };
+        
+        // Interceptar y manejar errores específicos de Blazor
+        window.addEventListener('error', function(e) {
+            if (e.error && e.error.message && e.error.message.includes('removeChild')) {
+                console.log('DOM error silenciado:', e.error.message);
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+    </script>
+    <script src="js/rodavia-utils.js"></script>
+    <script src="js/mapInterop.js"></script>
+    <script src="js/transbank.js"></script>
+    <!-- Google Maps API - Cargado desde User Secrets -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDrpPXn4n09DqNBwtuzVzwuHAsRnlB23M&libraries=places&language=es&region=CL"></script>
+</body>
+
+</html>

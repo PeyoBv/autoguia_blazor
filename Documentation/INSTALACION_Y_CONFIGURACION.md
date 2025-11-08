@@ -46,20 +46,20 @@ sqlcmd -S localhost -E -Q "SELECT @@VERSION"
 
 ```bash
 # Clonar desde GitHub
-git clone https://github.com/PeyoBv/autoguia_blazor.git
+git clone https://github.com/PeyoBv/Rodavia_blazor.git
 
 # Navegar al directorio del proyecto
-cd autoguia_blazor
+cd Rodavia_blazor
 ```
 
 ### Paso 2: Restaurar Dependencias
 
 ```powershell
 # Restaurar todos los paquetes NuGet
-dotnet restore AutoGuia.sln
+dotnet restore Rodavia.sln
 
 # Verificar que no hay errores
-dotnet build AutoGuia.sln
+dotnet build Rodavia.sln
 ```
 
 **Salida esperada:**
@@ -74,21 +74,21 @@ Build succeeded.
 El proyecto tiene la siguiente estructura modular:
 
 ```
-AutoGuia/
-├── AutoGuia.Core/              # Entidades y DTOs
-├── AutoGuia.Infrastructure/    # Datos y servicios
-├── AutoGuia.Web/              
-│   ├── AutoGuia.Web/          # Aplicación Blazor (Server)
-│   └── AutoGuia.Web.Client/   # Cliente WebAssembly
-├── AutoGuia.Tests/            # Pruebas unitarias
-└── AutoGuia.sln               # Solución principal
+Rodavia/
+├── Rodavia.Core/              # Entidades y DTOs
+├── Rodavia.Infrastructure/    # Datos y servicios
+├── Rodavia.Web/              
+│   ├── Rodavia.Web/          # Aplicación Blazor (Server)
+│   └── Rodavia.Web.Client/   # Cliente WebAssembly
+├── Rodavia.Tests/            # Pruebas unitarias
+└── Rodavia.sln               # Solución principal
 ```
 
 ## Configuración de Variables de Entorno
 
 ### appsettings.json (Desarrollo)
 
-Archivo: `AutoGuia.Web/AutoGuia.Web/appsettings.json`
+Archivo: `Rodavia.Web/Rodavia.Web/appsettings.json`
 
 ```json
 {
@@ -102,7 +102,7 @@ Archivo: `AutoGuia.Web/AutoGuia.Web/appsettings.json`
   "AllowedHosts": "*",
   
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AutoGuiaDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RodaviaDb;Trusted_Connection=true;MultipleActiveResultSets=true"
   },
   
   "Authentication": {
@@ -116,7 +116,7 @@ Archivo: `AutoGuia.Web/AutoGuia.Web/appsettings.json`
     "SmtpServer": "smtp.gmail.com",
     "SmtpPort": 587,
     "SenderName": "AutoGuía",
-    "SenderEmail": "noreply@autoguia.cl",
+    "SenderEmail": "noreply@Rodavia.cl",
     "Username": "tu-email@gmail.com",
     "Password": "tu-app-password"
   },
@@ -167,7 +167,7 @@ Por defecto, el proyecto usa InMemory Database para desarrollo rápido.
 ```csharp
 // Ya configurado por defecto
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("AutoGuiaDb"));
+    options.UseInMemoryDatabase("RodaviaDb"));
 ```
 
 **Ventajas:**
@@ -188,7 +188,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AutoGuiaDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RodaviaDb;Trusted_Connection=true;MultipleActiveResultSets=true"
   }
 }
 ```
@@ -206,16 +206,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 ```powershell
 # Crear migración inicial
-dotnet ef migrations add InitialCreate --project AutoGuia.Web/AutoGuia.Web
+dotnet ef migrations add InitialCreate --project Rodavia.Web/Rodavia.Web
 
 # Aplicar migración a la base de datos
-dotnet ef database update --project AutoGuia.Web/AutoGuia.Web
+dotnet ef database update --project Rodavia.Web/Rodavia.Web
 ```
 
 **Verificar que la base de datos se creó:**
 
 ```powershell
-sqlcmd -S "(localdb)\mssqllocaldb" -d AutoGuiaDb -Q "SELECT name FROM sys.tables"
+sqlcmd -S "(localdb)\mssqllocaldb" -d RodaviaDb -Q "SELECT name FROM sys.tables"
 ```
 
 ### Opción 3: SQL Server en Azure (Producción)
@@ -229,7 +229,7 @@ Ver archivo [DEPLOYMENT_AZURE.md](./DEPLOYMENT_AZURE.md) para configuración com
 **Paso 1: Crear Proyecto en Google Cloud Console**
 
 1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crea un nuevo proyecto: "AutoGuia"
+2. Crea un nuevo proyecto: "Rodavia"
 3. Habilita **Google+ API**
 
 **Paso 2: Configurar Pantalla de Consentimiento**
@@ -247,7 +247,7 @@ Ver archivo [DEPLOYMENT_AZURE.md](./DEPLOYMENT_AZURE.md) para configuración com
 
 1. APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID
 2. Tipo: **Web application**
-3. Nombre: **AutoGuia Web**
+3. Nombre: **Rodavia Web**
 4. Authorized redirect URIs:
    ```
    https://localhost:7001/signin-google
@@ -262,7 +262,7 @@ Ver archivo [DEPLOYMENT_AZURE.md](./DEPLOYMENT_AZURE.md) para configuración com
 **Opción A: User Secrets (Recomendado para desarrollo)**
 
 ```powershell
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 
 # Inicializar User Secrets
 dotnet user-secrets init
@@ -320,13 +320,13 @@ builder.Services.AddAuthentication()
 2. Seguridad → Verificación en 2 pasos (activar si no está)
 3. Contraseñas de aplicaciones → Crear nueva
 4. Seleccionar: **Correo** y **Otro (nombre personalizado)**
-5. Nombre: "AutoGuia SMTP"
+5. Nombre: "Rodavia SMTP"
 6. Copiar contraseña generada (16 caracteres): `abcd efgh ijkl mnop`
 
 **Paso 2: Configurar User Secrets**
 
 ```powershell
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 
 # Configurar SMTP
 dotnet user-secrets set "EmailSettings:SmtpServer" "smtp.gmail.com"
@@ -356,7 +356,7 @@ Para producción, se recomienda usar SendGrid:
 {
   "EmailSettings": {
     "SendGridApiKey": "SG.xxxxxxxxxxxxxxxxxxxxxxx",
-    "SenderEmail": "noreply@autoguia.cl",
+    "SenderEmail": "noreply@Rodavia.cl",
     "SenderName": "AutoGuía"
   }
 }
@@ -369,7 +369,7 @@ Para producción, se recomienda usar SendGrid:
 **Paso 1: Registrar Aplicación**
 
 1. Ve a [Mercado Libre Developers](https://developers.mercadolibre.cl/)
-2. Crear aplicación → AutoGuia
+2. Crear aplicación → Rodavia
 3. Redirect URI: `https://localhost:7001/ml-callback`
 4. Copiar **App ID**: `1234567890123456`
 
@@ -424,7 +424,7 @@ dotnet user-secrets remove "Authentication:Google:ClientId"
 dotnet user-secrets clear
 
 # Ver ubicación del archivo
-dotnet user-secrets list --project AutoGuia.Web/AutoGuia.Web
+dotnet user-secrets list --project Rodavia.Web/Rodavia.Web
 ```
 
 ### Prioridad de Configuración
@@ -444,7 +444,7 @@ dotnet user-secrets list --project AutoGuia.Web/AutoGuia.Web
 #### 1. Compilación Exitosa
 
 ```powershell
-dotnet build AutoGuia.sln
+dotnet build Rodavia.sln
 ```
 
 ✅ **Esperado:** `Build succeeded. 0 Error(s)`
@@ -452,7 +452,7 @@ dotnet build AutoGuia.sln
 #### 2. Ejecutar Aplicación
 
 ```powershell
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 dotnet run
 ```
 
@@ -488,7 +488,7 @@ Abre en navegador: `https://localhost:7001`
 # Si usas InMemory: Verifica que no haya errores en consola
 
 # Si usas SQL Server:
-sqlcmd -S "(localdb)\mssqllocaldb" -d AutoGuiaDb -Q "SELECT COUNT(*) FROM Planes"
+sqlcmd -S "(localdb)\mssqllocaldb" -d RodaviaDb -Q "SELECT COUNT(*) FROM Planes"
 ```
 
 ✅ **Esperado:** `3` (planes seeded)
@@ -519,7 +519,7 @@ if ($dotnetVersion -like "8.*") {
 
 # Verificar compilación
 Write-Host "`n2. Compilando solución..." -ForegroundColor Yellow
-$buildResult = dotnet build AutoGuia.sln --nologo --verbosity quiet
+$buildResult = dotnet build Rodavia.sln --nologo --verbosity quiet
 if ($LASTEXITCODE -eq 0) {
     Write-Host "   ✅ Compilación exitosa" -ForegroundColor Green
 } else {
@@ -529,7 +529,7 @@ if ($LASTEXITCODE -eq 0) {
 
 # Verificar User Secrets
 Write-Host "`n3. Verificando User Secrets..." -ForegroundColor Yellow
-$secrets = dotnet user-secrets list --project AutoGuia.Web/AutoGuia.Web
+$secrets = dotnet user-secrets list --project Rodavia.Web/Rodavia.Web
 if ($secrets -like "*Google:ClientId*") {
     Write-Host "   ✅ Google OAuth configurado" -ForegroundColor Green
 } else {
@@ -537,7 +537,7 @@ if ($secrets -like "*Google:ClientId*") {
 }
 
 Write-Host "`n✅ Verificación completada!" -ForegroundColor Green
-Write-Host "Ejecuta 'dotnet run --project AutoGuia.Web/AutoGuia.Web' para iniciar" -ForegroundColor Cyan
+Write-Host "Ejecuta 'dotnet run --project Rodavia.Web/Rodavia.Web' para iniciar" -ForegroundColor Cyan
 ```
 
 Ejecutar:
@@ -557,7 +557,7 @@ Ejecutar:
 ```csharp
 // Verificar en Program.cs
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("AutoGuiaDb"));
+    options.UseInMemoryDatabase("RodaviaDb"));
 ```
 
 ### Error: "Invalid redirect_uri" (Google OAuth)
@@ -617,8 +617,8 @@ sqllocaldb info mssqllocaldb
 sqllocaldb start mssqllocaldb
 
 # Recrear base de datos
-dotnet ef database drop --project AutoGuia.Web/AutoGuia.Web
-dotnet ef database update --project AutoGuia.Web/AutoGuia.Web
+dotnet ef database drop --project Rodavia.Web/Rodavia.Web
+dotnet ef database update --project Rodavia.Web/Rodavia.Web
 ```
 
 ### Error: "User Secrets not found"
@@ -628,7 +628,7 @@ dotnet ef database update --project AutoGuia.Web/AutoGuia.Web
 **Solución:**
 
 ```powershell
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 dotnet user-secrets init
 dotnet user-secrets set "Authentication:Google:ClientId" "TU_CLIENT_ID"
 ```

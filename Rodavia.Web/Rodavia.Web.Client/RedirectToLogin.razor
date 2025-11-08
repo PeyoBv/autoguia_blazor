@@ -1,0 +1,21 @@
+@inject NavigationManager NavigationManager
+
+@code {
+    private bool hasRedirected = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && !hasRedirected)
+        {
+            hasRedirected = true;
+            var currentUri = NavigationManager.Uri;
+            
+            // Solo redirigir si NO estamos ya en la página de login
+            if (!currentUri.Contains("Account/Login"))
+            {
+                var returnUrl = Uri.EscapeDataString(NavigationManager.ToBaseRelativePath(currentUri));
+                NavigationManager.NavigateTo($"Account/Login?returnUrl={returnUrl}");
+            }
+        }
+    }
+}

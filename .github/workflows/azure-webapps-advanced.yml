@@ -1,0 +1,118 @@
+# Workflow Avanzado de CI/CD - Múltiples Entornos (Staging + Production)
+# Este workflow despliega a Staging automáticamente y a Production con aprobación manual
+
+name: Build and Deploy to Azure (Multi-Environment)
+
+on:
+  push:
+    branches:
+      - main        # Deploy a Staging
+      - production  # Deploy a Production
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.x'
+  PROJECT_PATH: 'Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj'
+  PUBLISH_PATH: './publish'
+
+jobs:
+  # Job 1: Build y Test
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore
+
+      - name: 🏗️ Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: 🧪 Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: 📤 Publish
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            --configuration Release \
+            --no-build \
+            --output ${{ env.PUBLISH_PATH }}
+
+      - name: 📦 Upload artifact for deployment
+        uses: actions/upload-artifact@v3
+        with:
+          name: rodavia-app
+          path: ${{ env.PUBLISH_PATH }}
+
+  # Job 2: Deploy a Staging (automático en push a main)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://rodavia-staging.azurewebsites.net
+    
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rodavia-app
+          path: ${{ env.PUBLISH_PATH }}
+
+      - name: 🚀 Deploy to Azure Staging
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: rodavia-staging
+          publish-profile: ${{ secrets.AZURE_STAGING_PUBLISHPROFILE }}
+          package: ${{ env.PUBLISH_PATH }}
+
+      - name: ✅ Staging deployment complete
+        run: echo "🎉 Deployed to Staging - https://rodavia-staging.azurewebsites.net"
+
+  # Job 3: Deploy a Production (requiere aprobación manual)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://rodavia.azurewebsites.net
+    
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rodavia-app
+          path: ${{ env.PUBLISH_PATH }}
+
+      - name: 🚀 Deploy to Azure Production
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: rodavia
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: ${{ env.PUBLISH_PATH }}
+
+      - name: ✅ Production deployment complete
+        run: echo "🎉 Deployed to Production - https://rodavia.azurewebsites.net"
+
+      - name: 📢 Create deployment notification
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://rodavia.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

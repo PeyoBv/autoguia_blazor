@@ -320,10 +320,10 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# AutoGuia - Exclude nested git repository
-autoguia/
+# Rodavia - Exclude nested git repository
+rodavia/
 
-# AutoGuia - Archivos temporales y documentación de trabajo
+# Rodavia - Archivos temporales y documentación de trabajo
 AUDITORIA_COMPLETA.md
 AUDITORIA_PROYECTO.md
 REPARACIONES_COMPLETADAS.md

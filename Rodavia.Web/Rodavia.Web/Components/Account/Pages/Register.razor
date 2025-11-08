@@ -1,0 +1,259 @@
+@page "/Account/Register"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Rodavia.Web.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Registrarse - Rodavia</PageTitle>
+
+<link rel="stylesheet" href="css/login.css?v=2.0" />
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <!-- Brand Side with Animated Background -->
+        <div class="brand-side">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <div class="brand-logo animate-float">
+                    <div class="logo-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                </div>
+                <h1 class="brand-title animate-slide-up">Rodavia</h1>
+                <p class="brand-subtitle animate-slide-up delay-1">Tu Marketplace Automotriz Premium</p>
+                <div class="brand-features animate-fade-in delay-2">
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <span>Comunidad Activa</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-award"></i>
+                        <span>Garantía Total</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-rocket"></i>
+                        <span>Innovación</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Side with Glassmorphism Card -->
+        <div class="form-side">
+            <div class="form-content animate-slide-right">
+                <!-- Form Header Premium -->
+                <div class="form-header">
+                    <div class="welcome-badge">
+                        <i class="fas fa-sparkles"></i>
+                        <span>Únete a Rodavia</span>
+                    </div>
+                    <h2 class="form-title">Crea tu Cuenta</h2>
+                    <p class="form-description">Comienza tu experiencia automotriz</p>
+                </div>
+
+                <!-- Status Message -->
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert alert-error animate-shake">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Error</strong>
+                            <p>@Message</p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Register Form -->
+                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" class="login-form">
+                    <DataAnnotationsValidator />
+
+                    <!-- Email Input Group -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            <span>Correo Electrónico</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <InputText @bind-Value="Input.Email" 
+                                      class="form-input" 
+                                      autocomplete="username" 
+                                      aria-required="true" 
+                                      placeholder="nombre@ejemplo.com" 
+                                      id="email" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.Email" class="validation-message" />
+                    </div>
+
+                    <!-- Password Input Group -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            <span>Contraseña</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <InputText type="password" 
+                                      @bind-Value="Input.Password" 
+                                      class="form-input" 
+                                      autocomplete="new-password" 
+                                      aria-required="true" 
+                                      placeholder="Mínimo 6 caracteres" 
+                                      id="password" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.Password" class="validation-message" />
+                    </div>
+
+                    <!-- Confirm Password Input Group -->
+                    <div class="form-group">
+                        <label for="confirm-password" class="form-label">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Confirmar Contraseña</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <InputText type="password" 
+                                      @bind-Value="Input.ConfirmPassword" 
+                                      class="form-input" 
+                                      autocomplete="new-password" 
+                                      aria-required="true" 
+                                      placeholder="Repite tu contraseña" 
+                                      id="confirm-password" />
+                            <div class="input-focus-border"></div>
+                        </div>
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="validation-message" />
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary-gradient">
+                        <i class="fas fa-user-check"></i>
+                        <span>Crear Cuenta</span>
+                    </button>
+                    
+                    <AntiforgeryToken />
+                </EditForm>
+
+                <!-- Divider Premium -->
+                <div class="divider">
+                    <span class="divider-text">O regístrate con</span>
+                </div>
+
+                <!-- External Login Section -->
+                <ExternalLoginPicker />
+
+                <!-- Login Link -->
+                <div class="form-footer">
+                    <p class="footer-text">
+                        ¿Ya tienes cuenta?
+                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))" class="link-register">
+                            Inicia sesión <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<IdentityError>? identityErrors;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"{string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    public async Task RegisterUser(EditContext editContext)
+    {
+        var user = CreateUser();
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        var result = await UserManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        Logger.LogInformation("Usuario creó una nueva cuenta con contraseña.");
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+        if (UserManager.Options.SignIn.RequireConfirmedAccount)
+        {
+            RedirectManager.RedirectTo(
+                "Account/RegisterConfirmation",
+                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+        }
+
+        await SignInManager.SignInAsync(user, isPersistent: false);
+        RedirectManager.RedirectTo(ReturnUrl);
+    }
+
+    private ApplicationUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"No se puede crear una instancia de '{nameof(ApplicationUser)}'. " +
+                $"Asegúrate de que '{nameof(ApplicationUser)}' no es una clase abstracta y tiene un constructor sin parámetros.");
+        }
+    }
+
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!UserManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("La UI predeterminada requiere un almacén de usuarios con soporte de correo.");
+        }
+        return (IUserEmailStore<ApplicationUser>)UserStore;
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "El correo electrónico es requerido.")]
+        [EmailAddress(ErrorMessage = "Por favor ingresa un correo electrónico válido.")]
+        [Display(Name = "Correo Electrónico")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "La contraseña es requerida.")]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y un máximo de {1} caracteres.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Contraseña")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirmar contraseña")]
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}
+

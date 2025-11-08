@@ -43,7 +43,7 @@ Cobro OneClick: /rswebpaytransaction/api/oneclick/v1.0/transactions
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning",
-      "AutoGuia.Web.Services.Payments": "Debug"
+      "Rodavia.Web.Services.Payments": "Debug"
     }
   },
   "Transbank": {
@@ -55,7 +55,7 @@ Cobro OneClick: /rswebpaytransaction/api/oneclick/v1.0/transactions
   },
   "ConnectionStrings": {
     "IdentityConnection": "Host=localhost;Port=5434;Database=identity_dev;Username=postgres;Password=postgres",
-    "DefaultConnection": "Host=localhost;Port=5433;Database=autoguia_dev;Username=postgres;Password=postgres"
+    "DefaultConnection": "Host=localhost;Port=5433;Database=Rodavia_dev;Username=postgres;Password=postgres"
   }
 }
 ```
@@ -102,7 +102,7 @@ Cobro OneClick: /rswebpaytransaction/api/oneclick/v1.0/transactions
        "CommerceCode": "12345678",
        "ApiKey": "TU_API_KEY_REAL_AQUI",
        "Environment": "Production",
-       "WebhookUrl": "https://autoguia.cl/api/payments/webhook"
+       "WebhookUrl": "https://Rodavia.cl/api/payments/webhook"
      }
    }
    ```
@@ -214,7 +214,7 @@ Aquí verás todas las requests entrantes de Transbank.
 
 **URL Fija (Cuenta paga):**
 ```bash
-ngrok http https://localhost:7001 --domain=autoguia.ngrok.io
+ngrok http https://localhost:7001 --domain=Rodavia.ngrok.io
 ```
 
 **Configuración persistente:**
@@ -223,7 +223,7 @@ ngrok http https://localhost:7001 --domain=autoguia.ngrok.io
 version: "2"
 authtoken: TU_TOKEN_AQUI
 tunnels:
-  autoguia:
+  Rodavia:
     proto: http
     addr: https://localhost:7001
     bind_tls: true
@@ -231,7 +231,7 @@ tunnels:
 
 **Iniciar con config:**
 ```bash
-ngrok start autoguia
+ngrok start Rodavia
 ```
 
 ---
@@ -270,7 +270,7 @@ ngrok start autoguia
 5. **Autenticación 3D Secure** (simulada):
    - RUT: `11.111.111-1`
    - Clave Dinámica: `123`
-6. Transbank redirige a: `https://autoguia.cl/pagos/transbank/retorno?token_ws=...`
+6. Transbank redirige a: `https://Rodavia.cl/pagos/transbank/retorno?token_ws=...`
 7. Sistema confirma inscripción
 8. Tarjeta queda inscrita como `****6623`
 
@@ -284,7 +284,7 @@ ngrok start autoguia
 
 **Pasos:**
 ```bash
-1. Iniciar aplicación: dotnet run --project AutoGuia.Web/AutoGuia.Web
+1. Iniciar aplicación: dotnet run --project Rodavia.Web/Rodavia.Web
 2. Iniciar ngrok: ngrok http https://localhost:7001
 3. Navegar a: https://abc123.ngrok.io/cuenta/medios-pago
 4. Click en "Pagar con Webpay"
@@ -541,8 +541,8 @@ WHERE "Type" = 2 -- RecurringCharge
   - [ ] Environment = "Production"
   
 - [ ] **URLs Configuradas**
-  - [ ] WebhookUrl apunta a dominio real (`https://autoguia.cl/api/payments/webhook`)
-  - [ ] ReturnUrl apunta a dominio real (`https://autoguia.cl/pagos/transbank/retorno`)
+  - [ ] WebhookUrl apunta a dominio real (`https://Rodavia.cl/api/payments/webhook`)
+  - [ ] ReturnUrl apunta a dominio real (`https://Rodavia.cl/pagos/transbank/retorno`)
   - [ ] SSL válido (certificado HTTPS)
 
 - [ ] **Base de Datos**
@@ -609,10 +609,10 @@ WHERE "Type" = 2 -- RecurringCharge
 dotnet publish -c Release -o ./publish
 
 # Subir a servidor
-scp -r ./publish/* usuario@servidor:/var/www/autoguia/
+scp -r ./publish/* usuario@servidor:/var/www/Rodavia/
 
 # Reiniciar servicio
-sudo systemctl restart autoguia
+sudo systemctl restart Rodavia
 ```
 
 #### 2. Verificar Configuración
@@ -622,20 +622,20 @@ sudo systemctl restart autoguia
 printenv | grep TRANSBANK
 
 # Test de conectividad
-curl -I https://autoguia.cl/api/payments/info
+curl -I https://Rodavia.cl/api/payments/info
 ```
 
 #### 3. Smoke Tests
 
 ```bash
 # 1. Health check
-curl https://autoguia.cl/health
+curl https://Rodavia.cl/health
 
 # 2. Test endpoint público
-curl https://autoguia.cl/api/payments/info
+curl https://Rodavia.cl/api/payments/info
 
 # 3. Test inscripción (con usuario real)
-# Navegar a https://autoguia.cl/cuenta/medios-pago
+# Navegar a https://Rodavia.cl/cuenta/medios-pago
 # Completar flujo OneClick
 ```
 
@@ -643,10 +643,10 @@ curl https://autoguia.cl/api/payments/info
 
 ```bash
 # Ver logs en tiempo real
-tail -f /var/log/autoguia/payments.log
+tail -f /var/log/Rodavia/payments.log
 
 # Filtrar errores
-grep -i error /var/log/autoguia/payments.log
+grep -i error /var/log/Rodavia/payments.log
 ```
 
 ---
@@ -687,10 +687,10 @@ grep -i error /var/log/autoguia/payments.log
 **Diagnóstico:**
 ```bash
 # Verificar logs
-grep "Iniciando inscripción" /var/log/autoguia/payments.log
+grep "Iniciando inscripción" /var/log/Rodavia/payments.log
 
 # Verificar configuración
-dotnet run --project AutoGuia.Web/AutoGuia.Web -- --environment Development
+dotnet run --project Rodavia.Web/Rodavia.Web -- --environment Development
 ```
 
 **Soluciones:**
@@ -723,7 +723,7 @@ ORDER BY "CreatedAt" DESC LIMIT 10;
 **Soluciones:**
 1. Verificar URL pública accesible:
    ```bash
-   curl https://autoguia.cl/api/payments/webhook
+   curl https://Rodavia.cl/api/payments/webhook
    ```
 2. Verificar endpoint permite `[AllowAnonymous]`
 3. Revisar firewall no bloquea IP de Transbank

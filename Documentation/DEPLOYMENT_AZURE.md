@@ -50,15 +50,15 @@ az login
 ```mermaid
 graph TB
     subgraph "Azure Cloud"
-        subgraph "Resource Group: rg-autoguia-prod"
-            AS[App Service<br/>autoguia-app]
-            SQLDB[(Azure SQL Database<br/>autoguia-db)]
-            KV[Key Vault<br/>kv-autoguia]
-            AI[Application Insights<br/>ai-autoguia]
+        subgraph "Resource Group: rg-Rodavia-prod"
+            AS[App Service<br/>Rodavia-app]
+            SQLDB[(Azure SQL Database<br/>Rodavia-db)]
+            KV[Key Vault<br/>kv-Rodavia]
+            AI[Application Insights<br/>ai-Rodavia]
         end
         
         CDN[Azure CDN<br/>Opcional]
-        DNS[Azure DNS<br/>autoguia.cl]
+        DNS[Azure DNS<br/>Rodavia.cl]
     end
     
     subgraph "External Services"
@@ -89,11 +89,11 @@ graph TB
 
 ```bash
 # Configurar variables
-$RESOURCE_GROUP="rg-autoguia-prod"
+$RESOURCE_GROUP="rg-Rodavia-prod"
 $LOCATION="eastus"
-$APP_NAME="autoguia-app"
-$SQL_SERVER="autoguia-sql-server"
-$SQL_DB="autoguia-db"
+$APP_NAME="Rodavia-app"
+$SQL_SERVER="Rodavia-sql-server"
+$SQL_DB="Rodavia-db"
 $SQL_ADMIN="sqladmin"
 $SQL_PASSWORD="TuPassword123!"
 
@@ -185,7 +185,7 @@ az webapp config appsettings set `
 
 ```powershell
 # Navegar al proyecto
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 
 # Publicar aplicación
 dotnet publish -c Release -o ./publish
@@ -205,21 +205,21 @@ az webapp deployment source config-zip `
 **Opción A: Desde Visual Studio**
 
 1. Abrir Package Manager Console
-2. Seleccionar proyecto: `AutoGuia.Web`
+2. Seleccionar proyecto: `Rodavia.Web`
 3. Ejecutar:
 
 ```powershell
-Update-Database -Context ApplicationDbContext -Connection "Server=tcp:autoguia-sql-server.database.windows.net,1433;Initial Catalog=autoguia-db;User ID=sqladmin;Password=TuPassword123!;..."
+Update-Database -Context ApplicationDbContext -Connection "Server=tcp:Rodavia-sql-server.database.windows.net,1433;Initial Catalog=Rodavia-db;User ID=sqladmin;Password=TuPassword123!;..."
 ```
 
 **Opción B: Desde CLI**
 
 ```powershell
 # Configurar connection string temporalmente
-$env:ConnectionStrings__DefaultConnection="Server=tcp:autoguia-sql-server.database.windows.net..."
+$env:ConnectionStrings__DefaultConnection="Server=tcp:Rodavia-sql-server.database.windows.net..."
 
 # Aplicar migraciones
-dotnet ef database update --project AutoGuia.Web/AutoGuia.Web
+dotnet ef database update --project Rodavia.Web/Rodavia.Web
 ```
 
 ### Paso 8: Verificar Deployment
@@ -232,7 +232,7 @@ az webapp browse --name $APP_NAME --resource-group $RESOURCE_GROUP
 az webapp log tail --name $APP_NAME --resource-group $RESOURCE_GROUP
 ```
 
-✅ **URL:** `https://autoguia-app.azurewebsites.net`
+✅ **URL:** `https://Rodavia-app.azurewebsites.net`
 
 ## Opción 2: Deployment con Azure CLI
 
@@ -243,11 +243,11 @@ Crea archivo `deploy-azure.ps1`:
 ```powershell
 # Variables de configuración
 $SUBSCRIPTION_ID = "tu-subscription-id"
-$RESOURCE_GROUP = "rg-autoguia-prod"
+$RESOURCE_GROUP = "rg-Rodavia-prod"
 $LOCATION = "eastus"
-$APP_NAME = "autoguia-app-$(Get-Random -Maximum 9999)"
-$SQL_SERVER = "autoguia-sql-$(Get-Random -Maximum 9999)"
-$SQL_DB = "autoguia-db"
+$APP_NAME = "Rodavia-app-$(Get-Random -Maximum 9999)"
+$SQL_SERVER = "Rodavia-sql-$(Get-Random -Maximum 9999)"
+$SQL_DB = "Rodavia-db"
 $SQL_ADMIN = "sqladmin"
 $SQL_PASSWORD = Read-Host "Ingresa password para SQL Server" -AsSecureString
 
@@ -287,7 +287,7 @@ az webapp config appsettings set --name $APP_NAME --resource-group $RESOURCE_GRO
 
 # 7. Publicar aplicación
 Write-Host "`n📤 Paso 7: Publicando aplicación..." -ForegroundColor Yellow
-cd AutoGuia.Web/AutoGuia.Web
+cd Rodavia.Web/Rodavia.Web
 dotnet publish -c Release -o ./publish
 Compress-Archive -Path ./publish/* -DestinationPath ./publish.zip -Force
 az webapp deployment source config-zip --name $APP_NAME --resource-group $RESOURCE_GROUP --src ./publish.zip
@@ -315,7 +315,7 @@ Ver sección **Crear workflow GitHub Actions** más adelante.
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=tcp:autoguia-sql-server.database.windows.net,1433;Initial Catalog=autoguia-db;Persist Security Info=False;User ID=sqladmin;Password=***;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;"
+    "DefaultConnection": "Server=tcp:Rodavia-sql-server.database.windows.net,1433;Initial Catalog=Rodavia-db;Persist Security Info=False;User ID=sqladmin;Password=***;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;"
   }
 }
 ```
@@ -335,7 +335,7 @@ else
 {
     // Usar InMemory en desarrollo
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseInMemoryDatabase("AutoGuiaDb"));
+        options.UseInMemoryDatabase("RodaviaDb"));
 }
 ```
 
@@ -343,11 +343,11 @@ else
 
 ```powershell
 # Crear migración si no existe
-dotnet ef migrations add InitialCreate --project AutoGuia.Web/AutoGuia.Web
+dotnet ef migrations add InitialCreate --project Rodavia.Web/Rodavia.Web
 
 # Aplicar a Azure SQL
-$env:ConnectionStrings__DefaultConnection="Server=tcp:autoguia-sql-server.database.windows.net..."
-dotnet ef database update --project AutoGuia.Web/AutoGuia.Web
+$env:ConnectionStrings__DefaultConnection="Server=tcp:Rodavia-sql-server.database.windows.net..."
+dotnet ef database update --project Rodavia.Web/Rodavia.Web
 ```
 
 ### Seed de Datos en Producción
@@ -385,7 +385,7 @@ using (var scope = app.Services.CreateScope())
 **Paso 1: Crear Key Vault**
 
 ```bash
-$KEY_VAULT_NAME="kv-autoguia-$(Get-Random -Maximum 9999)"
+$KEY_VAULT_NAME="kv-Rodavia-$(Get-Random -Maximum 9999)"
 
 az keyvault create `
   --name $KEY_VAULT_NAME `
@@ -444,8 +444,8 @@ az webapp config appsettings set `
   --name $APP_NAME `
   --resource-group $RESOURCE_GROUP `
   --settings `
-    "Authentication__Google__ClientId=@Microsoft.KeyVault(SecretUri=https://kv-autoguia.vault.azure.net/secrets/GoogleClientId/)" `
-    "Authentication__Google__ClientSecret=@Microsoft.KeyVault(SecretUri=https://kv-autoguia.vault.azure.net/secrets/GoogleClientSecret/)"
+    "Authentication__Google__ClientId=@Microsoft.KeyVault(SecretUri=https://kv-Rodavia.vault.azure.net/secrets/GoogleClientId/)" `
+    "Authentication__Google__ClientSecret=@Microsoft.KeyVault(SecretUri=https://kv-Rodavia.vault.azure.net/secrets/GoogleClientSecret/)"
 ```
 
 ## Configuración de Dominio Personalizado
@@ -457,12 +457,12 @@ az webapp config appsettings set `
 az webapp config hostname add `
   --webapp-name $APP_NAME `
   --resource-group $RESOURCE_GROUP `
-  --hostname "autoguia.cl"
+  --hostname "Rodavia.cl"
 
 az webapp config hostname add `
   --webapp-name $APP_NAME `
   --resource-group $RESOURCE_GROUP `
-  --hostname "www.autoguia.cl"
+  --hostname "www.Rodavia.cl"
 ```
 
 ### Paso 2: Configurar DNS en tu Proveedor
@@ -471,7 +471,7 @@ az webapp config hostname add `
 
 | Tipo | Host | Valor |
 |------|------|-------|
-| CNAME | www | autoguia-app.azurewebsites.net |
+| CNAME | www | Rodavia-app.azurewebsites.net |
 | A | @ | IP de App Service |
 
 **Obtener IP:**
@@ -504,7 +504,7 @@ Azure proporciona certificados SSL gratuitos:
 az webapp config ssl create `
   --name $APP_NAME `
   --resource-group $RESOURCE_GROUP `
-  --hostname "autoguia.cl"
+  --hostname "Rodavia.cl"
 ```
 
 ### Redirigir HTTP → HTTPS
@@ -535,7 +535,7 @@ if (app.Environment.IsProduction())
 **Paso 1: Crear recurso**
 
 ```bash
-$AI_NAME="ai-autoguia"
+$AI_NAME="ai-Rodavia"
 
 az monitor app-insights component create `
   --app $AI_NAME `
@@ -590,7 +590,7 @@ az webapp log tail `
 ### Dashboards y Alertas
 
 **Portal de Azure:**
-1. Ir a Application Insights → `ai-autoguia`
+1. Ir a Application Insights → `ai-Rodavia`
 2. Crear dashboard personalizado
 3. Configurar alertas:
    - Response time > 2s
@@ -677,8 +677,8 @@ az sql server firewall-rule create `
 2. Credentials → OAuth 2.0 Client ID
 3. Agregar URI:
    ```
-   https://autoguia-app.azurewebsites.net/signin-google
-   https://autoguia.cl/signin-google
+   https://Rodavia-app.azurewebsites.net/signin-google
+   https://Rodavia.cl/signin-google
    ```
 
 ### Error 500: Internal Server Error

@@ -1081,9 +1081,9 @@ X-Deprecated: This endpoint will be removed in v2.0. Use /api/v2/diagnostico ins
 
 ## Soporte y Contacto
 
-- **Documentación**: https://docs.autoguia.com
-- **Issues**: https://github.com/autoguia/issues
-- **Email**: soporte@autoguia.com
+- **Documentación**: https://docs.Rodavia.com
+- **Issues**: https://github.com/Rodavia/issues
+- **Email**: soporte@Rodavia.com
 
 ---
 

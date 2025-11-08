@@ -1,0 +1,70 @@
+# Workflow de CI/CD para Rodavia - Despliegue a Azure App Service
+# Este workflow se ejecuta automáticamente cuando se hace push a la rama main
+# Compila la aplicación Blazor .NET 8 y la despliega a Azure App Service
+
+name: Build and Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permite ejecución manual del workflow
+
+env:
+  DOTNET_VERSION: '8.x'                    # Versión de .NET a utilizar
+  AZURE_WEBAPP_NAME: 'rodavia'             # Nombre del Azure App Service
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'   # Ruta donde se publicará la app
+  PROJECT_PATH: 'Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj' # Ruta del proyecto principal
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest # Utiliza el runner de Ubuntu más reciente
+    
+    steps:
+      # Paso 1: Descargar el código fuente del repositorio
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Descarga todo el historial para análisis completo
+
+      # Paso 2: Configurar .NET SDK
+      - name: 🔧 Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Paso 3: Restaurar dependencias NuGet
+      - name: 📦 Restore dependencies
+        run: dotnet restore
+
+      # Paso 4: Compilar la solución en modo Release
+      - name: 🏗️ Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      # Paso 5: Ejecutar tests (opcional - comentado por defecto)
+      # Descomenta las siguientes líneas si tienes tests unitarios
+      # - name: 🧪 Run tests
+      #   run: dotnet test --configuration Release --no-build --verbosity normal
+
+      # Paso 6: Publicar la aplicación
+      - name: 📤 Publish application
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            --configuration Release \
+            --no-build \
+            --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      # Paso 7: Desplegar a Azure App Service
+      - name: 🚀 Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      # Paso 8: Verificación post-despliegue
+      - name: ✅ Deployment completed
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "🌐 Application URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"

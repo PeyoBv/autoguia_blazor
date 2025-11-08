@@ -1,0 +1,561 @@
+@page "/foro"
+@rendermode InteractiveServer
+@inject IForoService ForoService
+
+<PageTitle>Foro Comunitario - Rodavia</PageTitle>
+
+<div style="padding: 2rem 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="margin: 0; font-size: 2rem;">
+                    <i class="fas fa-comments" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                    Foro Comunitario
+                </h1>
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.95rem;">
+                    Comparte experiencias y conecta con otros entusiastas del automovilismo
+                </p>
+            </div>
+            <button class="btn-modern" @onclick="MostrarFormularioPublicacion"
+                    style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; white-space: nowrap;">
+                <i class="fas fa-plus" style="margin-right: 0.5rem;"></i>
+                Nueva Publicación
+            </button>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
+    <!-- Categorías Temáticas -->
+    <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1.1rem; margin: 0 0 1rem 0; color: var(--text-primary);">Categorías de Discusión</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="card-minimal category-card" 
+                 @onclick="@(() => FiltrarPorCategoria("valoraciones"))" 
+                 style="cursor: pointer; @(categoriaSeleccionada == "valoraciones" ? "border-left: 4px solid var(--primary);" : "")">
+                <div style="text-align: center;">
+                    <i class="fas fa-star" style="font-size: 2rem; color: var(--warning); margin-bottom: 1rem; display: block;"></i>
+                    <h6 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--text-primary);">Valoraciones y Reseñas</h6>
+                    <p style="margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">Comparte experiencias con talleres, productos y servicios</p>
+                    <span class="badge-modern" style="background: var(--warning); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@((publicaciones?.Count(p => p.Categoria == "Valoraciones")) ?? 0) publicaciones</span>
+                </div>
+            </div>
+            <div class="card-minimal category-card" 
+                 @onclick="@(() => FiltrarPorCategoria("consultas"))" 
+                 style="cursor: pointer; @(categoriaSeleccionada == "consultas" ? "border-left: 4px solid var(--primary);" : "")">
+                <div style="text-align: center;">
+                    <i class="fas fa-question-circle" style="font-size: 2rem; color: var(--info); margin-bottom: 1rem; display: block;"></i>
+                    <h6 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--text-primary);">Consultas Técnicas</h6>
+                    <p style="margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">Preguntas mecánicas y técnicas sobre vehículos</p>
+                    <span class="badge-modern" style="background: var(--info); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@((publicaciones?.Count(p => p.Categoria == "Consultas Mecánicas")) ?? 0) publicaciones</span>
+                </div>
+            </div>
+            <div class="card-minimal category-card" 
+                 @onclick="@(() => FiltrarPorCategoria("rendimiento"))" 
+                 style="cursor: pointer; @(categoriaSeleccionada == "rendimiento" ? "border-left: 4px solid var(--primary);" : "")">
+                <div style="text-align: center;">
+                    <i class="fas fa-tachometer-alt" style="font-size: 2rem; color: var(--success); margin-bottom: 1rem; display: block;"></i>
+                    <h6 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--text-primary);">Rendimiento y Tuning</h6>
+                    <p style="margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">Discusiones sobre performance y modificaciones</p>
+                    <span class="badge-modern" style="background: var(--success); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@((publicaciones?.Count(p => p.Categoria == "Rendimiento")) ?? 0) publicaciones</span>
+                </div>
+            </div>
+            <div class="card-minimal category-card" 
+                 @onclick="@(() => FiltrarPorCategoria("productos"))" 
+                 style="cursor: pointer; @(categoriaSeleccionada == "productos" ? "border-left: 4px solid var(--primary);" : "")">
+                <div style="text-align: center;">
+                    <i class="fas fa-tools" style="font-size: 2rem; color: var(--danger); margin-bottom: 1rem; display: block;"></i>
+                    <h6 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--text-primary);">Productos Alternativos</h6>
+                    <p style="margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">Alternativas de repuestos y productos automotrices</p>
+                    <span class="badge-modern" style="background: var(--danger); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@((publicaciones?.Count(p => p.Categoria == "Productos Alternativos")) ?? 0) publicaciones</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros y búsqueda -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-modern"
+                    @onclick="@(() => FiltrarPorCategoria(""))"
+                    style="@(categoriaSeleccionada == "" ? "background: var(--primary); color: white;" : "background: var(--light-bg); color: var(--primary); border: 1px solid var(--border-color);") padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                <i class="fas fa-list" style="margin-right: 0.5rem;"></i>Todas las categorías
+            </button>
+            @if (!string.IsNullOrEmpty(categoriaSeleccionada))
+            {
+                <button class="btn-modern" @onclick="LimpiarFiltros"
+                        style="background: var(--light-bg); color: var(--danger); border: 1px solid var(--danger); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                    <i class="fas fa-times" style="margin-right: 0.5rem;"></i>Limpiar filtro
+                </button>
+            }
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 1rem;">
+                <label style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">Ordenar por:</label>
+                <select class="form-input" value="@ordenSeleccionado" @onchange="OnOrdenChanged" 
+                        style="width: auto; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9rem;">
+                    <option value="fecha">Más recientes</option>
+                    <option value="populares">Más populares</option>
+                    <option value="respuestas">Más comentadas</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (mostrarFormulario)
+    {
+        <div style="margin-bottom: 2rem;">
+            <div class="card-minimal">
+                <div style="border-bottom: 1px solid var(--border-color); padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-edit" style="color: var(--primary); font-size: 1.1rem;"></i>
+                    <h5 style="margin: 0; font-size: 1rem;">Crear Nueva Publicación</h5>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <EditForm Model="nuevaPublicacion" OnValidSubmit="CrearPublicacion">
+                        <DataAnnotationsValidator />
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Título</label>
+                            <InputText @bind-Value="nuevaPublicacion.Titulo" class="form-input" 
+                                       placeholder="Ingresa un título descriptivo..." 
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                            <ValidationMessage For="() => nuevaPublicacion.Titulo" style="color: var(--danger); font-size: 0.85rem; display: block; margin-top: 0.25rem;" />
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Categoría</label>
+                            <InputSelect @bind-Value="nuevaPublicacion.Categoria" 
+                                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                                <option value="">Selecciona una categoría</option>
+                                <option value="Valoraciones">🌟 Valoraciones y Reseñas</option>
+                                <option value="Consultas Mecánicas">❓ Consultas Técnicas</option>
+                                <option value="Rendimiento">🏎️ Rendimiento y Tuning</option>
+                                <option value="Productos Alternativos">🔧 Productos Alternativos</option>
+                                <option value="Mantenimiento">🛠️ Mantenimiento General</option>
+                                <option value="Compra/Venta">💰 Compra y Venta</option>
+                            </InputSelect>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Contenido</label>
+                            <InputTextArea @bind-Value="nuevaPublicacion.Contenido" 
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; min-height: 120px;"
+                                          placeholder="Describe tu consulta o comparte tu experiencia..."></InputTextArea>
+                            <ValidationMessage For="() => nuevaPublicacion.Contenido" style="color: var(--danger); font-size: 0.85rem; display: block; margin-top: 0.25rem;" />
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Etiquetas (separadas por coma)</label>
+                            <InputText @bind-Value="nuevaPublicacion.Etiquetas" class="form-input" 
+                                       placeholder="motor, frenos, toyota, etc." 
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px;" />
+                            <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.25rem;">Las etiquetas ayudan a otros usuarios a encontrar tu publicación</small>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn-modern" disabled="@publicando"
+                                    style="background: var(--success); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; flex: 1; text-align: center;">
+                                @if (publicando)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" style="display: inline-block; width: 1rem; height: 1rem; border-width: 2px; margin-right: 0.5rem;"></span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
+                                }
+                                Publicar
+                            </button>
+                            <button type="button" class="btn-modern" @onclick="CancelarPublicacion"
+                                    style="background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; cursor: pointer;">
+                                Cancelar
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    }
+    else if (publicaciones?.Any() == true)
+    {
+        <div style="display: grid; grid-template-columns: 1fr 280px; gap: 2rem;">
+            <div>
+                @foreach (var publicacion in publicaciones)
+                {
+                    <div class="card-minimal" style="margin-bottom: 1.5rem;">
+                        <div style="padding: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <h5 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: var(--text-primary);">
+                                        @if (publicacion.EsDestacado)
+                                        {
+                                            <i class="fas fa-star" style="color: var(--warning); margin-right: 0.5rem;"></i>
+                                        }
+                                        <a href="/foro/@publicacion.Id" style="color: var(--primary); text-decoration: none;">@publicacion.Titulo</a>
+                                    </h5>
+                                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                                        <small style="color: var(--text-muted); font-size: 0.85rem;">
+                                            <i class="fas fa-user" style="margin-right: 0.25rem;"></i>@publicacion.NombreUsuario
+                                        </small>
+                                        <small style="color: var(--text-muted); font-size: 0.85rem;">
+                                            <i class="fas fa-clock" style="margin-right: 0.25rem;"></i>@publicacion.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                        @if (!string.IsNullOrEmpty(publicacion.Categoria))
+                                        {
+                                            <span class="badge-modern" style="background: var(--primary); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">@publicacion.Categoria</span>
+                                        }
+                                        @if (publicacion.EsCerrado)
+                                        {
+                                            <span class="badge-modern" style="background: var(--text-muted); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Cerrado</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <p style="color: var(--text-secondary); margin: 0 0 1rem 0; line-height: 1.5;">@publicacion.Contenido.Substring(0, Math.Min(publicacion.Contenido.Length, 200))@(publicacion.Contenido.Length > 200 ? "..." : "")</p>
+                            
+                            @if (!string.IsNullOrEmpty(publicacion.Etiquetas))
+                            {
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                                    @foreach (var etiqueta in publicacion.Etiquetas.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">#@etiqueta.Trim()</span>
+                                    }
+                                </div>
+                            }
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                                    <small style="color: var(--text-muted); font-size: 0.85rem;">
+                                        <i class="fas fa-eye" style="margin-right: 0.25rem;"></i>@publicacion.Vistas vistas
+                                    </small>
+                                    <small style="color: var(--text-muted); font-size: 0.85rem;">
+                                        <i class="fas fa-comments" style="margin-right: 0.25rem;"></i>@publicacion.TotalRespuestas respuestas
+                                    </small>
+                                    
+                                    <!-- Sistema de puntuación -->
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <button class="btn-modern" @onclick="() => DarLike(publicacion.Id)" title="Me gusta"
+                                                style="background: var(--light-bg); color: var(--success); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 3px; cursor: pointer;">
+                                            <i class="fas fa-thumbs-up"></i>
+                                        </button>
+                                        <small style="color: var(--success); font-weight: 600; font-size: 0.85rem;">@publicacion.Likes</small>
+                                        
+                                        <button class="btn-modern" @onclick="() => DarDislike(publicacion.Id)" title="No me gusta"
+                                                style="background: var(--light-bg); color: var(--danger); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 3px; cursor: pointer; margin-left: 0.5rem;">
+                                            <i class="fas fa-thumbs-down"></i>
+                                        </button>
+                                        <small class="text-danger fw-bold">@publicacion.Dislikes</small>
+                                        
+                                        <!-- Puntuación neta -->
+                                        @{
+                                            var puntuacionNeta = publicacion.Likes - publicacion.Dislikes;
+                                        }
+                                        <span class="badge-modern" style="background: @(puntuacionNeta >= 0 ? "var(--success)" : "var(--danger)"); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem; margin-left: 0.75rem;">
+                                            @(puntuacionNeta >= 0 ? "+" : "")@puntuacionNeta
+                                        </span>
+                                    </div>
+                                </div>
+                                <a href="/foro/@publicacion.Id" class="btn-modern"
+                                   style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; text-decoration: none; cursor: pointer;">
+                                    <i class="fas fa-arrow-right" style="margin-right: 0.25rem;"></i>
+                                    Leer más
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Paginación simple -->
+                <div style="display: flex; justify-content: center; margin-top: 2rem;">
+                    <button class="btn-modern" @onclick="CargarMasPublicaciones" disabled="@cargandoMas"
+                            style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; cursor: pointer;">
+                        @if (cargandoMas)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" style="display: inline-block; width: 1rem; height: 1rem; border-width: 2px; margin-right: 0.5rem;"></span>
+                        }
+                        Cargar más publicaciones
+                    </button>
+                </div>
+            </div>
+            
+            <div style="position: sticky; top: 80px;">
+                <div class="card-minimal" style="margin-bottom: 1.5rem;">
+                    <div style="border-bottom: 1px solid var(--border-color); padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <i class="fas fa-info-circle" style="color: var(--primary); font-size: 1.1rem;"></i>
+                        <h6 style="margin: 0; font-size: 1rem;">Acerca del Foro</h6>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-secondary);">Bienvenido al foro de Rodavia. Aquí puedes:</p>
+                        <ul style="font-size: 0.9rem; margin: 0; padding-left: 1.25rem; color: var(--text-secondary);">
+                            <li>Hacer preguntas sobre mecánica</li>
+                            <li>Compartir experiencias</li>
+                            <li>Recomendar talleres</li>
+                            <li>Ayudar a otros usuarios</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-minimal">
+                    <div style="border-bottom: 1px solid var(--border-color); padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <i class="fas fa-tags" style="color: var(--primary); font-size: 1.1rem;"></i>
+                        <h6 style="margin: 0; font-size: 1rem;">Categorías Populares</h6>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Mantenimiento</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Frenos</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Motor</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Suspensión</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Talleres</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Toyota</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Chevrolet</span>
+                            <span class="badge-modern" style="background: var(--light-bg); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">Ford</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+            <div style="text-align: center;">
+                <i class="fas fa-comments" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; display: block;"></i>
+                <h3 style="font-size: 1.5rem; margin: 0 0 0.75rem 0; color: var(--text-primary);">No hay publicaciones aún</h3>
+                <p style="color: var(--text-secondary); margin: 0 0 1.5rem 0;">¡Sé el primero en crear una publicación!</p>
+                <button class="btn-modern" @onclick="MostrarFormularioPublicacion"
+                        style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;">
+                    <i class="fas fa-plus" style="margin-right: 0.5rem;"></i>
+                    Crear Primera Publicación
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<PublicacionForoDto>? publicaciones;
+    private IEnumerable<PublicacionForoDto>? todasLasPublicaciones; // Para filtrado
+    private bool cargando = true;
+    private bool cargandoMas = false;
+    private bool mostrarFormulario = false;
+    private bool publicando = false;
+    private int paginaActual = 1;
+    
+    // Variables para filtrado y ordenamiento
+    private string categoriaSeleccionada = "";
+    private string ordenSeleccionado = "fecha";
+    
+    private CrearPublicacionDto nuevaPublicacion = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPublicaciones();
+    }
+
+    private async Task CargarPublicaciones()
+    {
+        try
+        {
+            todasLasPublicaciones = await ForoService.ObtenerPublicacionesAsync(paginaActual);
+            FiltrarYOrdenarPublicaciones();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando publicaciones: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void FiltrarYOrdenarPublicaciones()
+    {
+        if (todasLasPublicaciones == null) return;
+
+        var filtradas = todasLasPublicaciones.AsEnumerable();
+
+        // Filtrar por categoría
+        if (!string.IsNullOrEmpty(categoriaSeleccionada))
+        {
+            var categoriaFiltro = categoriaSeleccionada switch
+            {
+                "valoraciones" => "Valoraciones",
+                "consultas" => "Consultas Mecánicas", 
+                "rendimiento" => "Rendimiento",
+                "productos" => "Productos Alternativos",
+                _ => categoriaSeleccionada
+            };
+            filtradas = filtradas.Where(p => p.Categoria == categoriaFiltro);
+        }
+
+        // Ordenar
+        filtradas = ordenSeleccionado switch
+        {
+            "populares" => filtradas.OrderByDescending(p => p.Likes - p.Dislikes),
+            "respuestas" => filtradas.OrderByDescending(p => p.TotalRespuestas),
+            _ => filtradas.OrderByDescending(p => p.FechaCreacion)
+        };
+
+        publicaciones = filtradas;
+        StateHasChanged();
+    }
+
+    private void FiltrarPorCategoria(string categoria)
+    {
+        categoriaSeleccionada = categoria;
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void LimpiarFiltros()
+    {
+        categoriaSeleccionada = "";
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void OrdenarPublicaciones()
+    {
+        FiltrarYOrdenarPublicaciones();
+    }
+
+    private void OnOrdenChanged(ChangeEventArgs e)
+    {
+        ordenSeleccionado = e.Value?.ToString() ?? "fecha";
+        OrdenarPublicaciones();
+    }
+
+    private async Task DarLike(int publicacionId)
+    {
+        try
+        {
+            var publicacion = todasLasPublicaciones?.FirstOrDefault(p => p.Id == publicacionId);
+            if (publicacion != null)
+            {
+                publicacion.Likes++;
+                FiltrarYOrdenarPublicaciones();
+                // En producción: await ForoService.DarLikeAsync(publicacionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error dando like: {ex.Message}");
+        }
+    }
+
+    private async Task DarDislike(int publicacionId)
+    {
+        try
+        {
+            var publicacion = todasLasPublicaciones?.FirstOrDefault(p => p.Id == publicacionId);
+            if (publicacion != null)
+            {
+                publicacion.Dislikes++;
+                FiltrarYOrdenarPublicaciones();
+                // En producción: await ForoService.DarDislikeAsync(publicacionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error dando dislike: {ex.Message}");
+        }
+    }
+
+    private async Task CargarMasPublicaciones()
+    {
+        cargandoMas = true;
+        try
+        {
+            paginaActual++;
+            var nuevasPublicaciones = await ForoService.ObtenerPublicacionesAsync(paginaActual);
+            
+            if (publicaciones != null && nuevasPublicaciones.Any())
+            {
+                publicaciones = publicaciones.Concat(nuevasPublicaciones);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando más publicaciones: {ex.Message}");
+            paginaActual--; // Revertir si hay error
+        }
+        finally
+        {
+            cargandoMas = false;
+            StateHasChanged();
+        }
+    }
+
+    private void MostrarFormularioPublicacion()
+    {
+        nuevaPublicacion = new CrearPublicacionDto();
+        mostrarFormulario = true;
+        StateHasChanged();
+    }
+
+    private void CancelarPublicacion()
+    {
+        mostrarFormulario = false;
+        nuevaPublicacion = new CrearPublicacionDto();
+        StateHasChanged();
+    }
+
+    private async Task CrearPublicacion()
+    {
+        publicando = true;
+        try
+        {
+            // TODO: Obtener ID de usuario autenticado
+            var usuarioId = 3; // Usuario de ejemplo para el MVP
+            
+            var publicacionId = await ForoService.CrearPublicacionAsync(nuevaPublicacion, usuarioId);
+            
+            // Recargar publicaciones
+            paginaActual = 1;
+            await CargarPublicaciones();
+            
+            // Ocultar formulario
+            CancelarPublicacion();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creando publicación: {ex.Message}");
+        }
+        finally
+        {
+            publicando = false;
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+    .category-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: #007bff !important;
+    }
+    
+    .category-card.border-primary {
+        border-color: #007bff !important;
+        background-color: rgba(0,123,255,0.05);
+    }
+    
+    .btn-outline-success.btn-sm,
+    .btn-outline-danger.btn-sm {
+        font-size: 0.75rem;
+        border-width: 1px;
+    }
+    
+    .btn-outline-success.btn-sm:hover {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .btn-outline-danger.btn-sm:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>

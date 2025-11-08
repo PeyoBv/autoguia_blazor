@@ -1,0 +1,388 @@
+@page "/diagnostico-asistente"
+@using Rodavia.Infrastructure.Services
+@using System.Text.RegularExpressions
+@inject IGeminiService GeminiService
+@inject ILogger<DiagnosticoAsistente> Logger
+@rendermode InteractiveServer
+
+<PageTitle>Diagnóstico Asistente - Rodavia</PageTitle>
+
+<div style="padding: 2rem 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);">
+    <div style="max-width: 900px; margin: 0 auto; padding: 0 1rem;">
+        <div class="page-header">
+            <h1 style="margin: 0; font-size: 2rem;">
+                <i class="fas fa-wrench" style="color: var(--primary); margin-right: 0.5rem;"></i>
+                Asistente de Diagnóstico
+            </h1>
+            <p style="margin: 0.75rem 0 0 0; color: var(--text-secondary); font-size: 0.95rem;">
+                Describe la falla de tu vehículo y obtén un diagnóstico instantáneo
+            </p>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <div class="card-minimal">
+            <div style="padding: 1.5rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="descripcionFalla" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                        <i class="fas fa-pencil-alt" style="color: var(--primary); margin-right: 0.5rem;"></i>Describe la falla o síntoma de tu vehículo:
+                    </label>
+                    <textarea 
+                        id="descripcionFalla"
+                        class="form-input"
+                        @bind="DescripcionFalla"
+                        placeholder="Ej: Mi auto tiembla al ralentí, hace ruido extraño en el motor..."
+                        rows="5"
+                        disabled="@EstaObteniendo"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; font-size: 1rem;">
+                    </textarea>
+                    <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                        Sé lo más detallado posible. Incluye: qué pasa, cuándo ocurre, ruidos, vibraciones, etc.
+                    </small>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button 
+                        class="btn-modern"
+                        @onclick="ObtenerDiagnostico"
+                        disabled="@(EstaObteniendo || string.IsNullOrWhiteSpace(DescripcionFalla))"
+                        style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1;">
+                        @if (EstaObteniendo)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" style="display: inline-block; width: 1rem; height: 1rem; border-width: 2px; margin-right: 0.5rem;"></span>
+                            <span>Analizando...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                            <span>Obtener Diagnóstico</span>
+                        }
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(DescripcionFalla) && !EstaObteniendo)
+                    {
+                        <button 
+                            class="btn-modern"
+                            @onclick="LimpiarFormulario"
+                            style="background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; cursor: pointer;">
+                            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>Limpiar
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(ResultadoDiagnostico))
+        {
+            <div class="card-minimal">
+                <div style="border-bottom: 1px solid var(--border-color); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);">
+                        <i class="fas fa-chart-bar" style="color: var(--primary); margin-right: 0.5rem;"></i>Resultado del Diagnóstico
+                    </h2>
+                    <button class="btn-modern" @onclick="CopiarAlPortapapeles"
+                            style="background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                        <i class="fas fa-copy" style="margin-right: 0.25rem;"></i>Copiar
+                    </button>
+                </div>
+
+                <div style="padding: 1.5rem;">
+                    @if (MostrarMarkdown)
+                    {
+                        <div class="markdown-content" style="line-height: 1.6; color: var(--text-secondary);">
+                            @((MarkupString)ConvertirMarkdownAHtml(ResultadoDiagnostico))
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="white-space: pre-wrap; line-height: 1.6; color: var(--text-secondary);">
+                            @ResultadoDiagnostico
+                        </div>
+                    }
+
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem;">
+                        <button class="btn-modern" @onclick="ToggleModoVisualizacion"
+                                style="background: var(--light-bg); color: var(--primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                            @if (MostrarMarkdown)
+                            {
+                                <span>📄 Ver como Texto</span>
+                            }
+                            else
+                            {
+                                <span>🎨 Ver Formateado</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-left: 4px solid var(--warning); border-radius: 4px; padding: 1rem; display: flex; gap: 1rem;">
+                <i class="fas fa-exclamation-triangle" style="color: var(--warning); font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem;"></i>
+                <div style="color: var(--text-primary); font-size: 0.9rem;">
+                    <strong>Advertencia Importante:</strong><br/>
+                    Este diagnóstico es una herramienta de referencia solamente. Para reparaciones críticas o diagnósticos de seguridad, consulta con un mecánico profesional certificado.
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(MensajeError))
+        {
+            <div style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-left: 4px solid var(--danger); border-radius: 4px; padding: 1rem; display: flex; gap: 1rem;">
+                <i class="fas fa-exclamation-circle" style="color: var(--danger); font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem;"></i>
+                <div style="color: var(--text-primary); font-size: 0.9rem;">
+                    <strong>❌ Error:</strong> @MensajeError
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string DescripcionFalla { get; set; } = string.Empty;
+    private string ResultadoDiagnostico { get; set; } = string.Empty;
+    private string MensajeError { get; set; } = string.Empty;
+    private bool EstaObteniendo { get; set; } = false;
+    private bool MostrarMarkdown { get; set; } = true;
+
+    private async Task ObtenerDiagnostico()
+    {
+        if (string.IsNullOrWhiteSpace(DescripcionFalla))
+        {
+            MensajeError = "Por favor, describe la falla de tu vehículo";
+            return;
+        }
+
+        EstaObteniendo = true;
+        MensajeError = string.Empty;
+        ResultadoDiagnostico = string.Empty;
+
+        try
+        {
+            Logger.LogInformation("Iniciando solicitud de diagnóstico");
+            ResultadoDiagnostico = await GeminiService.ObtenerDiagnosticoAsync(DescripcionFalla);
+            
+            if (ResultadoDiagnostico.StartsWith("❌"))
+            {
+                MensajeError = ResultadoDiagnostico;
+                ResultadoDiagnostico = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error en ObtenerDiagnostico: {ex.Message}");
+            MensajeError = "Ocurrió un error al procesar tu solicitud. Intenta nuevamente.";
+        }
+        finally
+        {
+            EstaObteniendo = false;
+        }
+    }
+
+    private void LimpiarFormulario()
+    {
+        DescripcionFalla = string.Empty;
+        ResultadoDiagnostico = string.Empty;
+        MensajeError = string.Empty;
+    }
+
+    private void ToggleModoVisualizacion()
+    {
+        MostrarMarkdown = !MostrarMarkdown;
+    }
+
+    private async Task CopiarAlPortapapeles()
+    {
+        // Esta funcionalidad requería JS Interop
+        // Por ahora, mostramos un mensaje
+        await Task.Delay(100);
+        Logger.LogInformation("Copiar al portapapeles (requiere JS Interop)");
+    }
+
+    private string ConvertirMarkdownAHtml(string markdown)
+    {
+        // Conversión básica de Markdown a HTML
+        string html = markdown;
+        
+        // Títulos
+        html = Regex.Replace(html, @"^### (.*?)$", "<h3>$1</h3>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"^## (.*?)$", "<h2>$1</h2>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"^# (.*?)$", "<h1>$1</h1>", RegexOptions.Multiline);
+
+        // Negritas
+        html = Regex.Replace(html, @"\*\*(.*?)\*\*", "<strong>$1</strong>");
+
+        // Itálicas
+        html = Regex.Replace(html, @"\*(.*?)\*", "<em>$1</em>");
+
+        // Listas
+        html = Regex.Replace(html, @"^- (.*?)$", "<li>$1</li>", RegexOptions.Multiline);
+        html = Regex.Replace(html, @"(<li>.*?</li>)", "<ul>$1</ul>", RegexOptions.Singleline);
+
+        // Saltos de línea
+        html = html.Replace("\n", "<br />");
+
+        return html;
+    }
+}
+
+<style>
+    .diagnostico-container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .diagnostico-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+    }
+
+    .diagnostico-header h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+    .diagnostico-body {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-section {
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .textarea-falla {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 1rem;
+        resize: vertical;
+        transition: border-color 0.3s;
+    }
+
+    .textarea-falla:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
+    .button-section {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .resultado-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-left: 4px solid #28a745;
+        border-radius: 8px;
+    }
+
+    .resultado-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .resultado-header h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .markdown-content {
+        color: #333;
+        line-height: 1.8;
+    }
+
+    .markdown-content h2 {
+        color: #007bff;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    .markdown-content h3 {
+        color: #0056b3;
+        margin-top: 15px;
+        margin-bottom: 8px;
+    }
+
+    .markdown-content ul {
+        padding-left: 25px;
+        margin: 10px 0;
+    }
+
+    .markdown-content li {
+        margin: 5px 0;
+    }
+
+    .advertencia-legal {
+        margin-top: 20px;
+        padding: 15px;
+        background: #fff3cd;
+        border-left: 4px solid #ff9800;
+        border-radius: 5px;
+        color: #856404;
+        font-size: 0.95rem;
+    }
+
+    .alert {
+        margin-top: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .diagnostico-container {
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .diagnostico-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .button-section {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>

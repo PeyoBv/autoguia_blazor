@@ -9,7 +9,7 @@ Este documento detalla la configuración y uso del sistema de pagos con **Transb
 ### Componentes Principales
 
 ```
-AutoGuia.Core/
+Rodavia.Core/
 ├── Entities/
 │   ├── PaymentMethod.cs           # Tarjetas inscritas (tokens TBK)
 │   ├── TransbankTransaction.cs    # Registro de transacciones
@@ -17,7 +17,7 @@ AutoGuia.Core/
 └── DTOs/
     └── TransbankDtos.cs           # DTOs para requests/responses
 
-AutoGuia.Infrastructure/
+Rodavia.Infrastructure/
 └── Services/
     └── Payments/
         ├── ITransbankGateway.cs            # Interfaz del gateway
@@ -25,7 +25,7 @@ AutoGuia.Infrastructure/
         ├── ISubscriptionBillingService.cs   # Interfaz de facturación
         └── SubscriptionBillingService.cs    # Lógica de cobros
 
-AutoGuia.Web/
+Rodavia.Web/
 ├── Controllers/
 │   └── PaymentsController.cs      # Endpoints API REST
 └── Services/
@@ -100,7 +100,7 @@ Las credenciales de prueba ya están configuradas en `appsettings.json`:
 Ejecutar migración para crear tablas de pagos:
 
 ```powershell
-cd AutoGuia.Web\AutoGuia.Web
+cd Rodavia.Web\Rodavia.Web
 dotnet ef migrations add AddTransbankPayments
 dotnet ef database update
 ```
@@ -158,7 +158,7 @@ curl -X POST https://localhost:5001/api/payments/inscripcion/iniciar \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
-    "email": "test@autoguia.cl",
+    "email": "test@Rodavia.cl",
     "username": "usuario_test",
     "returnUrl": "https://localhost:5001/cuenta/medios-pago"
   }'
@@ -199,7 +199,7 @@ curl -X POST https://localhost:5001/api/payments/suscripciones/1/cobrar-inicial 
 
 Los logs de pago se almacenan en:
 1. **Base de datos** - Tabla `PaymentLogs`
-2. **Archivos** - `logs/autoguia-*.log` (Serilog)
+2. **Archivos** - `logs/Rodavia-*.log` (Serilog)
 3. **Consola** - Output de la aplicación
 
 Ejemplo de consulta:

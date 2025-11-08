@@ -1,0 +1,731 @@
+@page "/"
+@rendermode InteractiveAuto
+
+<PageTitle>Rodavia - Tu plataforma automotriz integral</PageTitle>
+
+<!-- Hero Section Minimalista -->
+<div class="hero-minimal">
+    <div class="container">
+        <div class="row align-items-center g-5 py-5">
+            <!-- Contenido Izquierdo -->
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-3 fw-bold text-dark mb-3">
+                        <span class="text-primary">Rodavia</span>
+                    </h1>
+                    <p class="lead text-muted mb-4" style="font-size: 1.1rem; line-height: 1.8;">
+                        Tu plataforma integral para el sector automotriz en Chile y Latinoamérica.
+                    </p>
+                    
+                    <div class="d-flex gap-3 flex-wrap mb-5">
+                        <a href="/talleres" class="btn btn-lg btn-dark rounded-pill px-4" style="box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <i class="fas fa-map-marker-alt me-2"></i> Talleres
+                        </a>
+                        <a href="/consumibles" class="btn btn-lg btn-outline-dark rounded-pill px-4">
+                            <i class="fas fa-shopping-cart me-2"></i> Productos
+                        </a>
+                        <a href="/foro" class="btn btn-lg btn-outline-dark rounded-pill px-4">
+                            <i class="fas fa-comments me-2"></i> Comunidad
+                        </a>
+                    </div>
+
+                    <!-- Estadísticas Rápidas -->
+                    <div class="row g-4">
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h4 class="text-primary fw-bold mb-1">500+</h4>
+                                <p class="text-muted small mb-0">Talleres Verificados</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h4 class="text-primary fw-bold mb-1">2000+</h4>
+                                <p class="text-muted small mb-0">Usuarios Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Derecho - Ilustración -->
+            <div class="col-lg-6 text-center">
+                <div class="car-animation-minimal">
+                    <svg viewBox="0 0 200 120" class="car-svg-modern" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Sombra -->
+                        <ellipse cx="100" cy="108" rx="70" ry="8" fill="#ccc" opacity="0.3"/>
+                        
+                        <!-- Cuerpo del auto -->
+                        <rect x="30" y="60" width="140" height="40" rx="10" fill="#007bff" opacity="0.9"/>
+                        
+                        <!-- Ventanas -->
+                        <path d="M60 60 L80 40 L120 40 L140 60 Z" fill="#0056b3" opacity="0.9"/>
+                        
+                        <!-- Ruedas -->
+                        <circle cx="60" cy="100" r="15" fill="#333" stroke="#007bff" stroke-width="3"/>
+                        <circle cx="60" cy="100" r="8" fill="#555"/>
+                        <circle cx="140" cy="100" r="15" fill="#333" stroke="#007bff" stroke-width="3"/>
+                        <circle cx="140" cy="100" r="8" fill="#555"/>
+                        
+                        <!-- Faros -->
+                        <ellipse cx="165" cy="70" rx="5" ry="8" fill="#ffc107"/>
+                        <ellipse cx="35" cy="70" rx="5" ry="8" fill="#ffc107"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Características Principales - Layout Moderno -->
+<section class="features-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="h3 fw-bold text-dark mb-3">Todo lo que necesitas en un solo lugar</h2>
+                <p class="text-muted">Explora nuestras principales funcionalidades diseñadas para facilitarte la vida</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature Card 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card-modern">
+                    <div class="feature-icon-modern bg-primary">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h5 class="mt-3 fw-bold">Mapa de Talleres</h5>
+                    <p class="text-muted small mb-3">Encuentra talleres certificados cerca de ti con calificaciones reales</p>
+                    <a href="/talleres" class="link-primary text-decoration-none small fw-bold">Explorar →</a>
+                </div>
+            </div>
+
+            <!-- Feature Card 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card-modern">
+                    <div class="feature-icon-modern bg-success">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="mt-3 fw-bold">Comunidad Activa</h5>
+                    <p class="text-muted small mb-3">Conecta con entusiastas y expertos del motor para compartir experiencias</p>
+                    <a href="/foro" class="link-success text-decoration-none small fw-bold">Unirse →</a>
+                </div>
+            </div>
+
+            <!-- Feature Card 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card-modern">
+                    <div class="feature-icon-modern bg-info">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h5 class="mt-3 fw-bold">IA Diagnóstica</h5>
+                    <p class="text-muted small mb-3">Obtén diagnósticos inteligentes de problemas vehiculares al instante</p>
+                    <a href="/diagnostico-asistente" class="link-info text-decoration-none small fw-bold">Diagnosticar →</a>
+                </div>
+            </div>
+
+            <!-- Feature Card 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card-modern">
+                    <div class="feature-icon-modern bg-warning">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h5 class="mt-3 fw-bold">Catálogo Premium</h5>
+                    <p class="text-muted small mb-3">Productos automotrices de calidad con comparación de precios</p>
+                    <a href="/consumibles" class="link-warning text-decoration-none small fw-bold">Explorar →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección de Beneficios -->
+<section class="benefits-section py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="h3 fw-bold text-dark mb-4">¿Por qué confiar en Rodavia?</h2>
+                
+                <div class="benefit-item mb-4">
+                    <div class="d-flex gap-3">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Talleres Verificados</h6>
+                            <p class="text-muted small mb-0">Solo trabajamos con profesionales certificados y confiables</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="benefit-item mb-4">
+                    <div class="d-flex gap-3">
+                        <div class="benefit-icon">
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Reseñas Transparentes</h6>
+                            <p class="text-muted small mb-0">Opiniones reales de usuarios verificados de la comunidad</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="benefit-item mb-4">
+                    <div class="d-flex gap-3">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Información Segura</h6>
+                            <p class="text-muted small mb-0">Tus datos están protegidos con encriptación de nivel empresarial</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="d-flex gap-3">
+                        <div class="benefit-icon">
+                            <i class="fas fa-mobile-alt text-info"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Disponible Siempre</h6>
+                            <p class="text-muted small mb-0">Acceso 24/7 desde cualquier dispositivo, web o móvil</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="benefit-image">
+                    <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Círculo de fondo -->
+                        <circle cx="150" cy="150" r="140" fill="#f8f9fa" stroke="#007bff" stroke-width="2" opacity="0.1"/>
+                        
+                        <!-- Icono central -->
+                        <circle cx="150" cy="150" r="60" fill="#007bff" opacity="0.1"/>
+                        <text x="150" y="160" font-size="80" text-anchor="middle" fill="#007bff" opacity="0.3">✓</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección About Us - Carrusel -->
+<section class="about-carousel-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="h3 fw-bold text-dark mb-2">Conoce a Rodavia</h2>
+                <p class="text-muted">Descubre nuestra misión, visión y propósito</p>
+            </div>
+        </div>
+
+        <!-- Carousel Container - Mostrando 3 cards (actual + 2 siguientes) -->
+        <div class="carousel-container mx-auto" style="max-width: 100%;">
+            <div class="carousel-inner-multi">
+                @for (int i = 0; i < 3; i++)
+                {
+                    int cardIndex = (currentSlide + i) % carouselCards.Count;
+                    var card = carouselCards[cardIndex];
+                    <div class="carousel-item-multi @(i == 0 ? "active" : "")">
+                        <div class="about-card">
+                            <div class="card-header-about">
+                                <i class="@card.Icon"></i>
+                                <h3>@card.Title</h3>
+                            </div>
+                            <div class="card-body-about">
+                                @if (card.Location != null)
+                                {
+                                    <p class="card-location">
+                                        <i class="fas fa-map-pin me-2"></i>@card.Location
+                                    </p>
+                                }
+                                <p class="card-text">@card.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Navigation Controls -->
+            <button class="carousel-btn prev" @onclick="PreviousSlide" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next" @onclick="NextSlide" aria-label="Siguiente">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Dots Indicator -->
+            <div class="carousel-dots mt-4">
+                @foreach (var (index, _) in carouselCards.Select((c, i) => (i, c)))
+                {
+                    <button class="dot @(index == currentSlide ? "active" : "")" 
+                            @onclick="() => GoToSlide(index)"
+                            aria-label="Ir a slide @(index + 1)"></button>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Final -->
+<section class="cta-section py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="h3 fw-bold mb-3">¿Listo para transformar tu experiencia automotriz?</h2>
+        <p class="lead text-light mb-4">Únete a miles de usuarios que ya confían en Rodavia</p>
+        <a href="/Account/Register" class="btn btn-primary btn-lg rounded-pill px-5">Comenzar Ahora</a>
+    </div>
+</section>
+
+<style>
+    /* Hero Section Minimalista */
+    .hero-minimal {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        line-height: 1.1;
+        letter-spacing: -1px;
+    }
+
+    /* Stat Boxes */
+    .stat-box {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Car Animation Moderno */
+    .car-animation-minimal {
+        animation: float-smooth 4s ease-in-out infinite;
+        position: relative;
+    }
+
+    .car-svg-modern {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        filter: drop-shadow(0 15px 30px rgba(0, 123, 255, 0.15));
+    }
+
+    @@keyframes float-smooth {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-25px); }
+    }
+
+    /* Features Section */
+    .features-section {
+        background: #f8f9fa;
+    }
+
+    .feature-card-modern {
+        padding: 2rem;
+        background: white;
+        border-radius: 16px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+        height: 100%;
+    }
+
+    .feature-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        border-color: #007bff;
+    }
+
+    .feature-icon-modern {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin: 0 auto;
+    }
+
+    /* Benefits Section */
+    .benefit-item {
+        transition: transform 0.3s ease;
+    }
+
+    .benefit-item:hover {
+        transform: translateX(5px);
+    }
+
+    .benefit-icon {
+        font-size: 1.8rem;
+        min-width: 2rem;
+    }
+
+    .benefit-image {
+        text-align: center;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
+
+    /* About Carousel Section */
+    .about-carousel-section {
+        background: #f8f9fa;
+    }
+
+    .carousel-container {
+        position: relative;
+        perspective: 1000px;
+        padding: 0 50px;
+    }
+
+    .carousel-inner-multi {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        animation: slideIn 0.5s ease-in-out;
+    }
+
+    .carousel-item-multi {
+        opacity: 0.6;
+        transform: scale(0.95);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .carousel-item-multi.active {
+        opacity: 1;
+        transform: scale(1);
+        z-index: 10;
+    }
+
+    @@keyframes slideIn {
+        0% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    @@keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .about-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+    }
+
+    .about-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 123, 255, 0.15);
+    }
+
+    .card-header-about {
+        text-align: center;
+        margin-bottom: 2rem;
+        flex-shrink: 0;
+    }
+
+    .card-header-about i {
+        font-size: 3.5rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .card-header-about h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .card-body-about {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-location {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .card-text {
+        color: #555;
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin: 0;
+        flex: 1;
+        text-align: justify;
+    }
+
+    .card-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .stat-badge {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Carousel Controls */
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 2px solid #007bff;
+        color: #007bff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        z-index: 20;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
+
+    .carousel-btn:hover {
+        background: #007bff;
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-btn.prev {
+        left: 0;
+    }
+
+    .carousel-btn.next {
+        right: 0;
+    }
+
+    /* Dots Indicator */
+    .carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ddd;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .dot.active {
+        background: #007bff;
+        transform: scale(1.2);
+    }
+
+    .dot:hover {
+        background: #0056b3;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1024px) {
+        .carousel-inner-multi {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+
+        .lead {
+            font-size: 1rem !important;
+        }
+
+        .carousel-inner-multi {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .carousel-container {
+            padding: 0 20px;
+        }
+
+        .about-card {
+            padding: 1.5rem;
+        }
+
+        .card-header-about i {
+            font-size: 2.5rem;
+        }
+
+        .card-header-about h3 {
+            font-size: 1.4rem;
+        }
+
+        .carousel-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .carousel-btn.prev {
+            left: -60px;
+        }
+
+        .carousel-btn.next {
+            right: -60px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .carousel-container {
+            margin: 0 -20px;
+        }
+
+        .carousel-inner {
+            height: 600px;
+        }
+
+        .about-card {
+            padding: 1.5rem;
+            margin: 0 20px;
+        }
+
+        .carousel-btn {
+            width: 36px;
+            height: 36px;
+        }
+
+        .carousel-btn.prev,
+        .carousel-btn.next {
+            position: absolute;
+            top: auto;
+            bottom: -60px;
+            transform: translateY(0);
+        }
+
+        .carousel-btn.prev {
+            left: 50%;
+            margin-left: -90px;
+        }
+
+        .carousel-btn.next {
+            right: 50%;
+            margin-right: -90px;
+        }
+    }
+</style>
+
+@code {
+    private int currentSlide = 0;
+    private Timer autoPlayTimer;
+
+    private List<CarouselCard> carouselCards = new()
+    {
+        new CarouselCard
+        {
+            Icon = "fas fa-car",
+            Title = "Quiénes Somos",
+            Description = "Rodavia es la plataforma líder en Chile y Latinoamérica para el sector automotriz. Conectamos a conductores con talleres certificados, ofrecemos herramientas de diagnóstico con IA y fomentamos una comunidad activa de entusiastas del motor.",
+            Location = "Santiago, Chile 🇨🇱"
+        },
+        new CarouselCard
+        {
+            Icon = "fas fa-bullseye",
+            Title = "Nuestra Misión",
+            Description = "Democratizar el acceso a servicios automotrices de calidad mediante tecnología innovadora, proporcionando información transparente, comparación de precios en tiempo real y conectando a la comunidad automotriz con los mejores profesionales del sector.",
+            Location = null
+        },
+        new CarouselCard
+        {
+            Icon = "fas fa-eye",
+            Title = "Nuestra Visión",
+            Description = "Ser la plataforma de referencia en Latinoamérica para el cuidado y mantenimiento vehicular, integrando inteligencia artificial, IoT y blockchain para crear un ecosistema automotriz digital, confiable y accesible para todos.",
+            Location = null
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        StartAutoPlay();
+    }
+
+    private void StartAutoPlay()
+    {
+        autoPlayTimer = new Timer(_ =>
+        {
+            NextSlide();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(7));
+    }
+
+    private void NextSlide()
+    {
+        currentSlide = (currentSlide + 1) % carouselCards.Count;
+    }
+
+    private void PreviousSlide()
+    {
+        currentSlide = (currentSlide - 1 + carouselCards.Count) % carouselCards.Count;
+        ResetAutoPlay();
+    }
+
+    private void GoToSlide(int index)
+    {
+        currentSlide = index;
+        ResetAutoPlay();
+    }
+
+    private void ResetAutoPlay()
+    {
+        autoPlayTimer?.Dispose();
+        StartAutoPlay();
+    }
+
+    public void Dispose()
+    {
+        autoPlayTimer?.Dispose();
+    }
+
+    public class CarouselCard
+    {
+        public string Icon { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+    }
+}
