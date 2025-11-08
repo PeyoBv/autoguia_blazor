@@ -94,9 +94,9 @@ public interface INuevoService
 // Implementación
 public class NuevoService : INuevoService
 {
-    private readonly AutoGuiaDbContext _context;
+    private readonly RodaviaDbContext _context;
     
-    public NuevoService(AutoGuiaDbContext context)
+    public NuevoService(RodaviaDbContext context)
     {
         _context = context;
     }
@@ -111,7 +111,7 @@ public class NuevoService : INuevoService
 @rendermode InteractiveServer
 @inject IServicio Servicio
 
-<PageTitle>Título - AutoGuía</PageTitle>
+<PageTitle>Título - Rodavia</PageTitle>
 
 <div class="container py-4">
     <!-- Contenido de la página -->
@@ -126,8 +126,8 @@ public class NuevoService : INuevoService
 
 ### Desarrollo
 ```bash
-dotnet build AutoGuia.sln           # Compilar
-dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj  # Ejecutar
+dotnet build Rodavia.sln           # Compilar
+dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj  # Ejecutar
 ```
 
 ### VS Code Tasks
@@ -137,7 +137,7 @@ dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj  # Ejecutar
 ## Base de Datos
 
 - **Tipo**: InMemory Database (para MVP)
-- **Context**: `AutoGuiaDbContext`
+- **Context**: `RodaviaDbContext`
 - **Inicialización**: Automática con datos semilla en `Program.cs`
 - **Entidades principales**: Usuario, Taller, Vehiculo, PublicacionForo, RespuestaForo
 

@@ -43,7 +43,7 @@ AutoGuía es una plataforma web integral para el sector automotriz en Chile y La
 ### 🔐 Autenticación Completa - **FUNCIONAL**
 - **Sistema de registro** y login
 - **Gestión de roles** (Admin/Usuario)
-- **Usuario administrador** automático: `admin@Rodavia.cl` / `Admin123!`
+- **Usuario administrador** automático: `admin@rodavia.cl` / `Admin123!`
 - **Autorización por páginas** implementada
 
 ### 🏢 Panel de Administración - **FUNCIONAL**
@@ -315,7 +315,7 @@ AutoGuía/
 
 ### 🔑 Credenciales de Administrador
 
-**Usuario**: `admin@Rodavia.cl`  
+**Usuario**: `admin@rodavia.cl`  
 **Contraseña**: `Admin123!`
 
 > **Nota**: El usuario administrador se crea automáticamente al iniciar la aplicación

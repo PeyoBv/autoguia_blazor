@@ -24,12 +24,12 @@ public static class DataSeeder
         try
         {
             var identityContext = services.GetRequiredService<ApplicationDbContext>();
-            var autoguiaContext = services.GetRequiredService<RodaviaDbContext>();
+            var rodaviaContext = services.GetRequiredService<RodaviaDbContext>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
             await identityContext.Database.EnsureCreatedAsync();
-            await autoguiaContext.Database.EnsureCreatedAsync();
+            await rodaviaContext.Database.EnsureCreatedAsync();
 
             // ✅ Verificar si ya hay datos antes de seedear
             if (await roleManager.RoleExistsAsync("Admin"))
@@ -40,8 +40,8 @@ public static class DataSeeder
             }
 
             await SeedIdentityData(userManager, roleManager);
-            await SeedApplicationData(autoguiaContext);
-            await SeedCategoriesAsync(autoguiaContext);
+            await SeedApplicationData(rodaviaContext);
+            await SeedCategoriesAsync(rodaviaContext);
 
             stopwatch.Stop();
             Console.WriteLine($"✅ Datos semilla aplicados correctamente (total: {stopwatch.ElapsedMilliseconds}ms)");
@@ -92,7 +92,7 @@ public static class DataSeeder
 
     private static async Task SeedApplicationData(RodaviaDbContext context)
     {
-        Console.WriteLine("🌱 Iniciando seeding de datos de AutoGuía...");
+        Console.WriteLine("🌱 Iniciando seeding de datos de Rodavia...");
 
         // Sembrar Marcas
         if (!await context.Marcas.AnyAsync())

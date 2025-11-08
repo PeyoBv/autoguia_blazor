@@ -1,7 +1,7 @@
-// AutoGuía - Google Maps Integration (Versión Segura y Simplificada)
+// Rodavia - Google Maps Integration (Versión Segura y Simplificada)
 // Compatible con ciclo de vida de Blazor - Evita conflictos DOM
 
-window.autoguiaMap = {
+window.rodaviaMap = {
     map: null,
     markers: [],
     infoWindow: null,
@@ -281,4 +281,4 @@ window.addEventListener('error', function(event) {
     }
 });
 
-console.log('AutoGuía Maps - Script seguro cargado correctamente');
+console.log('Rodavia Maps - Script seguro cargado correctamente');

@@ -180,10 +180,10 @@ Antes de usar el avatar, verificar:
 **Reemplazar archivo SVG:**
 ```bash
 # Guardar tu avatar como:
-AutoGuia.Web/AutoGuia.Web/wwwroot/images/avatar-author.png
+Rodavia.Web/Rodavia.Web/wwwroot/images/avatar-author.png
 
 # O sobrescribir SVG:
-AutoGuia.Web/AutoGuia.Web/wwwroot/images/avatar-author.svg
+Rodavia.Web/Rodavia.Web/wwwroot/images/avatar-author.svg
 ```
 
 **El Footer ya está configurado:**
@@ -230,4 +230,4 @@ Variantes:
 ---
 
 **Última actualización**: 27 de octubre de 2025  
-**Implementado por**: AutoGuía Development Team
+**Implementado por**: Rodavia Development Team

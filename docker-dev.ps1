@@ -1,4 +1,4 @@
-# AutoGuía - Scripts de desarrollo Docker para Windows
+# Rodavia - Scripts de desarrollo Docker para Windows
 # PowerShell script para desarrollo
 
 param(
@@ -26,7 +26,7 @@ function Write-ColorOutput($ForegroundColor) {
 }
 
 function Show-Help {
-    Write-ColorOutput $Blue "🐳 AutoGuía Docker Development Scripts"
+    Write-ColorOutput $Blue "🐳 Rodavia Docker Development Scripts"
     Write-Output "========================================"
     Write-Output ""
     Write-Output "Uso: .\docker-dev.ps1 [COMANDO] [SERVICIO]"
@@ -140,12 +140,12 @@ switch ($Command.ToLower()) {
         Write-ColorOutput $Yellow "🗃️  Reseteando base de datos..."
         Check-DockerCompose
         try {
-            Invoke-Expression "$DockerCompose stop autoguia-db"
+            Invoke-Expression "$DockerCompose stop rodavia-db"
         } catch {}
         try {
-            docker volume rm blazorautoguia_postgres-data
+            docker volume rm blazorrodavia_postgres-data
         } catch {}
-        Invoke-Expression "$DockerCompose up -d autoguia-db"
+        Invoke-Expression "$DockerCompose up -d rodavia-db"
         Write-ColorOutput $Green "✅ Base de datos reseteada"
     }
     
@@ -154,15 +154,15 @@ switch ($Command.ToLower()) {
         switch ($Service.ToLower()) {
             "db" {
                 Write-ColorOutput $Yellow "🔌 Conectando a PostgreSQL..."
-                Invoke-Expression "$DockerCompose exec autoguia-db psql -U autoguia -d autoguia"
+                Invoke-Expression "$DockerCompose exec rodavia-db psql -U rodavia -d rodavia"
             }
             "database" {
                 Write-ColorOutput $Yellow "🔌 Conectando a PostgreSQL..."
-                Invoke-Expression "$DockerCompose exec autoguia-db psql -U autoguia -d autoguia"
+                Invoke-Expression "$DockerCompose exec rodavia-db psql -U rodavia -d rodavia"
             }
             "web" {
                 Write-ColorOutput $Yellow "🔌 Conectando a contenedor web..."
-                Invoke-Expression "$DockerCompose exec autoguia-web /bin/bash"
+                Invoke-Expression "$DockerCompose exec rodavia-web /bin/bash"
             }
             "redis" {
                 Write-ColorOutput $Yellow "🔌 Conectando a Redis..."

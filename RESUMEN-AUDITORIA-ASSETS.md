@@ -48,7 +48,7 @@
 ```diff
 <!-- Home.razor -->
 - <div class="hero-section bg-primary">...</div> (38 líneas inline)
-+ @using AutoGuia.Web.Components.Shared
++ @using Rodavia.Web.Components.Shared
 + <Hero />
 ```
 **Efecto**: Hero banner de 1.28MB se carga, efectos cinéticos activos
@@ -81,8 +81,8 @@
 - [ ] Usar iconos en cards de servicios
 
 ### Fase 3: Optimizaciones (2 horas)
-- [ ] Generar favicon desde logo-autoguia-icon.svg
-- [ ] Comprimir hero-autoguia.jpg de 1.28MB → <500KB (TinyPNG)
+- [ ] Generar favicon desde logo-rodavia-icon.svg
+- [ ] Comprimir hero-rodavia.jpg de 1.28MB → <500KB (TinyPNG)
 - [ ] Crear manifest.json para PWA
 - [ ] Agregar Open Graph meta tags con logo vertical
 
@@ -118,7 +118,7 @@ Para futuros prompts de assets:
 ### Test de assets activos
 ```powershell
 # Verificar que hero.css carga
-Select-String -Path "AutoGuia.Web/AutoGuia.Web/Components/App.razor" -Pattern "hero.css"
+Select-String -Path "Rodavia.Web/Rodavia.Web/Components/App.razor" -Pattern "hero.css"
 
 # Verificar que Hero component se usa
 Select-String -Path "**/*.razor" -Pattern "<Hero"
@@ -133,8 +133,8 @@ Get-ChildItem -Recurse wwwroot/images/*.svg | ForEach-Object {
 
 ### Build y test local
 ```powershell
-dotnet build AutoGuia.sln
-dotnet run --project AutoGuia.Web/AutoGuia.Web/AutoGuia.Web.csproj
+dotnet build Rodavia.sln
+dotnet run --project Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
 # Abrir http://localhost:5070 y verificar:
 # - Logo en navbar
 # - Hero banner con foto

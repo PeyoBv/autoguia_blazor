@@ -95,8 +95,8 @@ jobs:
           echo "ℹ️  Para producción, configurar PostgreSQL como servicio o usar backup remoto" | tee -a "$LOG_FILE"
           
           # Crear archivos de ejemplo para validar estructura
-          echo "-- PostgreSQL backup placeholder" > "backups/database/autoguia_dev_${TIMESTAMP}.sql"
-          gzip -f "backups/database/autoguia_dev_${TIMESTAMP}.sql"
+          echo "-- PostgreSQL backup placeholder" > "backups/database/rodavia_dev_${TIMESTAMP}.sql"
+          gzip -f "backups/database/rodavia_dev_${TIMESTAMP}.sql"
           
           echo "-- PostgreSQL backup placeholder" > "backups/database/identity_dev_${TIMESTAMP}.sql"
           gzip -f "backups/database/identity_dev_${TIMESTAMP}.sql"
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: autoguia-backups-${{ github.run_number }}-${{ github.run_attempt }}
+          name: rodavia-backups-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             backups/database/*.sql.gz
             backups/database/*.sql
@@ -247,7 +247,7 @@ jobs:
             2. Descargar logs de backup desde artifacts
             3. Ejecutar backup manual si es necesario:
                \`\`\`powershell
-               .\\backup-autoguia.ps1
+               .\\backup-rodavia.ps1
                \`\`\`
             4. Investigar causa raíz del fallo
             5. Cerrar este issue cuando se resuelva

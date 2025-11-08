@@ -10,7 +10,7 @@ using System.Reflection;
 namespace Rodavia.Scraper;
 
 /// <summary>
-/// Punto de entrada principal para el sistema de web scraping de AutoGuía.
+/// Punto de entrada principal para el sistema de web scraping de Rodavia.
 /// Configura el host genérico con inyección de dependencias y servicios en segundo plano.
 /// </summary>
 public class Program
@@ -19,7 +19,7 @@ public class Program
     {
         try
         {
-            Console.WriteLine("🚀 Iniciando AutoGuía Scraper...");
+            Console.WriteLine("🚀 Iniciando Rodavia Scraper...");
             
             // Crear y configurar el host genérico
             var host = Host.CreateDefaultBuilder(args)
@@ -118,7 +118,7 @@ public class Program
         Console.WriteLine("🗄️  Configurando base de datos InMemory para scraper con pooling");
         services.AddDbContextPool<RodaviaDbContext>(options =>
         {
-            options.UseInMemoryDatabase("AutoGuiaScraperDb");
+            options.UseInMemoryDatabase("RodaviaScraperDb");
             options.EnableSensitiveDataLogging(); // Solo para desarrollo
         }, poolSize: 64); // Pool size optimizado para workers de scraping
 
@@ -131,7 +131,7 @@ public class Program
             var scrapingSettings = configuration.GetSection("ScrapingSettings");
             client.Timeout = TimeSpan.FromSeconds(scrapingSettings.GetValue<int>("TimeoutInSeconds", 30));
             client.DefaultRequestHeaders.Add("User-Agent", 
-                scrapingSettings.GetValue<string>("UserAgent", "AutoGuia-Scraper/1.0"));
+                scrapingSettings.GetValue<string>("UserAgent", "Rodavia-Scraper/1.0"));
         });
 
         // 3️⃣ Registrar servicios de scraping (interfaces y implementaciones)
@@ -207,7 +207,7 @@ public class Program
         /*
         try
         {
-            // Obtener el ensamblado actual (AutoGuia.Scraper)
+            // Obtener el ensamblado actual (Rodavia.Scraper)
             var assembly = Assembly.GetExecutingAssembly();
             
             // Buscar todos los tipos que implementan IScraper
