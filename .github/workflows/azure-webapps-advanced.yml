@@ -1,12 +1,29 @@
 # Workflow Avanzado de CI/CD - Múltiples Entornos (Staging + Production)
-# Este workflow despliega a Staging automáticamente y a Production con aprobación manual
+# Este workflow despliega a Staging automáticamente y a Production con aprobación
+# manual a través de GitHub Environments.
+#
+# REQUISITOS:
+# - Secretos para Staging: AZURE_STAGING_PUBLISHPROFILE
+# - Secretos para Production: AZUREAPPSERVICE_PUBLISHPROFILE
+# - Azure App Services:
+#   * rodavia-staging (para staging)
+#   * rodavia (para production)
+# - GitHub Environments configurados en Settings > Environments:
+#   * staging (deployment automático)
+#   * production (con protection rules para aprobación manual)
+#
+# FLUJO:
+# 1. Build: compila y testea la aplicación
+# 2. Deploy Staging: despliega a staging automáticamente (main branch)
+# 3. Deploy Production: despliega a production con aprobación (production branch)
+# 4. Notificaciones: reporta éxito/fallo
 
 name: Build and Deploy to Azure (Multi-Environment)
 
 on:
   push:
     branches:
-      - main        # Deploy a Staging
+      - main  # Deploy a Staging
       - production  # Deploy a Production
   pull_request:
     branches:
@@ -23,7 +40,7 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -40,7 +57,11 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: 🧪 Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+        run: |
+          dotnet test --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage"
 
       - name: 📤 Publish
         run: |
@@ -50,7 +71,7 @@ jobs:
             --output ${{ env.PUBLISH_PATH }}
 
       - name: 📦 Upload artifact for deployment
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rodavia-app
           path: ${{ env.PUBLISH_PATH }}
@@ -64,10 +85,10 @@ jobs:
     environment:
       name: staging
       url: https://rodavia-staging.azurewebsites.net
-    
+
     steps:
       - name: 📥 Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rodavia-app
           path: ${{ env.PUBLISH_PATH }}
@@ -80,7 +101,9 @@ jobs:
           package: ${{ env.PUBLISH_PATH }}
 
       - name: ✅ Staging deployment complete
-        run: echo "🎉 Deployed to Staging - https://rodavia-staging.azurewebsites.net"
+        run: |
+          echo "🎉 Deployed to Staging"
+          echo "🌐 URL: https://rodavia-staging.azurewebsites.net"
 
   # Job 3: Deploy a Production (requiere aprobación manual)
   deploy-production:
@@ -91,10 +114,10 @@ jobs:
     environment:
       name: production
       url: https://rodavia.azurewebsites.net
-    
+
     steps:
       - name: 📥 Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rodavia-app
           path: ${{ env.PUBLISH_PATH }}
@@ -107,12 +130,56 @@ jobs:
           package: ${{ env.PUBLISH_PATH }}
 
       - name: ✅ Production deployment complete
-        run: echo "🎉 Deployed to Production - https://rodavia.azurewebsites.net"
+        run: |
+          echo "🎉 Deployed to Production"
+          echo "🌐 URL: https://rodavia.azurewebsites.net"
 
-      - name: 📢 Create deployment notification
+      - name: 📢 Create deployment summary
         run: |
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
           echo "- **URL**: https://rodavia.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging, deploy-production]
+    if: success() && always()
+
+    steps:
+      - name: ✅ Success Notification
+        run: |
+          echo "══════════════════════════════════════════════"
+          echo "✅ MULTI-ENVIRONMENT DEPLOYMENT - SUCCESS"
+          echo "══════════════════════════════════════════════"
+          echo "📦 Build: ${{ needs.build.result }}"
+          echo "🔷 Staging: ${{ needs.deploy-staging.result }}"
+          echo "🔶 Production: ${{ needs.deploy-production.result }}"
+          echo "══════════════════════════════════════════════"
+          echo "🎉 Deployment completed successfully!"
+
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging, deploy-production]
+    if: failure()
+
+    steps:
+      - name: ❌ Failure Notification
+        run: |
+          echo "══════════════════════════════════════════════"
+          echo "❌ MULTI-ENVIRONMENT DEPLOYMENT - FAILED"
+          echo "══════════════════════════════════════════════"
+          echo "📦 Build: ${{ needs.build.result }}"
+          echo "🔷 Staging: ${{ needs.deploy-staging.result }}"
+          echo "🔶 Production: ${{ needs.deploy-production.result }}"
+          echo "══════════════════════════════════════════════"
+          echo "⚠️ Please review the failed jobs above"
+          echo "📝 Check the logs for detailed error messages"
+          echo ""
+          echo "🔧 Common issues:"
+          echo "   - Verify branch name (main → staging, production → production)"
+          echo "   - Check publish profiles are configured correctly"
+          echo "   - Ensure Azure App Services exist and are running"
