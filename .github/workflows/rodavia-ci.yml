@@ -1,0 +1,67 @@
+# ✅ Workflow de CI - Validación continua
+# Solo compila y ejecuta tests, no despliega
+
+name: 🔍 CI - Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - develop
+      - feature/*
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: 'Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj'
+
+jobs:
+  validate:
+    name: ✅ Validate & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 🔧 Install WASM Tools (opcional)
+        run: dotnet workload install wasm-tools
+        continue-on-error: true
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore Rodavia.sln
+
+      - name: 🔨 Build solution
+        run: dotnet build Rodavia.sln --configuration Release --no-restore
+
+      - name: 🧪 Run all tests
+        run: dotnet test Rodavia.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: 📦 Test publish (dry-run)
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --no-build --output ./test-publish
+
+      - name: ✅ Verify publish output
+        run: |
+          if [ -d "./test-publish" ]; then
+            echo "✅ Publish directory created successfully"
+            ls -lah ./test-publish | head -20
+          else
+            echo "❌ Publish failed"
+            exit 1
+          fi
+
+      - name: 📊 Summary
+        run: |
+          echo "### ✅ CI Validation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependencies restored" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Tests executed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Publish validated" >> $GITHUB_STEP_SUMMARY

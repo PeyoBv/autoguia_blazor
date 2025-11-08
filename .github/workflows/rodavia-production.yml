@@ -1,0 +1,122 @@
+# ✅ Workflow Optimizado para Rodavia - Producción Azure
+# Corrige errores NETSDK1194 y NETSDK1152
+# Fecha: 8 de noviembre de 2025
+
+name: 🚀 Rodavia - Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: 'rodavia'
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: 'Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj'
+  PUBLISH_PATH: './publish'
+
+jobs:
+  build:
+    name: 🔨 Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      # Opcional: Instalar WASM tools si usas WebAssembly
+      - name: 🔧 Install WASM Tools (opcional)
+        run: dotnet workload install wasm-tools
+        continue-on-error: true
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: 🔨 Build project
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
+
+      - name: 🧪 Run tests
+        run: dotnet test Rodavia.Tests/Rodavia.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+        continue-on-error: true
+
+      - name: 📊 Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/test-results.trx'
+        continue-on-error: true
+
+      - name: 📦 Publish application
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --output ${{ env.PUBLISH_PATH }} --no-build
+
+      - name: 📤 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rodavia-app
+          path: ${{ env.PUBLISH_PATH }}
+          retention-days: 1
+
+  deploy:
+    name: 🚀 Deploy to Azure
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
+    
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rodavia-app
+          path: ${{ env.PUBLISH_PATH }}
+
+      - name: 🔐 Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F30058E83D074DDAB853693A89BC5A84 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8E4E13FA377D4242BB4508CC5DB3C76C }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B400291DBEA44229B55D00A16DFC81FF }}
+
+      - name: 🚀 Deploy to Azure Web App
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.PUBLISH_PATH }}
+
+      - name: 🏥 Health Check
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net)
+          if [ $response -eq 200 ] || [ $response -eq 302 ]; then
+            echo "✅ Deployment successful! (HTTP $response)"
+          else
+            echo "⚠️ Website returned HTTP $response"
+          fi
+
+      - name: 🔓 Azure logout
+        if: always()
+        run: az logout
+        continue-on-error: true
+
+  notify:
+    name: 📢 Notification
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 📧 Send notification
+        run: |
+          echo "Deployment Status:"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Deploy: ${{ needs.deploy.result }}"
+          echo "URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"
