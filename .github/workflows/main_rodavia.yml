@@ -22,7 +22,7 @@
 # 7. Deploy a Azure App Service
 # 8. Notificación de éxito/fallo
 
-name: Build and deploy ASP.Net Core app to Azure Web App - rodavia
+name: Build ASP.Net Core app - rodavia (Deploy desactivado)
 
 on:
   push:
@@ -61,47 +61,42 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
-  deploy:
-    name: Deploy to Azure
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: production
-      url: https://rodavia.azurewebsites.net
-    permissions:
-      id-token: write  # This is required for requesting the JWT
-      contents: read  # This is required for actions/checkout
-
-    steps:
-      - name: 📥 Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-
-      - name: 🔑 Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F30058E83D074DDAB853693A89BC5A84 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8E4E13FA377D4242BB4508CC5DB3C76C }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B400291DBEA44229B55D00A16DFC81FF }}
-
-      - name: 🚀 Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'rodavia'
-          slot-name: 'Production'
-          package: .
-
-      - name: ✅ Deployment completed
-        run: |
-          echo "🎉 Deployment completed successfully!"
-          echo "🌐 Application URL: https://rodavia.azurewebsites.net"
+  # Deploy desactivado temporalmente - Configurar secretos de Azure primero
+  # Para activar, descomentar este job y configurar:
+  # Settings > Secrets > Actions > New repository secret
+  # Necesitas: AZUREAPPSERVICE_CLIENTID, TENANTID, SUBSCRIPTIONID
+  
+  # deploy:
+  #   name: Deploy to Azure
+  #   runs-on: windows-latest
+  #   needs: build
+  #   environment:
+  #     name: production
+  #     url: https://rodavia.azurewebsites.net
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - name: 📥 Download artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: .net-app
+  #     - name: 🔑 Login to Azure
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F30058E83D074DDAB853693A89BC5A84 }}
+  #         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8E4E13FA377D4242BB4508CC5DB3C76C }}
+  #         subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B400291DBEA44229B55D00A16DFC81FF }}
+  #     - name: 🚀 Deploy to Azure Web App
+  #       uses: azure/webapps-deploy@v3
+  #       with:
+  #         app-name: 'rodavia'
+  #         package: .
 
   notify-success:
     name: Notify Success
     runs-on: ubuntu-latest
-    needs: [build, deploy]
+    needs: [build]
     if: success()
     permissions:
       contents: none  # No permissions needed for notifications
@@ -110,18 +105,17 @@ jobs:
       - name: ✅ Success Notification
         run: |
           echo "══════════════════════════════════════════════"
-          echo "✅ DEPLOYMENT - ALL STEPS COMPLETED"
+          echo "✅ BUILD - COMPLETADO EXITOSAMENTE"
           echo "══════════════════════════════════════════════"
           echo "📦 Build: ${{ needs.build.result }}"
-          echo "🚀 Deploy: ${{ needs.deploy.result }}"
           echo "══════════════════════════════════════════════"
-          echo "🎉 Application deployed successfully!"
-          echo "🌐 URL: https://rodavia.azurewebsites.net"
+          echo "🎉 Compilación exitosa!"
+          echo "📦 Artefacto generado: .net-app"
 
   notify-failure:
     name: Notify Failure
     runs-on: ubuntu-latest
-    needs: [build, deploy]
+    needs: [build]
     if: failure()
     permissions:
       contents: none  # No permissions needed for notifications
@@ -130,14 +124,9 @@ jobs:
       - name: ❌ Failure Notification
         run: |
           echo "══════════════════════════════════════════════"
-          echo "❌ DEPLOYMENT - FAILED"
+          echo "❌ BUILD - FALLÓ"
           echo "══════════════════════════════════════════════"
           echo "📦 Build: ${{ needs.build.result }}"
-          echo "🚀 Deploy: ${{ needs.deploy.result }}"
           echo "══════════════════════════════════════════════"
           echo "⚠️ Please review the failed jobs above"
           echo "📝 Check the logs for detailed error messages"
-          echo "🔧 Common issues:"
-          echo "   - Verify Azure credentials are valid"
-          echo "   - Check app-name matches Azure App Service"
-          echo "   - Ensure .NET version matches Azure runtime"
