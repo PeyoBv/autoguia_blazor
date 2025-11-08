@@ -197,6 +197,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-test, deploy-to-azure, health-check]
     if: success()
+    permissions:
+      contents: none  # No permissions needed for notifications
 
     steps:
       - name: ✅ Success Notification
@@ -227,6 +229,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-test, deploy-to-azure, health-check]
     if: failure()
+    permissions:
+      contents: none  # No permissions needed for notifications
 
     steps:
       - name: ❌ Failure Notification
