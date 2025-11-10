@@ -11,8 +11,8 @@
 
 La aplicación ha pasado una **revisión exhaustiva de calidad** y todas las funcionalidades principales están completamente implementadas y probadas. Ejecutándose exitosamente en:
 
-- **🌐 HTTPS**: `https://localhost:7001`
-- **🔗 HTTP**: `http://localhost:5070`
+- **🌐 URL DE PRUEBA :https://rodavia-rodavia-d6axdwdwg9d6e0df.chilecentral-01.azurewebsites.net/
+
 
 ### 📊 Puntuación de Calidad: **9.3/10** ⭐⭐⭐⭐⭐
 
