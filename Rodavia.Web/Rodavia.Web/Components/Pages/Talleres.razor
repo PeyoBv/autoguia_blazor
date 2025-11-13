@@ -6,6 +6,7 @@
 @inject NavigationManager Navigation
 @inject IOptions<GoogleMapsOptions> GoogleMapsConfig
 @using Microsoft.Extensions.Options
+@using Microsoft.JSInterop
 @using Rodavia.Web.Configuration
 
 <PageTitle>Talleres - Rodavia</PageTitle>
@@ -284,13 +285,27 @@
             mensajeError = "";
             
             var apiKey = GoogleMapsConfig.Value.ApiKey;
-            if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE" || apiKey == "admin123")
+            
+            // Validaciones más detalladas
+            if (string.IsNullOrEmpty(apiKey))
             {
                 errorMapa = true;
-                mensajeError = "Clave de API de Google Maps no configurada correctamente. Por favor, configura una clave válida de Google Maps API.";
+                mensajeError = "Clave de API de Google Maps no configurada. Ejecuta: dotnet user-secrets set \"GoogleMaps:ApiKey\" \"TU_CLAVE_AQUI\"";
+                Console.WriteLine("ERROR: API Key vacía o nula");
                 StateHasChanged();
                 return;
             }
+            
+            if (apiKey == "YOUR_GOOGLE_MAPS_API_KEY_HERE" || apiKey == "admin123")
+            {
+                errorMapa = true;
+                mensajeError = "La clave de API de Google Maps es un placeholder. Configura una clave válida de Google Cloud Console.";
+                Console.WriteLine("ERROR: API Key es placeholder - valor: " + apiKey);
+                StateHasChanged();
+                return;
+            }
+
+            Console.WriteLine($"Inicializando mapa con API Key: {apiKey.Substring(0, 10)}...");
 
             // Convertir DTOs a entidades para el servicio de mapa
             var talleresEntidades = talleresMostrados?.Select(dto => new Taller
@@ -309,8 +324,19 @@
                 CalificacionPromedio = (decimal)(dto.CalificacionPromedio ?? 0)
             }) ?? Enumerable.Empty<Taller>();
 
+            Console.WriteLine($"Talleres a mostrar en mapa: {talleresEntidades.Count()}");
+            
             await MapService.InicializarMapaAsync("mapa-talleres", talleresEntidades, apiKey);
             mapaInicializado = true;
+            Console.WriteLine("Mapa inicializado exitosamente");
+            StateHasChanged();
+        }
+        catch (JSException jsEx)
+        {
+            errorMapa = true;
+            mensajeError = $"Error de JavaScript: {jsEx.Message}. Verifica la consola del navegador para más detalles.";
+            Console.WriteLine($"Error JS inicializando mapa: {jsEx.Message}");
+            Console.WriteLine($"Stack trace: {jsEx.StackTrace}");
             StateHasChanged();
         }
         catch (Exception ex)
@@ -318,6 +344,8 @@
             errorMapa = true;
             mensajeError = $"Error al inicializar el mapa: {ex.Message}";
             Console.WriteLine($"Error inicializando mapa: {ex.Message}");
+            Console.WriteLine($"Tipo de excepción: {ex.GetType().Name}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             StateHasChanged();
         }
     }

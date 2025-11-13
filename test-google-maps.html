@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Google Maps API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        #map {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .instructions {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+        }
+        .instructions ul {
+            margin-bottom: 0;
+        }
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Prueba de Google Maps API - Rodavia</h1>
+        
+        <div id="status" class="status info">
+            ⏳ Cargando Google Maps API...
+        </div>
+        
+        <div id="map"></div>
+        
+        <div class="instructions">
+            <h3>📋 Instrucciones:</h3>
+            <ol>
+                <li>Abre las Herramientas de Desarrollo (F12)</li>
+                <li>Ve a la pestaña "Console"</li>
+                <li>Busca mensajes de error relacionados con Google Maps</li>
+                <li>Si ves un mapa de Santiago con 2 marcadores, ¡funciona! ✅</li>
+            </ol>
+            
+            <h3>❌ Errores Comunes:</h3>
+            <ul>
+                <li><strong>RefererNotAllowedMapError:</strong> La URL no está autorizada en Google Cloud Console</li>
+                <li><strong>ApiNotActivatedMapError:</strong> Maps JavaScript API no está habilitada</li>
+                <li><strong>InvalidKeyMapError:</strong> La clave API es inválida</li>
+                <li><strong>Mapa gris/vacío:</strong> Problema de facturación en Google Cloud</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // API Key de Google Maps
+        const API_KEY = 'AIzaSyDDrpPXn4n09DqNBwtuzVzwuHAsRnlB23M';
+        
+        // Datos de talleres de prueba
+        const talleres = [
+            {
+                nombre: 'Taller Mecánico Central',
+                direccion: 'Av. San Miguel 1234, Santiago',
+                lat: -33.4489,
+                lng: -70.6693
+            },
+            {
+                nombre: 'AutoServicio Las Condes',
+                direccion: 'Las Condes 5678, Las Condes',
+                lat: -33.4172,
+                lng: -70.5930
+            }
+        ];
+
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function initMap() {
+            console.log('🎯 initMap ejecutándose...');
+            
+            try {
+                updateStatus('✅ Google Maps API cargada correctamente', 'success');
+                
+                // Crear el mapa
+                const map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: -33.4489, lng: -70.6693 },
+                    zoom: 12,
+                    mapTypeId: 'roadmap',
+                    gestureHandling: 'greedy'
+                });
+                
+                console.log('✅ Mapa creado:', map);
+                
+                // Crear InfoWindow
+                const infoWindow = new google.maps.InfoWindow();
+                
+                // Agregar marcadores
+                talleres.forEach((taller, index) => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: taller.lat, lng: taller.lng },
+                        map: map,
+                        title: taller.nombre,
+                        animation: google.maps.Animation.DROP
+                    });
+                    
+                    marker.addListener('click', () => {
+                        infoWindow.setContent(`
+                            <div style="padding: 10px;">
+                                <h3 style="margin: 0 0 10px 0; color: #333;">${taller.nombre}</h3>
+                                <p style="margin: 0; color: #666;">📍 ${taller.direccion}</p>
+                            </div>
+                        `);
+                        infoWindow.open(map, marker);
+                    });
+                    
+                    console.log(`✅ Marcador ${index + 1} agregado:`, taller.nombre);
+                });
+                
+                updateStatus(`✅ Mapa inicializado con ${talleres.length} marcadores. ¡Haz clic en los marcadores!`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Error al inicializar el mapa:', error);
+                updateStatus(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function handleGoogleMapsError() {
+            console.error('❌ Error al cargar Google Maps API');
+            updateStatus('❌ Error al cargar Google Maps API. Verifica la consola para más detalles.', 'error');
+        }
+
+        // Cargar script de Google Maps
+        console.log('🔄 Cargando Google Maps API...');
+        console.log('   API Key:', API_KEY.substring(0, 15) + '...');
+        
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&callback=initMap&libraries=places&language=es&region=CL`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = handleGoogleMapsError;
+        
+        document.head.appendChild(script);
+        
+        console.log('📝 Script de Google Maps agregado al DOM');
+    </script>
+</body>
+</html>

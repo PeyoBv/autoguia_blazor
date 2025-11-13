@@ -105,34 +105,46 @@ window.rodaviaMap = {
                 return;
             }
 
+            // Validar API Key
+            if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE' || apiKey === 'admin123') {
+                console.error('API Key de Google Maps no válida:', apiKey);
+                this.isInitializing = false;
+                reject('API Key de Google Maps no configurada correctamente');
+                return;
+            }
+
             // Cargar Google Maps API
-            console.log('Cargando Google Maps API...');
+            console.log('Cargando Google Maps API con clave:', apiKey.substring(0, 10) + '...');
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=es&region=CL`;
             script.async = true;
             script.defer = true;
             
             script.onload = () => {
-                console.log('Google Maps API cargada');
+                console.log('Google Maps API cargada exitosamente');
                 this.waitForGoogleMaps(mapElement, talleresData, resolve, reject);
             };
             
-            script.onerror = () => {
-                console.warn('Error cargando Google Maps API');
+            script.onerror = (error) => {
+                console.error('Error cargando Google Maps API:', error);
+                console.error('Verifica que la API Key tenga Maps JavaScript API habilitado en Google Cloud Console');
                 this.isInitializing = false;
-                resolve('Error al cargar Google Maps - continuando sin mapa');
+                reject('Error al cargar Google Maps. Verifica la configuración de tu API Key en Google Cloud Console.');
             };
             
             // Agregar al head de manera segura
             const head = document.head || document.getElementsByTagName('head')[0];
             if (head) {
                 head.appendChild(script);
+            } else {
+                console.error('No se encontró el elemento head del documento');
+                reject('Error en la estructura del documento');
             }
             
         } catch (error) {
-            console.warn('Error en loadGoogleMapsAPI:', error.message);
+            console.error('Error en loadGoogleMapsAPI:', error);
             this.isInitializing = false;
-            resolve('Error cargando API: ' + error.message);
+            reject('Error cargando API: ' + error.message);
         }
     },
 
@@ -162,8 +174,19 @@ window.rodaviaMap = {
     // Crea un mapa simple y seguro
     createSimpleMap: function(mapElement, talleresData) {
         try {
-            if (!mapElement || !google || !google.maps) {
-                console.warn('No se puede crear el mapa - requisitos no cumplidos');
+            console.log('🗺️ createSimpleMap - Iniciando...');
+            console.log('   - Elemento mapa:', mapElement);
+            console.log('   - Google disponible:', typeof google !== 'undefined');
+            console.log('   - Google.maps disponible:', typeof google !== 'undefined' && typeof google.maps !== 'undefined');
+            console.log('   - Datos de talleres:', talleresData);
+            
+            if (!mapElement) {
+                console.error('❌ Elemento del mapa no existe');
+                return;
+            }
+            
+            if (!google || !google.maps) {
+                console.error('❌ Google Maps no está disponible');
                 return;
             }
 
@@ -171,25 +194,37 @@ window.rodaviaMap = {
             const mapOptions = {
                 center: { lat: -33.4489, lng: -70.6693 }, // Santiago, Chile
                 zoom: 12,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                gestureHandling: 'greedy',
+                zoomControl: true,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true
             };
 
+            console.log('📋 Opciones del mapa configuradas:', mapOptions);
+
             // Crear mapa
+            console.log('🎨 Creando instancia de Google Map...');
             this.map = new google.maps.Map(mapElement, mapOptions);
-            console.log('Mapa base creado exitosamente');
+            console.log('✅ Mapa base creado exitosamente');
+            console.log('   - Objeto mapa:', this.map);
 
             // Crear InfoWindow
             this.infoWindow = new google.maps.InfoWindow();
 
             // Agregar marcadores si hay datos
             if (talleresData && Array.isArray(talleresData) && talleresData.length > 0) {
+                console.log(`📍 Agregando ${talleresData.length} marcadores...`);
                 this.addSimpleMarkers(talleresData);
             } else {
-                console.log('No hay datos de talleres para mostrar');
+                console.log('⚠️ No hay datos de talleres para mostrar');
             }
 
         } catch (error) {
-            console.warn('Error creando mapa simple:', error.message);
+            console.error('❌ Error creando mapa simple:', error);
+            console.error('   - Mensaje:', error.message);
+            console.error('   - Stack:', error.stack);
         }
     },
 
