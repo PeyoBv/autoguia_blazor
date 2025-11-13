@@ -96,10 +96,10 @@ Click "New application setting" y agrega:
 
 ```
 Name: Authentication__Google__ClientId
-Value: 627642459253-94r5ma9u1u71bcd33ivef3j5uvv4qf7k.apps.googleusercontent.com
+Value: [TU_GOOGLE_CLIENT_ID]
 
 Name: Authentication__Google__ClientSecret
-Value: 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
+Value: [TU_GOOGLE_CLIENT_SECRET]
 
 Name: ASPNETCORE_ENVIRONMENT
 Value: Production
