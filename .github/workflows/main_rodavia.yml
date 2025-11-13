@@ -1,28 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
-#
-# Este workflow despliega automáticamente la aplicación Rodavia a Azure App Service
-# cuando se hace push a la rama main o mediante ejecución manual.
-#
-# REQUISITOS:
-# - Secretos requeridos en GitHub (Settings > Secrets):
-#   * AZUREAPPSERVICE_CLIENTID_* (para autenticación federada)
-#   * AZUREAPPSERVICE_TENANTID_*
-#   * AZUREAPPSERVICE_SUBSCRIPTIONID_*
-# - El App Service debe llamarse 'rodavia' en Azure
-# - Usar .NET 8.x
-#
-# PASOS DEL WORKFLOW:
-# 1. Checkout del código
-# 2. Setup de .NET 8
-# 3. Restore de dependencias
-# 4. Build en modo Release
-# 5. Publish de la aplicación
-# 6. Upload del artifact
-# 7. Deploy a Azure App Service
-# 8. Notificación de éxito/fallo
 
-name: Build ASP.Net Core app - rodavia (Deploy desactivado)
+name: Build and deploy ASP.Net Core app to Azure Web App - rodavia
 
 on:
   push:
@@ -32,101 +11,55 @@ on:
 
 jobs:
   build:
-    name: Build Application
     runs-on: windows-latest
     permissions:
-      contents: read  # This is required for actions/checkout
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 🔧 Setup .NET Core
+      - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: 📦 Restore dependencies
-        run: dotnet restore Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
 
-      - name: 🏗️ Build with dotnet
-        run: dotnet build Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj --configuration Release --no-restore
+      - name: dotnet publish
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-      - name: 📤 Publish application
-        run: dotnet publish Rodavia.Web/Rodavia.Web/Rodavia.Web.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
-
-      - name: 📦 Upload artifact for deployment job
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
-  # Deploy desactivado temporalmente - Configurar secretos de Azure primero
-  # Para activar, descomentar este job y configurar:
-  # Settings > Secrets > Actions > New repository secret
-  # Necesitas: AZUREAPPSERVICE_CLIENTID, TENANTID, SUBSCRIPTIONID
-  
-  # deploy:
-  #   name: Deploy to Azure
-  #   runs-on: windows-latest
-  #   needs: build
-  #   environment:
-  #     name: production
-  #     url: https://rodavia.azurewebsites.net
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #     - name: 📥 Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: .net-app
-  #     - name: 🔑 Login to Azure
-  #       uses: azure/login@v2
-  #       with:
-  #         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F30058E83D074DDAB853693A89BC5A84 }}
-  #         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8E4E13FA377D4242BB4508CC5DB3C76C }}
-  #         subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B400291DBEA44229B55D00A16DFC81FF }}
-  #     - name: 🚀 Deploy to Azure Web App
-  #       uses: azure/webapps-deploy@v3
-  #       with:
-  #         app-name: 'rodavia'
-  #         package: .
-
-  notify-success:
-    name: Notify Success
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: success()
+  deploy:
+    runs-on: windows-latest
+    needs: build
     permissions:
-      contents: none  # No permissions needed for notifications
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: ✅ Success Notification
-        run: |
-          echo "══════════════════════════════════════════════"
-          echo "✅ BUILD - COMPLETADO EXITOSAMENTE"
-          echo "══════════════════════════════════════════════"
-          echo "📦 Build: ${{ needs.build.result }}"
-          echo "══════════════════════════════════════════════"
-          echo "🎉 Compilación exitosa!"
-          echo "📦 Artefacto generado: .net-app"
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C7567AD57BBC4C1E9E176565245657F4 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_43EDA94AD62A401897127B32F8A90475 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4C504D8A26EE441BA28DEB7222A098CC }}
 
-  notify-failure:
-    name: Notify Failure
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: failure()
-    permissions:
-      contents: none  # No permissions needed for notifications
-
-    steps:
-      - name: ❌ Failure Notification
-        run: |
-          echo "══════════════════════════════════════════════"
-          echo "❌ BUILD - FALLÓ"
-          echo "══════════════════════════════════════════════"
-          echo "📦 Build: ${{ needs.build.result }}"
-          echo "══════════════════════════════════════════════"
-          echo "⚠️ Please review the failed jobs above"
-          echo "📝 Check the logs for detailed error messages"
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'rodavia'
+          slot-name: 'Production'
+          package: .
+          
