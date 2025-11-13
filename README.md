@@ -13,9 +13,6 @@ La aplicación ha pasado una **revisión exhaustiva de calidad** y todas las fun
 
 - **🌐 URL DE PRUEBA :https://rodavia-rodavia-d6axdwdwg9d6e0df.chilecentral-01.azurewebsites.net/
 
-
-### 📊 Puntuación de Calidad: **9.3/10** ⭐⭐⭐⭐⭐
-
 ## Descripción del Proyecto
 
 AutoGuía es una plataforma web integral para el sector automotriz en Chile y Latinoamérica que centraliza **comparación de precios de repuestos**, información técnica, un mapa de talleres y un foro comunitario especializado. El modelo de negocio es freemium y la estrategia inicial es lanzar un MVP (Producto Mínimo Viable) para validar la idea y construir una comunidad.
