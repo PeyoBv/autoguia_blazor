@@ -31,6 +31,8 @@ using Rodavia.Web.Services.Payments;
 using Rodavia.Infrastructure.Services.Payments;
 using FluentValidation;
 using Serilog;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 
 // ✨ Configurar Serilog ANTES de crear el builder
 SerilogConfiguration.ConfigureSerilog(new ConfigurationBuilder()
@@ -77,11 +79,23 @@ builder.Services.AddAuthentication(options =>
         googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
         googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
         googleOptions.CallbackPath = "/signin-google";
-        // Configurar scopes adicionales si se necesitan
+        
+        // ✨ Configurar scopes para obtener información del perfil
         googleOptions.Scope.Add("profile");
         googleOptions.Scope.Add("email");
-        // Guardar tokens para uso posterior (opcional)
+        
+        // ✨ Guardar tokens para uso posterior
         googleOptions.SaveTokens = true;
+        
+        // ✨ Configurar eventos para debugging (solo desarrollo)
+        if (builder.Environment.IsDevelopment())
+        {
+            googleOptions.Events.OnCreatingTicket = context =>
+            {
+                Console.WriteLine($"✅ Google login exitoso para: {context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value}");
+                return Task.CompletedTask;
+            };
+        }
     })
     .AddIdentityCookies();
 
@@ -298,8 +312,10 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-// ✅ Mapear API Controllers (para PaymentsController y otros)
+// ✅ Mapear API Controllers (incluye AccountController para OAuth)
 app.MapControllers();
+
+// =============================================================================
 
 // ✅ PLAN DE ACCIÓN: Inicialización completa de base de datos
 // 1. Aplicar migraciones automáticamente
@@ -311,20 +327,20 @@ using (var scope = app.Services.CreateScope())
         // Paso 1: Crear base de datos de Identity (InMemory)
         var identityContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await identityContext.Database.EnsureCreatedAsync();
-        
+
         // Paso 2: Crear base de datos de Rodavia (InMemory)
         var rodaviaContext = scope.ServiceProvider.GetRequiredService<RodaviaDbContext>();
         await rodaviaContext.Database.EnsureCreatedAsync();
-        
+
         // Paso 3: Ejecutar seeding de datos (Identity + Aplicación)
         await DataSeeder.SeedData(app.Services);
-        
+
         // Paso 4: Ejecutar seeding de planes de suscripción
         await PlanesSeeder.SeedPlanesAsync(identityContext);
-        
+
         // Paso 5: Ejecutar seeding del módulo de diagnóstico
         DiagnosticoSeeder.SeedDiagnosticoData(rodaviaContext);
-        
+
         Console.WriteLine("✅ Base de datos inicializada correctamente con datos de prueba");
     }
     catch (Exception ex)

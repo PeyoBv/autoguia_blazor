@@ -21,6 +21,9 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         var accountGroup = endpoints.MapGroup("/Account");
 
+        // ⚠️ DESHABILITADO - Ahora se usa Razor Pages para ExternalLogin
+        // Ver: /Pages/Account/ExternalLogin.cshtml
+        /*
         accountGroup.MapPost("/PerformExternalLogin", (
             HttpContext context,
             [FromServices] SignInManager<ApplicationUser> signInManager,
@@ -39,6 +42,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
             var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return TypedResults.Challenge(properties, [provider]);
         });
+        */
 
         accountGroup.MapPost("/Logout", async (
             ClaimsPrincipal user,

@@ -1,0 +1,21 @@
+@page "/Account/ExternalLoginCallback"
+@model Rodavia.Web.Pages.Account.ExternalLoginCallbackModel
+@{
+    ViewData["Title"] = "Callback de Login Externo";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5 text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Procesando...</span>
+                    </div>
+                    <h4 class="mb-2">Procesando autenticación</h4>
+                    <p class="text-muted">Por favor espera mientras completamos tu inicio de sesión...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
